@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="rs"
+            id="org.eclipse.redox.rust"
+            name="Rust project file"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+     <editorContentTypeBinding
+        contentTypeId="org.eclipse.redox.rust"
+        editorId="org.eclipse.ui.genericeditor.GenericEditor">
+   		</editorContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.lsp4e.languageServer">
+     <server
+        class="org.eclipse.redox.RLSStreamConnectionProvider"
+        id="org.eclipse.redox.rls"
+        label="org.eclipse.redox.RLS">
+      </server>
+      <contentTypeMapping
+            contentType="org.eclipse.redox.rust"
+            id="org.eclipse.redox.rls">
+      </contentTypeMapping>
+   </extension>
+   <extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <grammar
+            path="grammar/Rust.tmLanguage"
+            scopeName="source.rust">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.redox.rust"
+            scopeName="source.rust">
+      </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
+            contentType="org.eclipse.redox.rust">
+      </presentationReconciler>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+         <initializer
+            class="org.eclipse.redox.RedoxPreferenceInitializer">
+		</initializer>
+   </extension>
+</plugin>
