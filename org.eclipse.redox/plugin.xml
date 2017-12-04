@@ -34,11 +34,11 @@
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
             path="grammar/Rust.tmLanguage"
-            scopeName="source.rust">
+            scopeName="source.rs">
       </grammar>
       <scopeNameContentTypeBinding
             contentTypeId="org.eclipse.redox.rust"
-            scopeName="source.rust">
+            scopeName="source.rs">
       </scopeNameContentTypeBinding>
    </extension>
    <extension

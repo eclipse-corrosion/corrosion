@@ -2,274 +2,82 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>comment</key>
+	<string>Rust Syntax: version 0.1</string>
 	<key>fileTypes</key>
 	<array>
 		<string>rs</string>
+		<string>jc</string>
 	</array>
-	<key>keyEquivalent</key>
-	<string>^~R</string>
+	<key>foldingStartMarker</key>
+	<string>^.*\bfn\s*(\w+\s*)?\([^\)]*\)(\s*\{[^\}]*)?\s*$</string>
+	<key>foldingStopMarker</key>
+	<string>^\s*\}</string>
 	<key>name</key>
 	<string>Rust</string>
 	<key>patterns</key>
 	<array>
 		<dict>
-			<key>include</key>
-			<string>#block_doc_comment</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#block_comment</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#line_doc_comment</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#line_comment</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(\{)</string>
-			<key>name</key>
-			<string>punctuation.section.scope.begin.rust</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(\})</string>
-			<key>name</key>
-			<string>punctuation.section.scope.end.rust</string>
-		</dict>
-		<dict>
-			<key>begin</key>
-			<string>#\!?\[</string>
-			<key>beginCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.attribute.begin.rust</string>
-				</dict>
-			</dict>
-			<key>comment</key>
-			<string>Attribute</string>
-			<key>end</key>
-			<string>\]</string>
-			<key>endCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.attribute.end.rust</string>
-				</dict>
-			</dict>
-			<key>name</key>
-			<string>meta.attribute.rust</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#string_literal</string>
-				</dict>
-			</array>
-		</dict>
-		<dict>
 			<key>captures</key>
 			<dict>
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>punctuation.definition.string.begin.rust</string>
+					<string>support.class.rs</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>support.constant.rs</string>
 				</dict>
 				<key>3</key>
 				<dict>
 					<key>name</key>
-					<string>constant.character.escape.rust</string>
+					<string>keyword.operator.rs</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>match stuff like: Sound.prototype = { … } when extending an object</string>
+			<key>match</key>
+			<string>([a-zA-Z_?.$][\w?.$]*)\.(prototype)\s*(=)\s*</string>
+			<key>name</key>
+			<string>meta.class.rs</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>storage.type.fn.rs</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.fn.rs</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.parameters.begin.rs</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>variable.parameter.fn.rs</string>
 				</dict>
 				<key>5</key>
 				<dict>
 					<key>name</key>
-					<string>punctuation.definition.string.end.rust</string>
+					<string>punctuation.definition.parameters.end.rs</string>
 				</dict>
 			</dict>
 			<key>comment</key>
-			<string>Single-quote string (character literal)</string>
+			<string>match regular fn like: fn myFunc(arg : type,...) { … }</string>
 			<key>match</key>
-			<string>(')([^'\\]|(\\(x\h{2}|[0-2][0-7]{0,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.)))(')</string>
+			<string>\b(fn)\s+([a-zA-Z_$]\w*)?\s*(\()((.*?)\s?\:\s?(.*?))?(\))</string>
 			<key>name</key>
-			<string>string.quoted.single.rust</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#string_literal</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#raw_string</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Floating point number (fraction)</string>
-			<key>match</key>
-			<string>\b[0-9][0-9_]*\.[0-9][0-9_]*([eE][+-][0-9_]+)?(f32|f64)?\b</string>
-			<key>name</key>
-			<string>constant.numeric.float.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Floating point number (exponent)</string>
-			<key>match</key>
-			<string>\b[0-9][0-9_]*(\.[0-9][0-9_]*)?[eE][+-][0-9_]+(f32|f64)?\b</string>
-			<key>name</key>
-			<string>constant.numeric.float.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Floating point number (typed)</string>
-			<key>match</key>
-			<string>\b[0-9][0-9_]*(\.[0-9][0-9_]*)?([eE][+-][0-9_]+)?(f32|f64)\b</string>
-			<key>name</key>
-			<string>constant.numeric.float.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Integer number (decimal)</string>
-			<key>match</key>
-			<string>\b[0-9][0-9_]*([ui](8|16|32|64)?)?\b</string>
-			<key>name</key>
-			<string>constant.numeric.integer.decimal.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Integer number (hexadecimal)</string>
-			<key>match</key>
-			<string>\b0x[a-fA-F0-9_]+([ui](8|16|32|64)?)?\b</string>
-			<key>name</key>
-			<string>constant.numeric.integer.hexadecimal.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Integer number (octal)</string>
-			<key>match</key>
-			<string>\b0o[0-7_]+([ui](8|16|32|64)?)?\b</string>
-			<key>name</key>
-			<string>constant.numeric.integer.octal.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Integer number (binary)</string>
-			<key>match</key>
-			<string>\b0b[01_]+([ui](8|16|32|64)?)?\b</string>
-			<key>name</key>
-			<string>constant.numeric.integer.binary.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Static storage modifier</string>
-			<key>match</key>
-			<string>\bstatic\b</string>
-			<key>name</key>
-			<string>storage.modifier.static.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Visibility modifier</string>
-			<key>match</key>
-			<string>\b(priv|pub)\b</string>
-			<key>name</key>
-			<string>storage.modifier.visibility.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Boolean constant</string>
-			<key>match</key>
-			<string>\b(true|false)\b</string>
-			<key>name</key>
-			<string>constant.language.boolean.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Control keyword</string>
-			<key>match</key>
-			<string>\b(break|continue|do|else|if|in|for|loop|match|return|while)\b</string>
-			<key>name</key>
-			<string>keyword.control.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Keyword</string>
-			<key>match</key>
-			<string>\b(crate|extern|mod|let|proc|ref|use)\b</string>
-			<key>name</key>
-			<string>keyword.other.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Unsafe code keyword</string>
-			<key>match</key>
-			<string>\bunsafe\b</string>
-			<key>name</key>
-			<string>keyword.other.unsafe.rust</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#sigils</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#types</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#std_types</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#kinds</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#self</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#mut</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#box</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#lifetime</string>
-		</dict>
-		<dict>
-			<key>include</key>
-			<string>#ref_lifetime</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Operator</string>
-			<key>match</key>
-			<string>(\+|-|/|\*|=|\^|&amp;|\||!|&gt;|&lt;|%|::|\bas\b)</string>
-			<key>name</key>
-			<string>keyword.operator.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Standard library macro</string>
-			<key>match</key>
-			<string>\b(log|error|warn|info|debug|log_enabled|fail|assert|assert_eq|unreachable|unimplemented|format|write|writeln|print|println|local_data_key|try|vec|select)!</string>
-			<key>name</key>
-			<string>support.function.std.rust</string>
-		</dict>
-		<dict>
-			<key>comment</key>
-			<string>Standard library type variant</string>
-			<key>match</key>
-			<string>\b(Some|None|Ok|Err)\b</string>
-			<key>name</key>
-			<string>support.constant.std.rust</string>
+			<string>meta.fnargs.rs</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -277,13 +85,35 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.function.macro.rust</string>
+					<string>storage.type.fn.rs</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.fn.rs</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.parameters.begin.rs</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>variable.parameter.fn.rs</string>
+				</dict>
+				<key>5</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.parameters.end.rs</string>
 				</dict>
 			</dict>
 			<key>comment</key>
-			<string>Invocation of a macro</string>
+			<string>match regular fn like: fn myFunc(arg) { … }</string>
 			<key>match</key>
-			<string>\b([a-zA-Z_][a-zA-Z0-9_]*\!)\s*[({\[]</string>
+			<string>\b(fn)\s+([a-zA-Z_$]\w*)?\s*(\()(?!\:.*?)(\))</string>
+			<key>name</key>
+			<string>meta.fn.rs</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -291,408 +121,359 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.function.rust.call</string>
+					<string>storage.type.fn.rs</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.fn.rs</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.parameters.begin.rs</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>variable.parameter.fn.rs</string>
+				</dict>
+				<key>5</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.parameters.end.rs</string>
 				</dict>
 			</dict>
 			<key>comment</key>
-			<string>Function call</string>
+			<string>match regular fn like: fn myFunc(arg) { … }</string>
 			<key>match</key>
-			<string>\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(</string>
+			<string>\b(mod|enum)\s+([a-zA-Z_$]\w*)?\s?\{</string>
+			<key>name</key>
+			<string>meta.extras.rs</string>
 		</dict>
 		<dict>
-			<key>begin</key>
-			<string>\b(fn)\s+([a-zA-Z_][a-zA-Z0-9_]*)</string>
-			<key>beginCaptures</key>
+			<key>captures</key>
 			<dict>
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>keyword.other.fn.rust</string>
+					<string>keyword.operator.new.rs</string>
 				</dict>
 				<key>2</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.function.rust</string>
+					<string>entity.name.type.instance.rs</string>
 				</dict>
 			</dict>
-			<key>comment</key>
-			<string>Function definition</string>
-			<key>end</key>
-			<string>(?[\{;])</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#type_params</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>$self</string>
-				</dict>
-			</array>
+			<key>match</key>
+			<string>(new)\s+(\w+(?:\.\w*)?)</string>
+			<key>name</key>
+			<string>meta.class.instance.constructor</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b((0(x|X)[0-9a-fA-F]+)|([0-9]+(\.[0-9]+)?))\b</string>
+			<key>name</key>
+			<string>constant.numeric.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\s?(\#([a-zA-Z]+))</string>
+			<key>name</key>
+			<string>constant.special.rs</string>
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>\b(enum|struct|trait|type)\s+([a-zA-Z_][a-zA-Z0-9_]*)</string>
+			<string>'</string>
 			<key>beginCaptures</key>
 			<dict>
-				<key>1</key>
+				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>storage.type.rust</string>
-				</dict>
-				<key>2</key>
-				<dict>
-					<key>name</key>
-					<string>entity.name.type.rust</string>
+					<string>punctuation.definition.string.begin.rs</string>
 				</dict>
 			</dict>
-			<key>comment</key>
-			<string>Type declaration</string>
 			<key>end</key>
-			<string>(?[\{;])</string>
+			<string>'</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.end.rs</string>
+				</dict>
+			</dict>
+			<key>name</key>
+			<string>string.quoted.single.rs</string>
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>include</key>
-					<string>#type_params</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>$self</string>
+					<key>match</key>
+					<string>\\(x\h{2}|[0-2][0-7]{,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.)</string>
+					<key>name</key>
+					<string>constant.character.escape.rs</string>
 				</dict>
 			</array>
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>\b(impl)\b</string>
+			<string>"</string>
 			<key>beginCaptures</key>
 			<dict>
-				<key>1</key>
+				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>storage.type.rust</string>
+					<string>punctuation.definition.string.begin.rs</string>
 				</dict>
 			</dict>
-			<key>comment</key>
-			<string>Implementation</string>
 			<key>end</key>
-			<string>(?\{)</string>
+			<string>"</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.end.rs</string>
+				</dict>
+			</dict>
+			<key>name</key>
+			<string>string.quoted.double.rs</string>
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>include</key>
-					<string>#type_params</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>$self</string>
+					<key>match</key>
+					<string>\\(x\h{2}|[0-2][0-7]{,2}|3[0-6][0-7]|37[0-7]?|[4-7][0-7]?|.)</string>
+					<key>name</key>
+					<string>constant.character.escape.rs</string>
 				</dict>
 			</array>
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>:</string>
-			<key>comment</key>
-			<string>Variable declaration</string>
+			<string>/\*\*(?!/)</string>
+			<key>captures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.comment.rs</string>
+				</dict>
+			</dict>
 			<key>end</key>
-			<string>[=;,\)\|]</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#type_params</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>$self</string>
-				</dict>
-			</array>
+			<string>\*/</string>
+			<key>name</key>
+			<string>comment.block.documentation.rs</string>
 		</dict>
-	</array>
-	<key>repository</key>
-	<dict>
-		<key>block_comment</key>
 		<dict>
 			<key>begin</key>
 			<string>/\*</string>
-			<key>beginCaptures</key>
+			<key>captures</key>
 			<dict>
 				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>punctuation.definition.comment.begin.rust</string>
+					<string>punctuation.definition.comment.rs</string>
 				</dict>
 			</dict>
-			<key>comment</key>
-			<string>Block comment</string>
 			<key>end</key>
 			<string>\*/</string>
-			<key>endCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.comment.end.rust</string>
-				</dict>
-			</dict>
 			<key>name</key>
-			<string>comment.block.rust</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#block_doc_comment</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#block_comment</string>
-				</dict>
-			</array>
+			<string>comment.block.rs</string>
 		</dict>
-		<key>block_doc_comment</key>
-		<dict>
-			<key>begin</key>
-			<string>/\*[!\*][^\*]</string>
-			<key>beginCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.comment.begin.rust</string>
-				</dict>
-			</dict>
-			<key>comment</key>
-			<string>Block documentation comment</string>
-			<key>end</key>
-			<string>\*/</string>
-			<key>endCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.comment.end.rust</string>
-				</dict>
-			</dict>
-			<key>name</key>
-			<string>comment.block.documentation.rust</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#block_doc_comment</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#block_comment</string>
-				</dict>
-			</array>
-		</dict>
-		<key>box</key>
-		<dict>
-			<key>comment</key>
-			<string>Box storage modifier</string>
-			<key>match</key>
-			<string>\bbox\b</string>
-			<key>name</key>
-			<string>storage.modifier.box.rust</string>
-		</dict>
-		<key>escaped_character</key>
-		<dict>
-			<key>match</key>
-			<string>\\(x\h{2}|[0-2][0-7]{0,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.)</string>
-			<key>name</key>
-			<string>constant.character.escape.rust</string>
-		</dict>
-		<key>kinds</key>
-		<dict>
-			<key>comment</key>
-			<string>Built-in trait (kind)</string>
-			<key>match</key>
-			<string>\b(Send|Sized|Copy|Share)\b</string>
-			<key>name</key>
-			<string>support.type.kind.rust</string>
-		</dict>
-		<key>lifetime</key>
 		<dict>
 			<key>captures</key>
 			<dict>
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.lifetime.rust</string>
+					<string>punctuation.definition.comment.rs</string>
 				</dict>
 			</dict>
-			<key>comment</key>
-			<string>Named lifetime</string>
-			<key>match</key>
-			<string>'([a-zA-Z_][a-zA-Z0-9_]*)\b</string>
-			<key>name</key>
-			<string>storage.modifier.lifetime.rust</string>
-		</dict>
-		<key>line_comment</key>
-		<dict>
-			<key>captures</key>
-			<dict>
-				<key>1</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.comment.rust</string>
-				</dict>
-			</dict>
-			<key>comment</key>
-			<string>Single-line comment</string>
 			<key>match</key>
 			<string>(//).*$\n?</string>
 			<key>name</key>
-			<string>comment.line.double-slash.rust</string>
+			<string>comment.line.double-slash.rs</string>
 		</dict>
-		<key>line_doc_comment</key>
 		<dict>
-			<key>captures</key>
+			<key>match</key>
+			<string>\b(bool|byte|char|class|double|enum|float|f([0-9]+)|fn|int|use|uint|([0-9]+)i|([0-9]+)u|u([0-9]+)|i([0-9]+)|iface|impl|interface|long|type|short|ret|resource|str|var|mod|native|let|void)\b</string>
+			<key>name</key>
+			<string>storage.type.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(const|export|extends|final|implements|native|private|protected|public|static|synchronized|throws|transient|volatile)\b</string>
+			<key>name</key>
+			<string>storage.modifier.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(\||break|alt|catch|continue|default|do|else|finally|for|to|if|import|package|return|switch|throw|try|while)\b</string>
+			<key>name</key>
+			<string>keyword.control.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(delete|in|instanceof|new|typeof|with|as)\b</string>
+			<key>name</key>
+			<string>keyword.operator.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\btrue\b</string>
+			<key>name</key>
+			<string>constant.language.boolean.true.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\bfalse\b</string>
+			<key>name</key>
+			<string>constant.language.boolean.false.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\bnull\b</string>
+			<key>name</key>
+			<string>constant.language.null.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(self)\b</string>
+			<key>name</key>
+			<string>variable.language.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(log,assert)\b</string>
+			<key>name</key>
+			<string>keyword.other.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(std|str|io|float|consts|crypto|vec|unsafe|ptr)\b</string>
+			<key>name</key>
+			<string>support.class.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(s(h(ift|ow(Mod(elessDialog|alDialog)|Help))|croll(X|By(Pages|Lines)?|Y|To)?|t(op|rike)|i(n|zeToContent|debar|gnText)|ort|u(p|b(str(ing)?)?)|pli(ce|t)|e(nd|t(Re(sizable|questHeader)|M(i(nutes|lliseconds)|onth)|Seconds|Ho(tKeys|urs)|Year|Cursor|Time(out)?|Interval|ZOptions|Date|UTC(M(i(nutes|lliseconds)|onth)|Seconds|Hours|Date|FullYear)|FullYear|Active)|arch)|qrt|lice|avePreferences|mall)|h(ome|andleEvent)|navigate|c(har(CodeAt|At)|o(s|n(cat|textual|firm)|mpile)|eil|lear(Timeout|Interval)?|a(ptureEvents|ll)|reate(StyleSheet|Popup|EventObject))|t(o(GMTString|S(tring|ource)|U(TCString|pperCase)|Lo(caleString|werCase))|est|a(n|int(Enabled)?))|i(s(NaN|Finite)|ndexOf|talics)|d(isableExternalCapture|ump|etachEvent)|u(n(shift|taint|escape|watch)|pdateCommands)|j(oin|avaEnabled)|p(o(p|w)|ush|lugins.refresh|a(ddings|rse(Int|Float)?)|r(int|ompt|eference))|e(scape|nableExternalCapture|val|lementFromPoint|x(p|ec(Script|Command)?))|valueOf|UTC|queryCommand(State|Indeterm|Enabled|Value)|f(i(nd|le(ModifiedDate|Size|CreatedDate|UpdatedDate)|xed)|o(nt(size|color)|rward)|loor|romCharCode)|watch|l(ink|o(ad|g)|astIndexOf)|a(sin|nchor|cos|t(tachEvent|ob|an(2)?)|pply|lert|b(s|ort))|r(ou(nd|teEvents)|e(size(By|To)|calc|turnValue|place|verse|l(oad|ease(Capture|Events)))|andom)|g(o|et(ResponseHeader|M(i(nutes|lliseconds)|onth)|Se(conds|lection)|Hours|Year|Time(zoneOffset)?|Da(y|te)|UTC(M(i(nutes|lliseconds)|onth)|Seconds|Hours|Da(y|te)|FullYear)|FullYear|A(ttention|llResponseHeaders)))|m(in|ove(B(y|elow)|To(Absolute)?|Above)|ergeAttributes|a(tch|rgins|x))|b(toa|ig|o(ld|rderWidths)|link|ack))\b(?=\()</string>
+			<key>name</key>
+			<string>support.fn.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(?&lt;=\.)(s(ystemLanguage|cr(ipts|ollbars|een(X|Y|Top|Left))|t(yle(Sheets)?|atus(Text|bar)?)|ibling(Below|Above)|ource|uffixes|e(curity(Policy)?|l(ection|f)))|h(istory|ost(name)?|as(h|Focus))|y|X(MLDocument|SLDocument)|n(ext|ame(space(s|URI)|Prop))|M(IN_VALUE|AX_VALUE)|c(haracterSet|o(n(structor|trollers)|okieEnabled|lorDepth|mp(onents|lete))|urrent|puClass|l(i(p(boardData)?|entInformation)|osed|asses)|alle(e|r)|rypto)|t(o(olbar|p)|ext(Transform|Indent|Decoration|Align)|ags)|SQRT(1_2|2)|i(n(ner(Height|Width)|put)|ds|gnoreCase)|zIndex|o(scpu|n(readystatechange|Line)|uter(Height|Width)|p(sProfile|ener)|ffscreenBuffering)|NEGATIVE_INFINITY|d(i(splay|alog(Height|Top|Width|Left|Arguments)|rectories)|e(scription|fault(Status|Ch(ecked|arset)|View)))|u(ser(Profile|Language|Agent)|n(iqueID|defined)|pdateInterval)|_content|p(ixelDepth|ort|ersonalbar|kcs11|l(ugins|atform)|a(thname|dding(Right|Bottom|Top|Left)|rent(Window|Layer)?|ge(X(Offset)?|Y(Offset)?))|r(o(to(col|type)|duct(Sub)?|mpter)|e(vious|fix)))|e(n(coding|abledPlugin)|x(ternal|pando)|mbeds)|v(isibility|endor(Sub)?|Linkcolor)|URLUnencoded|P(I|OSITIVE_INFINITY)|f(ilename|o(nt(Size|Family|Weight)|rmName)|rame(s|Element)|gColor)|E|whiteSpace|l(i(stStyleType|n(eHeight|kColor))|o(ca(tion(bar)?|lName)|wsrc)|e(ngth|ft(Context)?)|a(st(M(odified|atch)|Index|Paren)|yer(s|X)|nguage))|a(pp(MinorVersion|Name|Co(deName|re)|Version)|vail(Height|Top|Width|Left)|ll|r(ity|guments)|Linkcolor|bove)|r(ight(Context)?|e(sponse(XML|Text)|adyState))|global|x|m(imeTypes|ultiline|enubar|argin(Right|Bottom|Top|Left))|L(N(10|2)|OG(10E|2E))|b(o(ttom|rder(Width|RightWidth|BottomWidth|Style|Color|TopWidth|LeftWidth))|ufferDepth|elow|ackground(Color|Image)))\b</string>
+			<key>name</key>
+			<string>support.constant.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>!|\$|%|&amp;|\*|\-\-|\-|\+\+|\+|~|--&gt;|===|==|=|!=|!==|&lt;=|&gt;=|&lt;&lt;=|&gt;&gt;=|&gt;&gt;&gt;=|&lt;&gt;|&lt;|&gt;|!|&amp;&amp;|\|\||\?\:|\*=|(?&lt;!\()/=|%=|\+=|\-=|&amp;=|\^=|\b(in|instanceof|new|delete|typeof|void)\b</string>
+			<key>name</key>
+			<string>keyword.operator.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(Infinity|NaN|undefined)\b</string>
+			<key>name</key>
+			<string>constant.language.rs</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(?&lt;=[=(:]|^|ret)\s*(/)(?![/*+{}?])</string>
+			<key>beginCaptures</key>
 			<dict>
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>punctuation.definition.comment.rust</string>
+					<string>punctuation.definition.string.begin.rs</string>
 				</dict>
 			</dict>
-			<key>comment</key>
-			<string>Single-line documentation comment</string>
-			<key>match</key>
-			<string>(//)[!/][^/].*$\n?</string>
-			<key>name</key>
-			<string>comment.line.documentation.rust</string>
-		</dict>
-		<key>mut</key>
-		<dict>
-			<key>comment</key>
-			<string>Mutable storage modifier</string>
-			<key>match</key>
-			<string>\bmut\b</string>
-			<key>name</key>
-			<string>storage.modifier.mut.rust</string>
-		</dict>
-		<key>raw_string</key>
-		<dict>
-			<key>begin</key>
-			<string>r#"</string>
-			<key>beginCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.string.begin.rust</string>
-				</dict>
-			</dict>
-			<key>comment</key>
-			<string>Raw string</string>
 			<key>end</key>
-			<string>"#</string>
+			<string>(/)[igm]*</string>
 			<key>endCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.string.end.rust</string>
-				</dict>
-			</dict>
-			<key>name</key>
-			<string>string.quoted.other.raw.rust</string>
-		</dict>
-		<key>ref_lifetime</key>
-		<dict>
-			<key>captures</key>
 			<dict>
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>storage.modifier.lifetime.rust</string>
-				</dict>
-				<key>2</key>
-				<dict>
-					<key>name</key>
-					<string>entity.name.lifetime.rust</string>
-				</dict>
-			</dict>
-			<key>comment</key>
-			<string>Reference with named lifetime</string>
-			<key>match</key>
-			<string>&amp;('([a-zA-Z_][a-zA-Z0-9_]*))\b</string>
-		</dict>
-		<key>self</key>
-		<dict>
-			<key>comment</key>
-			<string>Self variable</string>
-			<key>match</key>
-			<string>\bself\b</string>
-			<key>name</key>
-			<string>variable.language.rust</string>
-		</dict>
-		<key>sigils</key>
-		<dict>
-			<key>comment</key>
-			<string>Sigil</string>
-			<key>match</key>
-			<string>[&amp;~@*](?=[a-zA-Z0-9_\(\[\|\"]+)</string>
-			<key>name</key>
-			<string>keyword.operator.sigil.rust</string>
-		</dict>
-		<key>std_types</key>
-		<dict>
-			<key>comment</key>
-			<string>Standard library type</string>
-			<key>match</key>
-			<string>\b(Box|Vec|StrBuf|Path|Option|Result|Reader|Writer|Stream|Seek|Buffer|IoError|IoResult|Sender|SyncSender|Receiver|Cell|RefCell|Any)\b</string>
-			<key>name</key>
-			<string>support.class.std.rust</string>
-		</dict>
-		<key>string_literal</key>
-		<dict>
-			<key>begin</key>
-			<string>"</string>
-			<key>beginCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.string.begin.rust</string>
-				</dict>
-			</dict>
-			<key>comment</key>
-			<string>Double-quote string</string>
-			<key>end</key>
-			<string>"</string>
-			<key>endCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.string.end.rust</string>
+					<string>punctuation.definition.string.end.rs</string>
 				</dict>
 			</dict>
 			<key>name</key>
-			<string>string.quoted.double.rust</string>
+			<string>string.regexp.rs</string>
 			<key>patterns</key>
 			<array>
 				<dict>
-					<key>include</key>
-					<string>#escaped_character</string>
+					<key>match</key>
+					<string>\\.</string>
+					<key>name</key>
+					<string>constant.character.escape.rs</string>
 				</dict>
 			</array>
 		</dict>
-		<key>types</key>
 		<dict>
-			<key>comment</key>
-			<string>Built-in type</string>
 			<key>match</key>
-			<string>\b(bool|char|usize|isize|u8|u16|u32|u64|i8|i16|i32|i64|f32|f64|str|Self)\b</string>
+			<string>\;</string>
 			<key>name</key>
-			<string>storage.type.rust</string>
+			<string>punctuation.terminator.statement.rs</string>
 		</dict>
-	</dict>
+		<dict>
+			<key>match</key>
+			<string>,[ |\t]*</string>
+			<key>name</key>
+			<string>meta.delimiter.object.comma.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\.</string>
+			<key>name</key>
+			<string>meta.delimiter.method.period.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\{|\}</string>
+			<key>name</key>
+			<string>meta.brace.curly.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\(|\)</string>
+			<key>name</key>
+			<string>meta.brace.round.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\[|\]</string>
+			<key>name</key>
+			<string>meta.brace.square.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(#)[a-zA-Z][a-zA-Z0-9_-]*</string>
+			<key>name</key>
+			<string>meta.fn.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(use)\s+(\w+)</string>
+			<key>name</key>
+			<string>meta.use.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(import)\s+(\w+)((::)?(\w+)?)</string>
+			<key>name</key>
+			<string>meta.import.rs</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(println)\b</string>
+			<key>name</key>
+			<string>entity.mod.fn.rs</string>
+		</dict>
+	</array>
 	<key>scopeName</key>
-	<string>source.rust</string>
+	<string>source.rs</string>
 	<key>uuid</key>
 	<string>E54FA931-0668-4496-8922-F91520AD02B3</string>
 </dict>
