@@ -1,0 +1,26 @@
+language: java
+dist: trusty
+jdk: oraclejdk8
+sudo: required
+
+install:
+  - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly-2017-11-29 -y
+  - export PATH=$HOME/.cargo/bin/:$PATH
+  - rustup component add rust-src --toolchain nightly-2017-11-29
+  - rustup component add rust-analysis --toolchain nightly-2017-11-29
+  - rustup component add rls-preview --toolchain nightly-2017-11-29
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+  - cargo --version
+  - rustup show
+
+script:
+  - if [[ $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]] ; then
+       mvn clean install;
+    else
+       mvn clean verify;
+    fi
+after_failure: "cat /home/travis/build/LucasBullen/corrosion/org.eclipse.corrosion.tests/target/work/data/.metadata/.log"

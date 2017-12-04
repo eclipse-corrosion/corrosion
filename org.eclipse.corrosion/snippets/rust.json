@@ -1,0 +1,61 @@
+[
+    {
+    	"display": "for",
+        "completionItemKind": 15,
+        "replacementLines": [
+            "for $0 in $1 {",
+            "\t$2",
+            "}"
+        ]
+    },
+    {
+    	"display": "unimplemented",
+        "completionItemKind": 3,
+        "replacementLines": [
+            "unimplemented!()"
+        ]
+    },
+    {
+    	"display": "unreachable",
+        "completionItemKind": 3,
+        "replacementLines": [
+            "unreachable!()"
+        ]
+    },
+    {
+    	"display": "println",
+        "completionItemKind": 3,
+        "replacementLines": [
+            "println!(\"$1\", $0)"
+        ]
+    },
+    {
+    	"display":  "macro_rules",
+        "completionItemKind": 15,
+        "replacementLines": [
+            "macro_rules! $1 {",
+            "\t($2) => {",
+            "\t\t$0",
+            "\t};",
+            "}"
+        ]
+    },
+    {
+    	"display": "if let Option",
+        "completionItemKind": 15,
+        "replacementLines": [
+            "if let Some(${1:foo}) = ${1:foo} {",
+            "\t${0:${1:foo}.}",
+            "}"
+        ]
+    },
+    {
+    	"display": "spawn",
+        "completionItemKind": 15,
+        "replacementLines": [
+            "thread::spawn(move || {",
+            "\t$0",
+            "});"
+        ]
+    }
+]

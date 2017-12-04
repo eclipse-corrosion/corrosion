@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="rs"
+            id="org.eclipse.corrosion.rust"
+            name="Rust project file"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-names="Cargo.toml"
+            id="org.eclipse.corrosion.manifest"
+            name="Cargo manifest file"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+     <editorContentTypeBinding
+        contentTypeId="org.eclipse.corrosion.rust"
+        editorId="org.eclipse.ui.genericeditor.GenericEditor">
+   		</editorContentTypeBinding>
+     <editorContentTypeBinding
+        contentTypeId="org.eclipse.corrosion.manifest"
+        editorId="org.eclipse.ui.genericeditor.GenericEditor">
+   		</editorContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.lsp4e.languageServer">
+     <server
+        class="org.eclipse.corrosion.RLSStreamConnectionProvider"
+        id="org.eclipse.corrosion.rls"
+        label="org.eclipse.corrosion.RLS"
+        clientImpl="org.eclipse.corrosion.RLSClientImplementation"
+        serverInterface="org.eclipse.corrosion.RLSServerInterface">
+      </server>
+      <contentTypeMapping
+            contentType="org.eclipse.corrosion.rust"
+            id="org.eclipse.corrosion.rls">
+      </contentTypeMapping>
+   </extension>
+   <extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <grammar
+            path="grammar/Rust.tmLanguage"
+            scopeName="source.rust">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.corrosion.rust"
+            scopeName="source.rust">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="grammar/TOML.tmLanguage"
+            scopeName="source.toml">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.corrosion.manifest"
+            scopeName="source.toml">
+      </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
+            contentType="org.eclipse.corrosion.rust">
+      </presentationReconciler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.contentAssistProcessors">
+      <contentAssistProcessor
+            class="org.eclipse.corrosion.snippet.SnippetContentAssistProcessor"
+            contentType="org.eclipse.corrosion.rust">
+      </contentAssistProcessor>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+         <initializer
+            class="org.eclipse.corrosion.CorrosionPreferenceInitializer">
+		</initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.eclipse.corrosion.CorrosionPreferencePage"
+            id="org.eclipse.corrosion.preferencePage"
+            name="Rust">
+      </page>
+   </extension>
+   <extension
+       point="org.eclipse.core.expressions.definitions">
+    <definition id="org.eclipse.corrosion.isCargoProject">
+       <with variable="selection">
+          <count value="1"/>
+          <iterate>
+             <adapt type="org.eclipse.core.resources.IResource">
+                <test property="org.eclipse.corrosion.isCargoProject"
+                      forcePluginActivation="true"/>
+             </adapt>
+          </iterate>
+       </with>
+     </definition>
+   </extension>
+<!-- WIZARDS -->
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.corrosion.rust"
+            name="Rust">
+      </category>
+      <wizard
+            category="org.eclipse.corrosion.rust"
+            class="org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizard"
+            icon="icons/cargo.png"
+            id="org.eclipse.corrosion.wizards.newCargo"
+            name="Cargo project"
+            project="true">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.exportWizards">
+      <wizard
+            id="org.eclipse.corrosion.wizards.export"
+            name="Rust Crate Packager"
+            class="org.eclipse.corrosion.wizards.export.CargoExportWizard"
+            icon="icons/cargo.png">
+         <description>
+            A wizard to assist with packaging Cargo based Rust projects into crates
+         </description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+<!-- LAUNCH CONFIGURATIONS -->
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.eclipse.corrosion.run.CargoRunDelegate"
+            id="org.eclipse.corrosion.run.CargoRunDelegate"
+            modes="run"
+            name="Cargo Based Rust Project">
+      </launchConfigurationType>
+      <launchConfigurationType
+            delegate="org.eclipse.corrosion.debug.RustDebugDelegate"
+            id="org.eclipse.corrosion.debug.RustDebugDelegate"
+            modes="debug"
+            name="Rust"
+            public="true"
+            sourceLocatorId="com.eclipse.corrosion.debug.SourceLocator">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.eclipse.corrosion.run.CargoRunTabGroup"
+            id="org.eclipse.corrosion.run.CargoRunTabGroup"
+            type="org.eclipse.corrosion.run.CargoRunDelegate">
+      </launchConfigurationTabGroup>
+      <launchConfigurationTabGroup
+            class="org.eclipse.corrosion.debug.RustDebugTabGroup"
+            id="org.eclipse.corrosion.debug.RustDebugTabGroup"
+            type="org.eclipse.corrosion.debug.RustDebugDelegate">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            id="org.eclipse.corrosion.run.CargoRunTypeImage"
+            configTypeID="org.eclipse.corrosion.run.CargoRunDelegate"
+            icon="icons/cargo.png">
+      </launchConfigurationTypeImage>
+      <launchConfigurationTypeImage
+            id="org.eclipse.corrosion.debug.RustDebugTypeImage"
+            configTypeID="org.eclipse.corrosion.debug.RustDebugDelegate"
+            icon="icons/rust.png">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            id="org.eclipse.corrosion.cargoProjectTester"
+            type="org.eclipse.core.resources.IResource"
+            namespace="org.eclipse.corrosion"
+            properties="isCargoProject"
+            class="org.eclipse.corrosion.CargoProjectTester">
+      </propertyTester>
+   </extension>
+   <extension point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            id="org.eclipse.corrosion.run.Shortcut"
+            class="org.eclipse.corrosion.run.CargoRunDelegate"
+            label="Cargo Based Rust Project"
+            icon="icons/cargo.png"
+            modes="run">
+         <contextualLaunch>
+            <enablement>
+               <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+      <shortcut
+            class="org.eclipse.corrosion.debug.RustDebugDelegate"
+            icon="icons/rust.png"
+            id="org.eclipse.corrosion.debug.Shortcut"
+            label="Rust Project"
+            modes="debug">
+         <contextualLaunch>
+            <enablement>
+               <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            class="org.eclipse.corrosion.debug.SourceLookupDirector"
+            id="com.eclipse.corrosion.debug.SourceLocator"
+            name="Source Locator">
+      </sourceLocator>
+   </extension>
+
+<!-- INCREMENTAL BUILD PROCESS -->
+   <extension
+         id="org.eclipse.corrosion.builder.IncrementalCargoBuilder"
+         name="Cargo Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="org.eclipse.corrosion.builder.IncrementalCargoBuilder"/>
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="org.eclipse.corrosion.builder.AddCargoBuilder"
+               style="push">
+            <visibleWhen checkEnabled="false">
+               <and>
+                  <count value="1"/>
+                  <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
+                  <iterate>
+                     <not>
+                        <test
+                              forcePluginActivation="true"
+                              property="org.eclipse.corrosion.builder.isCargoBuilderEnabled">
+                        </test>
+                     </not>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.corrosion.builder.RemoveCargoBuilder"
+               style="push">
+            <visibleWhen checkEnabled="true">
+               <and>
+                  <count value="1"/>
+                  <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.corrosion.builder.isCargoBuilderEnabled">
+                     </test>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="true"
+            locationURI="popup:#TextEditorContext?after=additions">
+        <command
+               commandId="org.eclipse.corrosion.commands.Implementations"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+          point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.eclipse.corrosion.builder.AddCargoBuilder"
+            name="Add Cargo Builder"
+            id="org.eclipse.corrosion.builder.AddCargoBuilder">
+      </command>
+      <command
+            defaultHandler="org.eclipse.corrosion.builder.RemoveCargoBuilder"
+            id="org.eclipse.corrosion.builder.RemoveCargoBuilder"
+            name="Remove Cargo Builder">
+      </command>
+      <command
+            categoryId="org.eclipse.lsp4e.category"
+            id="org.eclipse.corrosion.commands.Implementations"
+            name="Implementations">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.eclipse.corrosion.extensions.Implementations"
+            commandId="org.eclipse.corrosion.commands.Implementations">
+         <enabledWhen>
+            <and>
+               <with
+                     variable="selection">
+                  <instanceof
+                        value="org.eclipse.jface.text.ITextSelection">
+                  </instanceof>
+               </with>
+            </and>
+         </enabledWhen>
+      </handler>
+   </extension>
+      <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="org.eclipse.corrosion.builder.TestCargoBuilderEnabled"
+            id="org.eclipse.corrosion.builder.IncrementalCargoBuilderTester"
+            namespace="org.eclipse.corrosion.builder"
+            properties="isCargoBuilderEnabled"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+
+<!-- PERSPECTIVE -->
+   <extension
+        point="org.eclipse.ui.perspectives">
+        <perspective
+            id="org.eclipse.corrosion.rustPerspective"
+            name="Rust"
+            class="org.eclipse.corrosion.RustPerspective"
+            icon="icons/rust.png">
+        </perspective> 
+    </extension>
+<!-- BREAKPOINTS -->
+	<extension point="org.eclipse.debug.ui.toggleBreakpointsTargetFactories">
+      <toggleTargetFactory
+            class="org.eclipse.corrosion.debug.ToggleBreakpointsTargetFactory"
+            id="com.eclipse.corrosion.debug.ToggleBreakpointsTargetFactory">
+      </toggleTargetFactory>
+   </extension>
+
+   <extension point="org.eclipse.ui.editorActions">
+      <editorContribution
+         targetID="org.eclipse.ui.genericeditor.GenericEditor"
+         id="com.github.rustdt.ide.debug.ui.EditorBreakpointRulerActions">
+
+         <action
+               actionID="RulerDoubleClick"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               id="Editor.rulerDoubleClickAction"
+               label="Toggle Breakpoint">
+         </action>
+      </editorContribution>
+   </extension>
+</plugin>
