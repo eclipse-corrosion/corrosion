@@ -30,7 +30,7 @@ public class TestIDEIntegration extends AbstractRedoxTest {
 	public void testEditorAssociation() throws IOException, CoreException {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
-		editor = IDE.openEditor(activePage, getProject("basic").getFile("main.rs"));
+		editor = IDE.openEditor(activePage, getProject("basic").getFolder("src").getFile("main.rs"));
 		Assert.assertTrue(editor instanceof ExtensionBasedTextEditor);
 	}
 

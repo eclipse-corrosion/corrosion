@@ -9,12 +9,19 @@ Install Rust Language Server(RLS) and all Rust prerequisites:
 curl https://sh.rustup.rs -sSf | sh
 ```
 
-As the RLS is in an alpha stage, the newest version of rustup intermittently does not include the RLS, so we must use the beta version:
+As the RLS is in an alpha stage, the newest version of rustup intermittently does not include the RLS, so we must use the last version which it was included in:
 ```
-rustup update beta
-rustup component add rls-preview --toolchain beta
-rustup component add rust-analysis --toolchain beta
-rustup component add rust-src --toolchain beta
+rustup toolchain install nightly-2017-12-01
+rustup default nightly-2017-12-01
+rustup component add rls-preview
+rustup component add rust-analysis
+rustup component add rust-src
+```
+
+Currently, in RedOx's alpha state, you are required to add the following environment variables:
+```
+SYS_ROOT=${HOME}/.rustup/toolchains/nightly-2017-12-01-${toolchain being used}
+LD_LIBRARY_PATH=${HOME}/.rustup/toolchains/nightly-2017-12-01-${toolchain being used}/lib
 ```
 
 ## Concept

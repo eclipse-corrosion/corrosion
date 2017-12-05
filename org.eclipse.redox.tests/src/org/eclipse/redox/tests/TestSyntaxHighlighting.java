@@ -30,7 +30,7 @@ public class TestSyntaxHighlighting extends AbstractRedoxTest {
 
 	@Test
 	public void testSyntaxHighlighting() throws CoreException, IOException {
-		IFile csharpSourceFile = getProject("basic").getFile("main.rs");
+		IFile csharpSourceFile = getProject("basic").getFolder("src").getFile("main.rs");
 		TextEditor editor = (TextEditor) IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), csharpSourceFile, "org.eclipse.ui.genericeditor.GenericEditor");
 		StyledText editorTextWidget = (StyledText)editor.getAdapter(Control.class);
 		new DisplayHelper() {
