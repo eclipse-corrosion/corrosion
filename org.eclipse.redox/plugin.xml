@@ -54,4 +54,12 @@
             class="org.eclipse.redox.RedoxPreferenceInitializer">
 		</initializer>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.eclipse.redox.RedoxPreferencePage"
+            id="org.eclipse.redox.preferencePage"
+            name="Rust">
+      </page>
+</extension>
 </plugin>
