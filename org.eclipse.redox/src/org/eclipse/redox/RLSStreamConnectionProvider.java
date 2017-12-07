@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.eclipse.redox;
 
+import java.io.BufferedReader;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import org.eclipse.core.runtime.IStatus;
@@ -38,37 +40,86 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 
 	@Override
 	public void start() throws IOException {
-		// TODO: use the preferences to prepare and launch the Language Server
-		RedoxPlugin plugin = RedoxPlugin.getDefault();
-		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
-		String rlsPath = preferenceStore.getString(RedoxPreferenceInitializer.rlsPathPreference);
-		String sysrootPath = preferenceStore.getString(RedoxPreferenceInitializer.sysrootPathPreference);
-		if ((rlsPath.isEmpty() || sysrootPath.isEmpty())) {
-			RedoxPlugin.getDefault().getLog()
-					.log(new Status(IStatus.ERROR, RedoxPlugin.getDefault().getBundle().getSymbolicName(),
-							"Path to cargo and rustup not found. Update in Rust preferences."));
-			setupRust();
+		boolean wereSystemPropertiesSet = setSystemProperties();
+		String rls = getRLS();
+		if ((rls.isEmpty() || !wereSystemPropertiesSet)) {
+			showSetupRustNotification();
 			return;
 		}
-
-		System.setProperty("SYS_ROOT", sysrootPath);
-		System.setProperty("LD_LIBRARY_PATH", sysrootPath + "/lib");
-		String sysRoot = System.getProperty("SYS_ROOT");
-		String ldLibraryPath = System.getProperty("LD_LIBRARY_PATH");
-		if (sysRoot == null || sysRoot.isEmpty() || ldLibraryPath == null || ldLibraryPath.isEmpty()) {
-			RedoxPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
-					RedoxPlugin.getDefault().getBundle().getSymbolicName(),
-					"Was unable to set the `SYS_ROOT` and `LD_LIBRARY_PATH` environment variables. Please do so manually."));
-			return;
-		}
-		String[] command = new String[] { "/bin/bash", "-c", rlsPath };
+		String[] command = new String[] { "/bin/bash", "-c", rls };
 		if (Platform.getOS().equals(Platform.OS_WIN32)) {
-			command = new String[] { "cmd", "/c", rlsPath };
+			command = new String[] { "cmd", "/c", rls };
 		}
 		this.process = Runtime.getRuntime().exec(command);
 	}
 
-	private void setupRust() {
+	private boolean setSystemProperties() {
+		RedoxPlugin plugin = RedoxPlugin.getDefault();
+		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+		int rustSourceIndex = RedoxPreferencePage.RUST_SOURCE_OPTIONS
+				.indexOf(preferenceStore.getString(RedoxPreferenceInitializer.rustSourcePreference));
+
+		String sysrootPath = "";
+
+		if (rustSourceIndex == 0) {
+			String rustup = preferenceStore.getString(RedoxPreferenceInitializer.rustupPathPreference);
+			String toolchain = preferenceStore.getString(RedoxPreferenceInitializer.toolchainIdPreference);
+			if (!(rustup.isEmpty() || toolchain.isEmpty())) {
+				String[] command = new String[] { rustup, "run", toolchain, "rustc", "--print", "sysroot" };
+				try {
+					Process process = Runtime.getRuntime().exec(command);
+					try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+						sysrootPath = in.readLine();
+					}
+				} catch (IOException e) {
+					// Caught with final return
+				}
+			}
+		} else if (rustSourceIndex == 1) {
+			sysrootPath = preferenceStore.getString(RedoxPreferenceInitializer.sysrootPathPreference);
+		}
+
+		if (!sysrootPath.isEmpty()) {
+			System.setProperty("SYS_ROOT", sysrootPath);
+			System.setProperty("LD_LIBRARY_PATH", sysrootPath + "/lib");
+			String sysRoot = System.getProperty("SYS_ROOT");
+			String ldLibraryPath = System.getProperty("LD_LIBRARY_PATH");
+			if (!(sysRoot == null || sysRoot.isEmpty() || ldLibraryPath == null || ldLibraryPath.isEmpty())) {
+				return true;
+			}
+		}
+		RedoxPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
+				RedoxPlugin.getDefault().getBundle().getSymbolicName(),
+				"Was unable to set the `SYS_ROOT` and `LD_LIBRARY_PATH` environment variables. Please do so manually."));
+		return false;
+	}
+
+	private String getRLS() {
+		RedoxPlugin plugin = RedoxPlugin.getDefault();
+		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+		int rustSourceIndex = RedoxPreferencePage.RUST_SOURCE_OPTIONS
+				.indexOf(preferenceStore.getString(RedoxPreferenceInitializer.rustSourcePreference));
+
+		if (rustSourceIndex == 0) {
+			String rustup = preferenceStore.getString(RedoxPreferenceInitializer.rustupPathPreference);
+			String toolchain = preferenceStore.getString(RedoxPreferenceInitializer.toolchainIdPreference);
+			if (!(rustup.isEmpty() || toolchain.isEmpty())) {
+				return rustup + " run " + toolchain + " rls";
+			}
+		} else if (rustSourceIndex == 1) {
+			String rls = preferenceStore.getString(RedoxPreferenceInitializer.rlsPathPreference);
+			if (!rls.isEmpty()) {
+				return rls;
+			}
+		}
+
+		RedoxPlugin.getDefault().getLog()
+				.log(new Status(IStatus.ERROR, RedoxPlugin.getDefault().getBundle().getSymbolicName(),
+						"Rust Language Server not found. Update in Rust preferences."));
+		return "";
+	}
+
+	private void showSetupRustNotification() {
 		if (hasCancelledSetup) {
 			return;
 		}

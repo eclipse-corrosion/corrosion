@@ -22,59 +22,113 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 public class RedoxPreferenceInitializer extends AbstractPreferenceInitializer {
 
+	private static final IPreferenceStore STORE = RedoxPlugin.getDefault().getPreferenceStore();
+
 	public static String rustSourcePreference = "redox.rustSource";
 
 	public static String defaultPathsPreference = "redox.rustup_defaultPaths";
 	public static String rustupPathPreference = "redox.rustup_rustupPath";
 	public static String cargoPathPreference = "redox.rustup_cargoPath";
-	public static String toolchainTypePreference = "redox.rustup_toolchain_type";
 	public static String toolchainIdPreference = "redox.rustup_toolchain_Id";
+	public static String toolchainTypePreference = "redox.rustup_toolchain_type";
 
 	public static String rlsPathPreference = "redox.rslPath";
 	public static String sysrootPathPreference = "redox.sysrootPath";
 
 	@Override
 	public void initializeDefaultPreferences() {
-		IPreferenceStore store = RedoxPlugin.getDefault().getPreferenceStore();
-		store.setDefault(rustSourcePreference, "rustup");
+		STORE.setDefault(rustSourcePreference, "rustup");
 
-		store.setDefault(defaultPathsPreference, true);
-		store.setDefault(rustupPathPreference, getRustupPathBestGuess());
-		store.setDefault(cargoPathPreference, getCargoPathBestGuess());
-		store.setDefault(toolchainTypePreference, "Beta");
-		store.setDefault(toolchainIdPreference, "beta");
+		STORE.setDefault(defaultPathsPreference, true);
+		STORE.setDefault(rustupPathPreference, getRustupPathBestGuess());
+		STORE.setDefault(cargoPathPreference, getCargoPathBestGuess());
+		setToolchainBestGuesses();
 
-		store.setDefault(rlsPathPreference, getRLSPathBestGuess());
-		store.setDefault(sysrootPathPreference, getSysrootPathBestGuess());
+		STORE.setDefault(rlsPathPreference, getRLSPathBestGuess());
+		STORE.setDefault(sysrootPathPreference, getSysrootPathBestGuess());
 	}
 
 	private String getRustupPathBestGuess() {
-		File rustup = new File(System.getProperty("user.home") + "/.rustup");
-		if (!(rustup.exists() && rustup.isDirectory())) {
-			return "";
+		String command = findCommandPath("rustup");
+		if (command.isEmpty()) {
+			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/rustup");
+			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
+				return possibleCommandFile.getAbsolutePath();
+			}
 		}
-		return rustup.getAbsolutePath();
+		return command;
 	}
 
 	private String getCargoPathBestGuess() {
-		File cargo = new File(System.getProperty("user.home") + "/.cargo");
-		if (!(cargo.exists() && cargo.isDirectory())) {
-			return "";
+		String command = findCommandPath("cargo");
+		if (command.isEmpty()) {
+			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/cargo");
+			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
+				return possibleCommandFile.getAbsolutePath();
+			}
 		}
-		return cargo.getAbsolutePath();
+		return command;
+	}
+
+	private String findCommandPath(String command) {
+		try {
+			ProcessBuilder builder = new ProcessBuilder("which", command);
+			Process process = builder.start();
+
+			if (process.waitFor() == 0) {
+				try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+					return in.readLine();
+				}
+			}
+		} catch (IOException | InterruptedException e) {
+			// Errors caught with empty return
+		}
+		return "";
+	}
+
+	private void setToolchainBestGuesses() {
+		String toolchain = RustManager.getDefaultToolchain();
+		if (toolchain == null || toolchain.isEmpty()) {
+			STORE.setDefault(toolchainIdPreference, "");
+			STORE.setDefault(toolchainTypePreference, "Other");
+			return;
+		}
+		int splitIndex = toolchain.indexOf('-');
+		if (splitIndex != -1) {
+			String type = toolchain.substring(0, splitIndex);
+			if ("nightly".equals(type)) {
+				STORE.setDefault(toolchainIdPreference, toolchain);
+				STORE.setDefault(toolchainTypePreference, "Nightly");
+			} else {
+				for (String option : RedoxPreferencePage.RUSTUP_TOOLCHAIN_OPTIONS) {
+					if (option.toLowerCase().equals(type)) {
+						STORE.setDefault(toolchainIdPreference, type);
+						STORE.setDefault(toolchainTypePreference, option);
+					}
+				}
+			}
+			return;
+		}
+		STORE.setDefault(toolchainIdPreference, toolchain.trim());
+		STORE.setDefault(toolchainTypePreference, "Other");
 	}
 
 	private String getRLSPathBestGuess() {
-		File rls = new File(getCargoPathBestGuess() + "/bin/rls");
-		if (!(rls.exists() && rls.isFile() && rls.canExecute())) {
-			return "";
+		String command = findCommandPath("rls");
+		if (command.isEmpty()) {
+			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/rls");
+			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
+				return possibleCommandFile.getAbsolutePath();
+			}
 		}
-		return rls.getAbsolutePath();
-
+		return command;
 	}
 
 	private String getSysrootPathBestGuess() {
-		File rustc = new File(getCargoPathBestGuess() + "/bin/rustc");
+		File rustc = new File(findCommandPath("rustc"));
+		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
+			rustc = new File(System.getProperty("user.home") + "/.cargo/bin/rustc");
+		}
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
 			return "";
 		}

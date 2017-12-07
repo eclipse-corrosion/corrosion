@@ -23,18 +23,20 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
-	public static String PAGE_ID = "org.eclipse.redox.preferencePage";
+	public static final String PAGE_ID = "org.eclipse.redox.preferencePage";
 	public static final List<String> RUST_SOURCE_OPTIONS = Arrays.asList("rustup", "other", "disabled");
 	public static final List<String> RUSTUP_TOOLCHAIN_OPTIONS = Arrays.asList("Stable", "Beta", "Nightly", "Other");
 
@@ -52,17 +54,25 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 	@Override
 	protected Control createContents(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
-		container.setLayout(new GridLayout(1, false));
+		container.setLayout(new GridLayout(2, false));
 
 		rustupRadioButton = new Button(container, SWT.RADIO);
 		rustupRadioButton.setText("Use Rustup");
 		rustupRadioButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			setRadioSelection(0);
 		}));
+		Link installLink = new Link(container, SWT.NONE);
+		installLink.setText("(Rustup can be downloaded from: <a href=\"https://rustup.rs/\">https://rustup.rs</a>)");
+		installLink.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		installLink.addSelectionListener(widgetSelectedAdapter(e -> {
+			Program.launch("https://rustup.rs/");
+		}));
+
 		createRustupPart(container);
 
 		otherRadioButton = new Button(container, SWT.RADIO);
 		otherRadioButton.setText("Other installation");
+		otherRadioButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		otherRadioButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			setRadioSelection(1);
 		}));
@@ -70,6 +80,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 
 		disableRadioButton = new Button(container, SWT.RADIO);
 		disableRadioButton.setText("Disable Rust editor");
+		disableRadioButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		disableRadioButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			setRadioSelection(2);
 		}));
@@ -117,6 +128,22 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 			setErrorMessage("Rustup and Cargo paths cannot be empty");
 			return false;
 		}
+		File rustup = new File(rustupPathText.getText());
+		if (!rustup.exists() || !rustup.isFile()) {
+			setErrorMessage("Input a valid `rustup` command path");
+			return false;
+		} else if (!rustup.canExecute()) {
+			setErrorMessage("Inputted `rustup` command is not executable");
+			return false;
+		}
+		File cargo = new File(cargoPathText.getText());
+		if (!cargo.exists() || !cargo.isFile()) {
+			setErrorMessage("Input a valid `cargo` command path");
+			return false;
+		} else if (!cargo.canExecute()) {
+			setErrorMessage("Inputted `cargo` command is not executable");
+			return false;
+		}
 		setErrorMessage(null);
 		return true;
 	}
@@ -131,7 +158,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 			setErrorMessage("Input a valid path to the Rust Language Server (rls)");
 			return false;
 		} else if (!rls.canExecute()) {
-			setErrorMessage("Inputted command is not executable");
+			setErrorMessage("Inputted `rls` command is not executable");
 			return false;
 		}
 
@@ -172,10 +199,6 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 
 	private void setToolchainSelection(int selection) {
 		rustupToolchainCombo.select(selection);
-		GridData nightlyData = (GridData) nightlyComposite.getLayoutData();
-		nightlyData.exclude = selection != 2 || nightlyLabel.getText().isEmpty();
-		nightlyComposite.getParent().layout();
-		nightlyComposite.setVisible(!nightlyData.exclude);
 		GridData otherIdData = (GridData) otherIdComposite.getLayoutData();
 		otherIdData.exclude = selection != 3;
 		otherIdComposite.getParent().layout();
@@ -209,31 +232,34 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		} else {
 			disableRadioButton.setSelection(true);
 		}
+		isPageValid();
 	}
 
 	@Override
 	public boolean performOk() {
-		// TODO: restart any language servers to enduce changes
-		store.setValue(RedoxPreferenceInitializer.rustSourcePreference, RUST_SOURCE_OPTIONS.get(getRadioSelection()));
-		store.setValue(RedoxPreferenceInitializer.toolchainTypePreference, rustupToolchainCombo.getText());
-		store.setValue(RedoxPreferenceInitializer.toolchainIdPreference, getToolchainId());
-		store.setValue(RedoxPreferenceInitializer.defaultPathsPreference, useDefaultPathsCheckbox.getSelection());
-
-		store.setValue(RedoxPreferenceInitializer.rlsPathPreference, rlsPathText.getText());
-		store.setValue(RedoxPreferenceInitializer.sysrootPathPreference, sysrootPathText.getText());
-		store.setValue(RedoxPreferenceInitializer.rustupPathPreference, rustupPathText.getText());
-		store.setValue(RedoxPreferenceInitializer.cargoPathPreference, cargoPathText.getText());
-		return super.performOk();
+		int source = getRadioSelection();
+		store.setValue(RedoxPreferenceInitializer.rustSourcePreference, RUST_SOURCE_OPTIONS.get(source));
+		if (source == 0) {
+			String id = getToolchainId();
+			store.setValue(RedoxPreferenceInitializer.toolchainTypePreference, rustupToolchainCombo.getText());
+			store.setValue(RedoxPreferenceInitializer.toolchainIdPreference, id);
+			store.setValue(RedoxPreferenceInitializer.defaultPathsPreference, useDefaultPathsCheckbox.getSelection());
+			store.setValue(RedoxPreferenceInitializer.rustupPathPreference, rustupPathText.getText());
+			store.setValue(RedoxPreferenceInitializer.cargoPathPreference, cargoPathText.getText());
+			RustManager.setDefaultToolchain(id);
+		} else if (source == 1) {
+			store.setValue(RedoxPreferenceInitializer.rlsPathPreference, rlsPathText.getText());
+			store.setValue(RedoxPreferenceInitializer.sysrootPathPreference, sysrootPathText.getText());
+		}
+		return true;
 	}
 
 	private String getToolchainId() {
 		int index = rustupToolchainCombo.getSelectionIndex();
 		if (index == -1) {
 			return "";
-		} else if (index < 2) {
+		} else if (index < 3) {
 			return RUSTUP_TOOLCHAIN_OPTIONS.get(index).toLowerCase();
-		} else if (index == 2) {
-			return RustManager.getDownloadedNightlyId();
 		} else {
 			return otherIdText.getText();
 		}
@@ -241,10 +267,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 
 	private Label rustupToolchainLabel;
 	private Combo rustupToolchainCombo;
-	private Button rustupToolchainInstallButton;
 
-	private Composite nightlyComposite;
-	private Label nightlyLabel;
 	private Composite otherIdComposite;
 	private Label otherIdLabel;
 	private Text otherIdText;
@@ -260,9 +283,10 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 	private Button cargoBrowseButton;
 
 	private void createRustupPart(Composite container) {
+
 		Composite parent = new Composite(container, SWT.NULL);
 		parent.setLayout(new GridLayout(3, false));
-		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		GridData textGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		GridData buttonGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
@@ -280,32 +304,13 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		}
 		rustupToolchainCombo.addSelectionListener(widgetSelectedAdapter(e -> {
 			setToolchainSelection(rustupToolchainCombo.getSelectionIndex());
-			updateInstallButton();
 			getShell().pack();
 			getShell().layout();
 			setValid(isPageValid());
 		}));
-		rustupToolchainInstallButton = new Button(parent, SWT.NONE);
-		rustupToolchainInstallButton.setLayoutData(buttonGridData);
-		rustupToolchainInstallButton.setText("Install");
-		rustupToolchainInstallButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			if (rustupToolchainInstallButton.getText().equals("Install")) {
-				RustManager.download(getToolchainId());
-			} else {
-				RustManager.download(RustManager.getLatestNightlyId());
-			}
-		}));
+		new Label(parent, SWT.NONE);
 
 		new Label(parent, SWT.NONE);
-		nightlyComposite = new Composite(parent, SWT.NULL);
-		nightlyComposite.setLayout(new GridLayout(1, false));
-		GridData nightlyData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		nightlyData.exclude = true;
-		nightlyComposite.setLayoutData(nightlyData);
-		nightlyLabel = new Label(nightlyComposite, SWT.NONE);
-		nightlyLabel.setText(RustManager.getDownloadedNightlyId());
-		nightlyLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
-
 		otherIdComposite = new Composite(parent, SWT.NULL);
 		otherIdComposite.setLayout(new GridLayout(3, false));
 		GridData otherIdData = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
@@ -317,7 +322,6 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		otherIdText = new Text(otherIdComposite, SWT.BORDER);
 		otherIdText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		otherIdText.addModifyListener(e -> {
-			updateInstallButton();
 			setValid(isPageValid());
 		});
 		Button fillerButton = new Button(otherIdComposite, SWT.NONE);
@@ -329,7 +333,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		GridData useDefaultGridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
 		useDefaultGridData.horizontalIndent = 25;
 		useDefaultPathsCheckbox.setLayoutData(useDefaultGridData);
-		useDefaultPathsCheckbox.setText("Use default paths");
+		useDefaultPathsCheckbox.setText("Use default command paths");
 		useDefaultPathsCheckbox.addSelectionListener(widgetSelectedAdapter(e -> {
 			setDefaultPathsEnabled(!useDefaultPathsCheckbox.getSelection());
 			if (useDefaultPathsCheckbox.getSelection()) {
@@ -398,32 +402,10 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 	private void setRustupEnabled(boolean enabled) {
 		rustupToolchainLabel.setEnabled(enabled);
 		rustupToolchainCombo.setEnabled(enabled);
-		rustupToolchainInstallButton.setEnabled(enabled);
-		nightlyLabel.setEnabled(enabled);
 		useDefaultPathsCheckbox.setEnabled(enabled);
 		otherIdLabel.setEnabled(enabled);
 		otherIdText.setEnabled(enabled);
 		setDefaultPathsEnabled(enabled && !useDefaultPathsCheckbox.getSelection());
-	}
-
-	private void updateInstallButton() {
-		String id = getToolchainId();
-		if (id == null || id.isEmpty()) {
-			rustupToolchainInstallButton.setEnabled(false);
-		}
-		if (RustManager.isToolchainDownloaded(id)) {
-			if (rustupToolchainCombo.getSelectionIndex() == 2) {
-				rustupToolchainInstallButton.setText("Update");
-				if (RustManager.getLatestNightlyId().equals(RustManager.getDownloadedNightlyId())) {
-					rustupToolchainInstallButton.setEnabled(true);
-					return;
-				}
-			}
-			rustupToolchainInstallButton.setEnabled(false);
-		} else {
-			rustupToolchainInstallButton.setEnabled(true);
-		}
-		rustupToolchainInstallButton.setText("Install");
 	}
 
 	private Label rlsLabel;
@@ -437,7 +419,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 	private void createOtherPart(Composite container) {
 		Composite parent = new Composite(container, SWT.NULL);
 		parent.setLayout(new GridLayout(3, false));
-		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		GridData labelIndent = new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1);
 		labelIndent.horizontalIndent = 25;
