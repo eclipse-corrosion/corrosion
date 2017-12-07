@@ -1,28 +1,17 @@
 # RedOx
 Support for Rust editing in Eclipse IDE.
 
-RedOx (short for reduction–oxidation, the reaction that causes rust), is a Rust development plugin for the Eclipse IDE. In its very alpha stages, RedOx is __NOT__ recommended for use at this time.
+RedOx (short for reduction–oxidation, the reaction that causes rust), is a Rust development plugin for the Eclipse IDE. Both [issue reports](https://github.com/LucasBullen/redOx/issues) and [pull requests](https://github.com/LucasBullen/redOx/pulls) are greatly appreciated.
+
+![Screenshot](images/editorOverview.png "Screenshot of RedOx editor")
 
 ## Prerequisites
-Install Rust Language Server(RLS) and all Rust prerequisites:
+
+Rustup is used to install both [Rust](https://www.rust-lang.org/en-US/) and the [Rust Language Server](https://github.com/rust-lang-nursery/rls):
 ```
 curl https://sh.rustup.rs -sSf | sh
 ```
-
-As the RLS is in an alpha stage, the newest version of rustup intermittently does not include the RLS, so we must use the last version which it was included in:
-```
-rustup toolchain install nightly-2017-12-01
-rustup default nightly-2017-12-01
-rustup component add rls-preview
-rustup component add rust-analysis
-rustup component add rust-src
-```
-
-Currently, in RedOx's alpha state, you are required to add the following environment variables:
-```
-SYS_ROOT=${HOME}/.rustup/toolchains/nightly-2017-12-01-${toolchain being used}
-LD_LIBRARY_PATH=${HOME}/.rustup/toolchains/nightly-2017-12-01-${toolchain being used}/lib
-```
+For other installation options either visit https://rustup.rs/ or use the RedOx preferences page to manually set the required paths.
 
 ## Concept
 
