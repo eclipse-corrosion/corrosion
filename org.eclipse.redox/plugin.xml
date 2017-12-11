@@ -62,4 +62,19 @@
             name="Rust">
       </page>
 </extension>
+<extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.redox.rust"
+            name="Rust">
+      </category>
+      <wizard
+            category="org.eclipse.redox.rust"
+            class="org.eclipse.redox.wizards.newCargo.NewCargoProjectWizard"
+            icon="icons/cargo.png"
+            id="org.eclipse.redox.wizards.newCargo"
+            name="Cargo project"
+            project="true">
+      </wizard>
+</extension>
 </plugin>

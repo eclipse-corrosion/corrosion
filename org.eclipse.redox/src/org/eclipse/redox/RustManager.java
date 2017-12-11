@@ -38,7 +38,7 @@ public class RustManager {
 						String line = in.readLine();
 						while (line != null) {
 							if (line.matches("^.*\\(default\\)$")) {
-								if (line.matches("^nightly-.*$")) {
+								if (line.matches("^nightly-\\d{4}-\\d{2}-\\d{2}.*$")) {
 									return line.substring(0, 18);// "nightly-YYYY-MM-DD".length()==18
 								}
 								int splitIndex = line.indexOf('-');

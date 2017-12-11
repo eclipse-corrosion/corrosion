@@ -20,7 +20,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	TestIDEIntegration.class,
 	TestSyntaxHighlighting.class,
-	TestLSPIntegration.class
+	TestLSPIntegration.class,
+	TestNewCargoProjectWizard.class
 })
 public class AllTests {
 

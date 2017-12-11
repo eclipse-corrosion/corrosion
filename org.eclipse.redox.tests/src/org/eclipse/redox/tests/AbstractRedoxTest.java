@@ -34,8 +34,8 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
- * Takes care of creating a temporary project and resource before test and to clean
- * it up after.
+ * Takes care of creating a temporary project and resource before test and to
+ * clean it up after.
  */
 public class AbstractRedoxTest {
 
@@ -48,17 +48,21 @@ public class AbstractRedoxTest {
 
 	/**
 	 *
-	 * @param projectName the name that will be used as prefix for the project, and that will be used to find
-	 * the content of the project from the plugin "projects" folder
+	 * @param projectName
+	 *            the name that will be used as prefix for the project, and that
+	 *            will be used to find the content of the project from the plugin
+	 *            "projects" folder
 	 * @throws IOException
 	 * @throws CoreException
 	 */
 	protected IProject provisionProject(String projectName) throws IOException, CoreException {
-		URL url = FileLocator.find(Platform.getBundle("org.eclipse.redox.tests"), Path.fromPortableString("projects/" + projectName), Collections.emptyMap());
+		URL url = FileLocator.find(Platform.getBundle("org.eclipse.redox.tests"),
+				Path.fromPortableString("projects/" + projectName), Collections.emptyMap());
 		url = FileLocator.toFileURL(url);
 		File folder = new File(url.getFile());
 		if (folder != null && folder.exists()) {
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName + "_" + getClass().getName() + "_" + System.currentTimeMillis());
+			IProject project = ResourcesPlugin.getWorkspace().getRoot()
+					.getProject(projectName + "_" + getClass().getName() + "_" + System.currentTimeMillis());
 			project.create(new NullProgressMonitor());
 			this.provisionedProjects.put(projectName, project);
 			FileUtils.copyDirectory(folder, project.getLocation().toFile());
@@ -72,19 +76,20 @@ public class AbstractRedoxTest {
 
 	@After
 	public void tearDown() throws CoreException {
-		this.provisionedProjects.values().forEach(project -> {
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			try {
 				project.delete(true, new NullProgressMonitor());
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		});
+		}
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
 	}
 
 	/**
-	 * @param projectPrefix the prefix of the project, as it can be found in plugin's "projects" folder
+	 * @param projectPrefix
+	 *            the prefix of the project, as it can be found in plugin's
+	 *            "projects" folder
 	 * @return a project with the content from the specified projectPrefix
 	 * @throws CoreException
 	 * @throws IOException

@@ -45,14 +45,18 @@ public class TestLSPIntegration extends AbstractRedoxTest {
 	@Test
 	public void testLSFound() throws Exception {
 		IProject project = getProject("basic");
-		IFile csharpSourceFile = project.getFolder("src").getFile("main.rs");
-		CompletableFuture<LanguageServer> languageServer = LanguageServiceAccessor.getInitializedLanguageServers(csharpSourceFile, capabilities -> capabilities.getHoverProvider() != null).iterator().next();
-		String uri = csharpSourceFile.getLocationURI().toString();
-		Either<List<CompletionItem>, CompletionList> completionItems = languageServer.get(1, TimeUnit.MINUTES).getTextDocumentService().completion(new TextDocumentPositionParams(new TextDocumentIdentifier(uri), new Position(1, 4))).get(1, TimeUnit.MINUTES);
+		IFile rustFile = project.getFolder("src").getFile("main.rs");
+		CompletableFuture<LanguageServer> languageServer = LanguageServiceAccessor
+				.getInitializedLanguageServers(rustFile, capabilities -> capabilities.getHoverProvider() != null)
+				.iterator().next();
+		String uri = rustFile.getLocationURI().toString();
+		Either<List<CompletionItem>, CompletionList> completionItems = languageServer.get(1, TimeUnit.MINUTES)
+				.getTextDocumentService()
+				.completion(new TextDocumentPositionParams(new TextDocumentIdentifier(uri), new Position(1, 4)))
+				.get(1, TimeUnit.MINUTES);
 		Assert.assertNotNull(completionItems);
 	}
 
-	//TODO: get the language server to show diagnostics
 	@Test
 	public void testLSWorks() throws Exception {
 		IProject project = getProject("basic_errors");
@@ -64,7 +68,8 @@ public class TestLSPIntegration extends AbstractRedoxTest {
 			@Override
 			protected boolean condition() {
 				try {
-					return file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)[0].getAttribute(IMarker.LINE_NUMBER, -1) == 3;
+					return file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)[0]
+							.getAttribute(IMarker.LINE_NUMBER, -1) == 3;
 				} catch (Exception e) {
 					return false;
 				}
