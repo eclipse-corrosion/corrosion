@@ -21,7 +21,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestIDEIntegration.class,
 	TestSyntaxHighlighting.class,
 	TestLSPIntegration.class,
-	TestNewCargoProjectWizard.class
+	TestNewCargoProjectWizard.class,
+	TestRunConfiguration.class
 })
 public class AllTests {
 

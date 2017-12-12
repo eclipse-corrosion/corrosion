@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.Test;
 
@@ -39,16 +38,16 @@ public class TestNewCargoProjectWizard extends AbstractRedoxTest {
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		wizard.init(getWorkbench(), new StructuredSelection());
 		dialog.create();
-		confirmPageState(wizard, "NewRustProject", "none", false);
+		confirmPageState(wizard, "new_rust_project", "none", false);
 
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
 		Button binaryCheckBox = (Button) composite.getChildren()[12];
 		binaryCheckBox.setSelection(true);
-		confirmPageState(wizard, "NewRustProject", "none", true);
+		confirmPageState(wizard, "new_rust_project", "none", true);
 
 		Button vcsCheckBox = (Button) composite.getChildren()[14];
 		vcsCheckBox.setSelection(true);
-		confirmPageState(wizard, "NewRustProject", "git", true);
+		confirmPageState(wizard, "new_rust_project", "git", true);
 
 		dialog.close();
 	}

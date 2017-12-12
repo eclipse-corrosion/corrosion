@@ -61,8 +61,9 @@
             id="org.eclipse.redox.preferencePage"
             name="Rust">
       </page>
-</extension>
-<extension
+   </extension>
+<!-- WIZARDS -->
+   <extension
          point="org.eclipse.ui.newWizards">
       <category
             id="org.eclipse.redox.rust"
@@ -76,5 +77,62 @@
             name="Cargo project"
             project="true">
       </wizard>
-</extension>
+   </extension>
+
+<!-- LAUNCH CONFIGURATIONS -->
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+           name="Cargo Based Rust Project"
+           delegate="org.eclipse.redox.run.CargoRunDelegate"
+           modes="run"
+           id="org.eclipse.redox.run.CargoRunDelegate">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.eclipse.redox.run.CargoRunTabGroup"
+            id="org.eclipse.redox.run.CargoRunTabGroup"
+            type="org.eclipse.redox.run.CargoRunDelegate">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            id="org.eclipse.redox.run.CargoRunTypeImage"
+            configTypeID="org.eclipse.redox.run.CargoRunDelegate"
+            icon="icons/cargo.png">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            id="org.eclipse.redox.cargoProjectTester"
+            type="org.eclipse.core.resources.IResource"
+            namespace="org.eclipse.redox"
+            properties="isCargoProject"
+            class="org.eclipse.redox.CargoProjectTester">
+      </propertyTester>
+   </extension>
+   <extension point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            id="org.eclipse.redox.run.Shortcut"
+            class="org.eclipse.redox.run.CargoRunDelegate"
+            label="Cargo Based Rust Project"
+            icon="icons/cargo.png"
+            modes="run">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+                  <iterate>
+                     <adapt type="org.eclipse.core.resources.IResource">
+                        <test property="org.eclipse.redox.isCargoProject"
+                              forcePluginActivation="true"/>
+                     </adapt>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
 </plugin>

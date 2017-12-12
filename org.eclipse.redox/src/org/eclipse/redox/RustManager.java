@@ -15,6 +15,8 @@ package org.eclipse.redox;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
@@ -109,10 +111,47 @@ public class RustManager {
 			command[0] = rustup;
 			System.arraycopy(arguments, 0, command, 1, arguments.length);
 			ProcessBuilder builder = new ProcessBuilder(command);
+			builder.inheritIO();
 			Process process = builder.start();
 			return process.waitFor() == 0;
 		} catch (IOException | InterruptedException e) {
 			return false;
 		}
+	}
+
+	public static List<String> getToolchains() {
+		List<String> toolchainsList = new ArrayList<>();
+		String rustup = STORE.getString(RedoxPreferenceInitializer.rustupPathPreference);
+		if (!rustup.isEmpty()) {
+			try {
+				ProcessBuilder builder = new ProcessBuilder(new String[] { rustup, "show" });
+				Process process = builder.start();
+
+				if (process.waitFor() == 0) {
+					try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+						String line = in.readLine();
+						while (line != null && !line.equals("active toolchain")) {
+							String toolchain = "";
+							if (line.matches("^nightly-\\d{4}-\\d{2}-\\d{2}.*$")) {
+								toolchain = line.substring(0, 18);// "nightly-YYYY-MM-DD".length()==18
+							} else if (line.matches("\\w+\\-.*")) {
+								int splitIndex = line.indexOf('-');
+								if (splitIndex != -1) {
+									toolchain = line.substring(0, splitIndex);
+								}
+							}
+							if (!toolchain.isEmpty()) {
+								toolchainsList.add(toolchain);
+							}
+							line = in.readLine();
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				// Errors will be caught with empty return
+			}
+		}
+		return toolchainsList;
 	}
 }

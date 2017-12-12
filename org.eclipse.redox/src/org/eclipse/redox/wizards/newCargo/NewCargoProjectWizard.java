@@ -233,10 +233,10 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 	private File newFolderLocation() {
 		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
 		int appendedNumber = 0;
-		File newFile = workspacePath.append("NewRustProject").toFile();
+		File newFile = workspacePath.append("new_rust_project").toFile();
 		while (newFile.isDirectory()) {
 			appendedNumber++;
-			newFile = workspacePath.append("NewRustProject" + appendedNumber).toFile();
+			newFile = workspacePath.append("new_rust_project_" + appendedNumber).toFile();
 		}
 		return newFile;
 	}
