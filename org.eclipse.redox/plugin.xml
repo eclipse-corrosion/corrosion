@@ -78,6 +78,19 @@
             project="true">
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.ui.exportWizards">
+      <wizard
+            id="org.eclipse.redox.wizards.export"
+            name="Rust Crate Packager"
+            class="org.eclipse.redox.wizards.export.CargoExportWizard"
+            icon="icons/cargo.png">
+         <description>
+            A wizard to assist with packaging Cargo based Rust projects into crates
+         </description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
 
 <!-- LAUNCH CONFIGURATIONS -->
    <extension

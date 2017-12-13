@@ -22,4 +22,5 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.core.expressions;bundle-version="3.6.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.redox.wizards.newCargo;x-friends:="org.eclipse.redox.tests"
+Export-Package: org.eclipse.redox.wizards.export;x-friends:="org.eclipse.redox.tests",
+ org.eclipse.redox.wizards.newCargo;x-friends:="org.eclipse.redox.tests"

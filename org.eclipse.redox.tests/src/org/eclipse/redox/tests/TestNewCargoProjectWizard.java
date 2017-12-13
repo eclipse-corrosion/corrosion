@@ -24,9 +24,6 @@ import org.eclipse.redox.wizards.newCargo.NewCargoProjectWizard;
 import org.eclipse.redox.wizards.newCargo.NewCargoProjectWizardPage;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.Test;
 
@@ -80,13 +77,5 @@ public class TestNewCargoProjectWizard extends AbstractRedoxTest {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		assertEquals(1, projects.length);
 		assertTrue(projects[0].getFile("Cargo.toml").exists());
-	}
-
-	private Shell getShell() {
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-	}
-
-	private IWorkbench getWorkbench() {
-		return PlatformUI.getWorkbench();
 	}
 }

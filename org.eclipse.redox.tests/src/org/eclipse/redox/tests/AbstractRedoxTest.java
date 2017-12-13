@@ -29,6 +29,8 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.junit.After;
 import org.junit.Before;
@@ -99,5 +101,13 @@ public class AbstractRedoxTest {
 			provisionProject(projectPrefix);
 		}
 		return this.provisionedProjects.get(projectPrefix);
+	}
+
+	protected Shell getShell() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+	}
+
+	protected IWorkbench getWorkbench() {
+		return PlatformUI.getWorkbench();
 	}
 }
