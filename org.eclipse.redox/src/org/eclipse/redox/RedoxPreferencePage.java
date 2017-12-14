@@ -387,6 +387,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 						performDefaults();
 						setValid(isPageValid());
 					});
+					RustManager.setDefaultToolchain("beta");
 					return;
 				}
 			} catch (InterruptedException | URISyntaxException | IOException e) {

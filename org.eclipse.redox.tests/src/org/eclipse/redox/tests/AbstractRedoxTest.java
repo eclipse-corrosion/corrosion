@@ -78,10 +78,10 @@ public class AbstractRedoxTest {
 
 	@After
 	public void tearDown() throws CoreException {
-		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+		for (String projectName : this.provisionedProjects.keySet()) {
 			try {
-				project.delete(true, new NullProgressMonitor());
-			} catch (CoreException e) {
+				getProject(projectName).delete(true, new NullProgressMonitor());
+			} catch (CoreException | IOException e) {
 				e.printStackTrace();
 			}
 		}

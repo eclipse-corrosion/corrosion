@@ -17,6 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -77,5 +79,17 @@ public class TestNewCargoProjectWizard extends AbstractRedoxTest {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		assertEquals(1, projects.length);
 		assertTrue(projects[0].getFile("Cargo.toml").exists());
+	}
+
+	@Override
+	public void tearDown() throws CoreException {
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+			try {
+				project.delete(true, new NullProgressMonitor());
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+		super.tearDown();
 	}
 }

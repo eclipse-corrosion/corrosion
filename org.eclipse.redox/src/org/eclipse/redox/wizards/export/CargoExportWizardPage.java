@@ -45,14 +45,14 @@ import org.osgi.framework.FrameworkUtil;
 
 public class CargoExportWizardPage extends WizardPage {
 	private IProject project;
-	private Boolean noVerify = false;
-	private Boolean noMetadata = false;
-	private Boolean allowDirty = false;
 
 	private Text projectText;
 	private Label outputLocationLabel;
 	private ControlDecoration projectControlDecoration;
 	private Combo toolchainCombo;
+	private Button allowDirtyCheckbox;
+	private Button noVerifyCheckbox;
+	private Button noMetadataCheckbox;
 
 	public IProject getProject() {
 		return project;
@@ -67,15 +67,15 @@ public class CargoExportWizardPage extends WizardPage {
 	}
 
 	public Boolean noVerify() {
-		return noVerify;
+		return noVerifyCheckbox.getSelection();
 	}
 
 	public Boolean noMetadata() {
-		return noMetadata;
+		return noMetadataCheckbox.getSelection();
 	}
 
 	public Boolean allowDirty() {
-		return allowDirty;
+		return allowDirtyCheckbox.getSelection();
 	}
 
 	protected CargoExportWizardPage(IProject project) {
@@ -160,22 +160,17 @@ public class CargoExportWizardPage extends WizardPage {
 		}
 		new Label(container, SWT.NONE);
 
-		Button noVerifyCheckbox = new Button(container, SWT.CHECK);
+		noVerifyCheckbox = new Button(container, SWT.CHECK);
 		noVerifyCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		noVerifyCheckbox.setText("Don't verify the contents by building them");
-		noVerifyCheckbox.addSelectionListener(widgetSelectedAdapter(e -> noVerify = noVerifyCheckbox.getSelection()));
 
-		Button noMetadataCheckbox = new Button(container, SWT.CHECK);
+		noMetadataCheckbox = new Button(container, SWT.CHECK);
 		noMetadataCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		noMetadataCheckbox.setText("Ignore warnings about a lack of human-usable metadata");
-		noMetadataCheckbox
-				.addSelectionListener(widgetSelectedAdapter(e -> noMetadata = noMetadataCheckbox.getSelection()));
 
-		Button allowDirtyCheckbox = new Button(container, SWT.CHECK);
+		allowDirtyCheckbox = new Button(container, SWT.CHECK);
 		allowDirtyCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		allowDirtyCheckbox.setText("Allow dirty working directories to be packaged");
-		allowDirtyCheckbox
-				.addSelectionListener(widgetSelectedAdapter(e -> allowDirty = allowDirtyCheckbox.getSelection()));
 		setPageComplete(isPageComplete());
 	}
 

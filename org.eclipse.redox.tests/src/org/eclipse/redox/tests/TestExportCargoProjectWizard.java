@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.redox.wizards.export.CargoExportWizard;
 import org.eclipse.redox.wizards.export.CargoExportWizardPage;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -100,9 +101,18 @@ public class TestExportCargoProjectWizard extends AbstractRedoxTest {
 	}
 
 	@Test
-	public void testCreateNewProject() throws Exception {
+	public void testExportProject() throws Exception {
 		IProject basic = getProject("basic");
 		createWizard("basic");
+		Composite composite = (Composite) wizard.getPages()[0].getControl();
+		Button allowDirty = (Button) composite.getChildren()[10];
+		allowDirty.setSelection(true); // required of another test updates the project
+		new DisplayHelper() {
+			@Override
+			protected boolean condition() {
+				return allowDirty.getSelection();
+			}
+		}.waitForCondition(getShell().getDisplay(), 3000);
 
 		assertTrue(wizard.canFinish());
 		assertTrue(wizard.performFinish());
