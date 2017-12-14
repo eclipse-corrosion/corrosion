@@ -19,6 +19,7 @@ Require-Bundle: org.eclipse.redox;bundle-version="0.1.0",
  org.eclipse.lsp4j,
  org.eclipse.lsp4j.jsonrpc;bundle-version="0.2.0",
  org.eclipse.ui.editors,
- org.eclipse.debug.core
+ org.eclipse.debug.core,
+ org.eclipse.core.expressions
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

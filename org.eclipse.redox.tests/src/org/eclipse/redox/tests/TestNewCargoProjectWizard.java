@@ -35,16 +35,16 @@ public class TestNewCargoProjectWizard extends AbstractRedoxTest {
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		wizard.init(getWorkbench(), new StructuredSelection());
 		dialog.create();
-		confirmPageState(wizard, "new_rust_project", "none", false);
+		confirmPageState(wizard, "new_rust_project", "none", true);
 
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
 		Button binaryCheckBox = (Button) composite.getChildren()[12];
-		binaryCheckBox.setSelection(true);
-		confirmPageState(wizard, "new_rust_project", "none", true);
+		binaryCheckBox.setSelection(false);
+		confirmPageState(wizard, "new_rust_project", "none", false);
 
 		Button vcsCheckBox = (Button) composite.getChildren()[14];
 		vcsCheckBox.setSelection(true);
-		confirmPageState(wizard, "new_rust_project", "git", true);
+		confirmPageState(wizard, "new_rust_project", "git", false);
 
 		dialog.close();
 	}

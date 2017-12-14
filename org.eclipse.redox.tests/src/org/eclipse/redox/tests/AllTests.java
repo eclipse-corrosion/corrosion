@@ -23,7 +23,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestLSPIntegration.class,
 	TestNewCargoProjectWizard.class,
 	TestRunConfiguration.class,
-	TestExportCargoProjectWizard.class
+	TestExportCargoProjectWizard.class,
+	TestBuilder.class
 })
 public class AllTests {
 

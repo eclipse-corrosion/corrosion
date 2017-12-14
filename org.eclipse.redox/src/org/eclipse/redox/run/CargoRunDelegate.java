@@ -38,9 +38,11 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.redox.RedoxPlugin;
+import org.eclipse.redox.RedoxPreferenceInitializer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -104,7 +106,9 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
 		List<String> cargoRunCommand = new ArrayList<>();
-		cargoRunCommand.add("cargo");
+		IPreferenceStore store = RedoxPlugin.getDefault().getPreferenceStore();
+		String cargo = store.getDefaultString(RedoxPreferenceInitializer.cargoPathPreference);
+		cargoRunCommand.add(cargo);
 		cargoRunCommand.add("run");
 		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, "");
 		String toolchain = configuration.getAttribute(TOOLCHAIN_ATTRIBUTE, "");

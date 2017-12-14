@@ -62,6 +62,20 @@
             name="Rust">
       </page>
    </extension>
+   <extension
+       point="org.eclipse.core.expressions.definitions">
+    <definition id="org.eclipse.redox.isCargoProject">
+       <with variable="selection">
+          <count value="1"/>
+          <iterate>
+             <adapt type="org.eclipse.core.resources.IResource">
+                <test property="org.eclipse.redox.isCargoProject"
+                      forcePluginActivation="true"/>
+             </adapt>
+          </iterate>
+       </with>
+     </definition>
+   </extension>
 <!-- WIZARDS -->
    <extension
          point="org.eclipse.ui.newWizards">
@@ -135,17 +149,83 @@
             modes="run">
          <contextualLaunch>
             <enablement>
-               <with variable="selection">
-                  <count value="1"/>
-                  <iterate>
-                     <adapt type="org.eclipse.core.resources.IResource">
-                        <test property="org.eclipse.redox.isCargoProject"
-                              forcePluginActivation="true"/>
-                     </adapt>
-                  </iterate>
-               </with>
+               <reference definitionId="org.eclipse.redox.isCargoProject"/>
             </enablement>
          </contextualLaunch>
       </shortcut>
+   </extension>
+
+<!-- INCREMENTAL BUILD PROCESS -->
+   <extension
+         id="org.eclipse.redox.builder.IncrementalCargoBuilder"
+         name="Cargo Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="org.eclipse.redox.builder.IncrementalCargoBuilder"/>
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="org.eclipse.redox.builder.AddCargoBuilder"
+               style="push">
+            <visibleWhen checkEnabled="false">
+               <and>
+                  <count value="1"/>
+                  <reference definitionId="org.eclipse.redox.isCargoProject"/>
+                  <iterate>
+                     <not>
+                        <test
+                              forcePluginActivation="true"
+                              property="org.eclipse.redox.builder.isCargoBuilderEnabled">
+                        </test>
+                     </not>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.redox.builder.RemoveCargoBuilder"
+               style="push">
+            <visibleWhen checkEnabled="true">
+               <and>
+                  <count value="1"/>
+                  <reference definitionId="org.eclipse.redox.isCargoProject"/>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.redox.builder.isCargoBuilderEnabled">
+                     </test>
+                  </iterate>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+          point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.eclipse.redox.builder.AddCargoBuilder"
+            name="Add Cargo Builder"
+            id="org.eclipse.redox.builder.AddCargoBuilder">
+      </command>
+      <command
+            defaultHandler="org.eclipse.redox.builder.RemoveCargoBuilder"
+            id="org.eclipse.redox.builder.RemoveCargoBuilder"
+            name="Remove Cargo Builder">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="org.eclipse.redox.builder.TestCargoBuilderEnabled"
+            id="org.eclipse.redox.builder.IncrementalCargoBuilderTester"
+            namespace="org.eclipse.redox.builder"
+            properties="isCargoBuilderEnabled"
+            type="java.lang.Object">
+      </propertyTester>
    </extension>
 </plugin>

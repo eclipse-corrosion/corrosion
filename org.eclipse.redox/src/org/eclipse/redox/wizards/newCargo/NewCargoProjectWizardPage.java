@@ -316,6 +316,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		new Label(container, SWT.NONE);
 		binCheckBox = new Button(container, SWT.CHECK);
 		binCheckBox.setText("Use a binary application template");
+		binCheckBox.setSelection(true);
 		binCheckBox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 	}
 

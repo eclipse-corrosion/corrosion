@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -44,6 +45,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.redox.RedoxPlugin;
 import org.eclipse.redox.RedoxPreferenceInitializer;
+import org.eclipse.redox.builder.IncrementalCargoBuilder;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
@@ -200,6 +202,14 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 				IPath projectPath = new Path(projectLocation);
 
 				projectDescription.setLocation(projectPath);
+
+				ICommand[] commands = projectDescription.getBuildSpec();
+				ICommand command = projectDescription.newCommand();
+				command.setBuilderName(IncrementalCargoBuilder.BUILDER_ID);
+				ICommand[] nc = new ICommand[commands.length + 1];
+				System.arraycopy(commands, 0, nc, 1, commands.length);
+				nc[0] = command;
+				projectDescription.setBuildSpec(nc);
 
 				project.create(projectDescription, monitor);
 			}
