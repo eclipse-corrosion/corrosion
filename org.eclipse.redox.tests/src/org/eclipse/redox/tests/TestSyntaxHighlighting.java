@@ -29,8 +29,24 @@ import org.junit.Test;
 public class TestSyntaxHighlighting extends AbstractRedoxTest {
 
 	@Test
-	public void testSyntaxHighlighting() throws CoreException, IOException {
+	public void testRustSyntaxHighlighting() throws CoreException, IOException {
 		IFile rustFile = getProject("basic").getFolder("src").getFile("main.rs");
+		TextEditor editor = (TextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), rustFile,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		StyledText editorTextWidget = (StyledText) editor.getAdapter(Control.class);
+		new DisplayHelper() {
+			@Override
+			protected boolean condition() {
+				return editorTextWidget.getStyleRanges().length > 1;
+			}
+		}.waitForCondition(editorTextWidget.getDisplay(), 4000);
+		Assert.assertTrue("There should be multiple styles in editor", editorTextWidget.getStyleRanges().length > 1);
+	}
+
+	@Test
+	public void testManifestSyntaxHighlighting() throws CoreException, IOException {
+		IFile rustFile = getProject("basic").getFile("Cargo.toml");
 		TextEditor editor = (TextEditor) IDE.openEditor(
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), rustFile,
 				"org.eclipse.ui.genericeditor.GenericEditor");

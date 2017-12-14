@@ -10,11 +10,22 @@
             name="Rust project file"
             priority="normal">
       </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-names="Cargo.toml"
+            id="org.eclipse.redox.manifest"
+            name="Cargo manifest file"
+            priority="normal">
+      </content-type>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
      <editorContentTypeBinding
         contentTypeId="org.eclipse.redox.rust"
+        editorId="org.eclipse.ui.genericeditor.GenericEditor">
+   		</editorContentTypeBinding>
+     <editorContentTypeBinding
+        contentTypeId="org.eclipse.redox.manifest"
         editorId="org.eclipse.ui.genericeditor.GenericEditor">
    		</editorContentTypeBinding>
    </extension>
@@ -39,6 +50,14 @@
       <scopeNameContentTypeBinding
             contentTypeId="org.eclipse.redox.rust"
             scopeName="source.rs">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="grammar/TOML.tmLanguage"
+            scopeName="source.toml">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.redox.manifest"
+            scopeName="source.toml">
       </scopeNameContentTypeBinding>
    </extension>
    <extension

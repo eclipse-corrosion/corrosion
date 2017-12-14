@@ -27,10 +27,18 @@ import org.junit.Test;
 public class TestIDEIntegration extends AbstractRedoxTest {
 
 	@Test
-	public void testEditorAssociation() throws IOException, CoreException {
+	public void testRustEditorAssociation() throws IOException, CoreException {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
 		editor = IDE.openEditor(activePage, getProject("basic").getFolder("src").getFile("main.rs"));
+		Assert.assertTrue(editor instanceof ExtensionBasedTextEditor);
+	}
+
+	@Test
+	public void testManifestEditorAssociation() throws IOException, CoreException {
+		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IEditorPart editor = null;
+		editor = IDE.openEditor(activePage, getProject("basic").getFile("Cargo.toml"));
 		Assert.assertTrue(editor instanceof ExtensionBasedTextEditor);
 	}
 
