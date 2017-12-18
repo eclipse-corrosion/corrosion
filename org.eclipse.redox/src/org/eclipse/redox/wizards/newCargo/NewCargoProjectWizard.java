@@ -57,6 +57,7 @@ import org.eclipse.ui.ide.IDE;
 
 public class NewCargoProjectWizard extends Wizard implements INewWizard {
 	private NewCargoProjectWizardPage wizardPage;
+	public static final String ID = "org.eclipse.redox.wizards.newCargo";
 
 	public NewCargoProjectWizard() {
 		super();

@@ -247,4 +247,15 @@
             type="java.lang.Object">
       </propertyTester>
    </extension>
+
+<!-- PERSPECTIVE -->
+   <extension
+        point="org.eclipse.ui.perspectives">
+        <perspective
+            id="org.eclipse.redox.rustPerspective"
+            name="Rust"
+            class="org.eclipse.redox.RustPerspective"
+            icon="icons/rust.png">
+        </perspective> 
+    </extension> 
 </plugin>

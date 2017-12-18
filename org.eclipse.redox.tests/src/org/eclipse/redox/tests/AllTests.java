@@ -24,7 +24,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestNewCargoProjectWizard.class,
 	TestRunConfiguration.class,
 	TestExportCargoProjectWizard.class,
-	TestBuilder.class
+	TestBuilder.class,
+	TestPerspective.class
 })
 public class AllTests {
 
