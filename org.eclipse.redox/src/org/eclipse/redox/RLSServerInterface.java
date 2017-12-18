@@ -10,24 +10,19 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.redox.tests;
+package org.eclipse.redox;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	TestIDEIntegration.class,
-	TestSyntaxHighlighting.class,
-	TestLSPIntegration.class,
-	TestNewCargoProjectWizard.class,
-	TestRunConfiguration.class,
-	TestExportCargoProjectWizard.class,
-	TestBuilder.class,
-	TestPerspective.class,
-	TestLSPExtensions.class
-})
-public class AllTests {
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.services.LanguageServer;
+
+public interface RLSServerInterface extends LanguageServer {
+
+	@JsonRequest("rustDocument/implementations")
+	CompletableFuture<List<? extends Location>> implementations(TextDocumentPositionParams position);
 
 }

@@ -21,10 +21,16 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.core.variables,
  org.eclipse.core.expressions;bundle-version="3.6.0",
  org.eclipse.search,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ org.eclipse.lsp4j.jsonrpc,
+ org.eclipse.lsp4j,
+ com.google.gson;bundle-version="2.7.0",
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.redox;x-friends:="org.eclipse.redox.tests",
  org.eclipse.redox.builder;x-friends:="org.eclipse.redox.tests",
+ org.eclipse.redox.extensions;x-friends:="org.eclipse.redox.tests",
  org.eclipse.redox.wizards.export;x-friends:="org.eclipse.redox.tests",
  org.eclipse.redox.wizards.newCargo;x-friends:="org.eclipse.redox.tests"

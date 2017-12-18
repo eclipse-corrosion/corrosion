@@ -34,7 +34,9 @@
      <server
         class="org.eclipse.redox.RLSStreamConnectionProvider"
         id="org.eclipse.redox.rls"
-        label="org.eclipse.redox.RLS">
+        label="org.eclipse.redox.RLS"
+        clientImpl="org.eclipse.redox.RLSClientImplementation"
+        serverInterface="org.eclipse.redox.RLSServerInterface">
       </server>
       <contentTypeMapping
             contentType="org.eclipse.redox.rust"
@@ -223,6 +225,14 @@
             </visibleWhen>
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="true"
+            locationURI="popup:#TextEditorContext?after=additions">
+        <command
+               commandId="org.eclipse.redox.commands.Implementations"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
           point="org.eclipse.ui.commands">
@@ -236,8 +246,30 @@
             id="org.eclipse.redox.builder.RemoveCargoBuilder"
             name="Remove Cargo Builder">
       </command>
+      <command
+            categoryId="org.eclipse.lsp4e.category"
+            id="org.eclipse.redox.commands.Implementations"
+            name="Implementations">
+      </command>
    </extension>
    <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.eclipse.redox.extensions.Implementations"
+            commandId="org.eclipse.redox.commands.Implementations">
+         <enabledWhen>
+            <and>
+               <with
+                     variable="selection">
+                  <instanceof
+                        value="org.eclipse.jface.text.ITextSelection">
+                  </instanceof>
+               </with>
+            </and>
+         </enabledWhen>
+      </handler>
+   </extension>
+      <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="org.eclipse.redox.builder.TestCargoBuilderEnabled"
