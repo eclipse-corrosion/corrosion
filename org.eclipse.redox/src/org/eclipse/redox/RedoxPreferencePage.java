@@ -103,7 +103,14 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		setRadioSelection(sourceIndex);
 		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS
 				.indexOf(store.getString(RedoxPreferenceInitializer.toolchainTypePreference));
-		otherIdText.setText(store.getString(RedoxPreferenceInitializer.toolchainIdPreference));
+		String toolchainId = store.getString(RedoxPreferenceInitializer.toolchainIdPreference);
+		otherIdText.setText(toolchainId);
+		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
+			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).toLowerCase().equals(toolchainId.toLowerCase())) {
+				toolchainIndex = i;
+				break;
+			}
+		}
 		setToolchainSelection(toolchainIndex);
 		rustupPathText.setText(store.getString(RedoxPreferenceInitializer.rustupPathPreference));
 		cargoPathText.setText(store.getString(RedoxPreferenceInitializer.cargoPathPreference));
@@ -200,7 +207,14 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		setRadioSelection(sourceIndex);
 		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS
 				.indexOf(store.getDefaultString(RedoxPreferenceInitializer.toolchainTypePreference));
-		otherIdText.setText(store.getDefaultString(RedoxPreferenceInitializer.toolchainIdPreference));
+		String toolchainId = store.getDefaultString(RedoxPreferenceInitializer.toolchainIdPreference);
+		otherIdText.setText(toolchainId);
+		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
+			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).toLowerCase().equals(toolchainId.toLowerCase())) {
+				toolchainIndex = i;
+				break;
+			}
+		}
 		setToolchainSelection(toolchainIndex);
 		useDefaultPathsCheckbox
 				.setSelection(store.getDefaultBoolean(RedoxPreferenceInitializer.defaultPathsPreference));

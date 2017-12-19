@@ -289,5 +289,5 @@
             class="org.eclipse.redox.RustPerspective"
             icon="icons/rust.png">
         </perspective> 
-    </extension> 
+    </extension>
 </plugin>
