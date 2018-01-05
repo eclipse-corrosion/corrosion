@@ -27,14 +27,14 @@ public class RLSClientImplementation extends LanguageClientImpl {
 
 	@JsonNotification("rustDocument/beginBuild")
 	public void beginBuild() {
-		initializeJob();
 		status = "Building project";
+		initializeJob();
 	}
 
 	@JsonNotification("rustDocument/diagnosticsBegin")
 	public void diagnosticsBegin() {
-		initializeJob();
 		status = "Compiling diagnostics";
+		initializeJob();
 	}
 
 	@JsonNotification("rustDocument/diagnosticsEnd")
