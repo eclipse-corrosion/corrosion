@@ -107,7 +107,7 @@ public class CargoRunTab extends AbstractLaunchConfigurationTab {
 
 		toolchainCombo = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
 		toolchainCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		String defaultString = "Deafult";
+		String defaultString = "Default";
 		final String defaultToolchain = RustManager.getDefaultToolchain();
 		if (!defaultToolchain.isEmpty()) {
 			defaultString += "(Currently " + defaultToolchain + ")";
