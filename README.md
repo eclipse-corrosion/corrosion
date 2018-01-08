@@ -8,7 +8,9 @@ RedOx (short for reduction–oxidation, the reaction that causes rust), is a Rus
 ![Screenshot](images/editorOverview.png "Screenshot of RedOx editor")
 
 ## Installation
-Follow the [installation instructions](https://lucasbullen.github.io/redOx/site/)
+For Photon (4.8): Follow these [installation instructions](https://lucasbullen.github.io/redOx/site/)
+
+For Oxygen (4.7): Follow these [installation instructions](https://lucasbullen.github.io/redox.github.io/)
 
 ## Prerequisites
 
