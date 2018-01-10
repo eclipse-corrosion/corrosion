@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -76,41 +76,57 @@ public class RustManager {
 		return "";
 	}
 
+	private static Job settingToolchainJob = null;
+
 	public static void setDefaultToolchain(String toolchainId) {
-		Job.create("Setting RLS Toolchain", (ICoreRunnable) monitor -> {
-			monitor.beginTask("Installing Toolchain", 5);
-			monitor.worked(1);
-			if (!runRustupCommand("toolchain", "install", toolchainId)) {
+		if(settingToolchainJob != null) {
+			settingToolchainJob.cancel();
+		}
+
+		settingToolchainJob = Job.create("Setting RLS Toolchain", monitor -> {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, 5);
+			subMonitor.beginTask("Installing Toolchain", 5);
+			subMonitor.split(1);
+			if (!runRustupCommand(subMonitor, "toolchain", "install", toolchainId)) {
+				if (!monitor.isCanceled()) {
 				showToolchainSelectionError("Unable to install toolchain `" + toolchainId
 						+ "`. Ensure the `rustup` command path is correct and that `" + toolchainId
 						+ "` is a valid toolchain ID.");
+				}
 				return;
 			}
-			monitor.subTask("Setting default toolchain");
-			monitor.worked(1);
-			if (!runRustupCommand("default", toolchainId)) {
-				showToolchainSelectionError("Unable to set `" + toolchainId + "` as the default toolchain");
+			subMonitor.subTask("Setting default toolchain");
+			subMonitor.split(1);
+			if (!runRustupCommand(subMonitor, "default", toolchainId)) {
+				if (!monitor.isCanceled()) {
+					showToolchainSelectionError("Unable to set `" + toolchainId + "` as the default toolchain");
+				}
 				return;
 			}
-			monitor.subTask("Adding `rls-preview` component");
-			monitor.worked(1);
-			if (!runRustupCommand("component", "add", "rls-preview")) {
-				showToolchainSelectionError("The toolchain `" + toolchainId
-						+ "` does not contain the Rust Language Server, please select a different toolchain");
+			subMonitor.subTask("Adding `rls-preview` component");
+			subMonitor.split(1);
+			if (!runRustupCommand(subMonitor, "component", "add", "rls-preview")) {
+				if (!monitor.isCanceled()) {
+					showToolchainSelectionError("The toolchain `" + toolchainId
+							+ "` does not contain the Rust Language Server, please select a different toolchain");
+				}
 				return;
 			}
-			monitor.subTask("Adding `rust-analysis` and `rust-src` components");
-			monitor.worked(1);
-			if (!runRustupCommand("component", "add", "rust-analysis")
-					|| !runRustupCommand("component", "add", "rust-src")) {
-				showToolchainSelectionError("Unable to add required components, please select a different toolchain");
+			subMonitor.subTask("Adding `rust-analysis` and `rust-src` components");
+			subMonitor.split(1);
+			if (!runRustupCommand(subMonitor, "component", "add", "rust-analysis")
+					|| !runRustupCommand(subMonitor, "component", "add", "rust-src")) {
+				if (!monitor.isCanceled()) {
+					showToolchainSelectionError("Unable to add required components, please select a different toolchain");
+				}
 				return;
 			}
 			Map<String, String> updatedSettings = new HashMap<>();
 			updatedSettings.put("target", toolchainId);
 
 			sendDidChangeConfigurationsMessage(updatedSettings);
-		}).schedule();
+		});
+		settingToolchainJob.schedule();
 	}
 
 	private static void sendDidChangeConfigurationsMessage(Map<String, String> updatedSettings) {
@@ -156,7 +172,7 @@ public class RustManager {
 		});
 	}
 
-	private static boolean runRustupCommand(String... arguments) {
+	private static boolean runRustupCommand(SubMonitor monitor, String... arguments) {
 		String rustup = STORE.getString(RedoxPreferenceInitializer.rustupPathPreference);
 		if (rustup.isEmpty()) {
 			return false;
@@ -168,6 +184,14 @@ public class RustManager {
 			ProcessBuilder builder = new ProcessBuilder(command);
 			builder.inheritIO();
 			Process process = builder.start();
+			while(process.isAlive() && !monitor.isCanceled()) {
+				Thread.sleep(50);
+			}
+			if(monitor.isCanceled()) {
+				process.destroyForcibly();
+				return false;
+			}
+			
 			return process.waitFor() == 0;
 		} catch (IOException | InterruptedException e) {
 			return false;
