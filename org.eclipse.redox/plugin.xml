@@ -70,6 +70,13 @@
       </presentationReconciler>
    </extension>
    <extension
+         point="org.eclipse.ui.genericeditor.contentAssistProcessors">
+      <contentAssistProcessor
+            class="org.eclipse.redox.snippet.SnippetContentAssistProcessor"
+            contentType="org.eclipse.redox.rust">
+      </contentAssistProcessor>
+   </extension>
+   <extension
          point="org.eclipse.core.runtime.preferences">
          <initializer
             class="org.eclipse.redox.RedoxPreferenceInitializer">
