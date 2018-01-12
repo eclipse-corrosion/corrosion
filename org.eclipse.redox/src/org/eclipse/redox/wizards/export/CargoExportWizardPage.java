@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -179,7 +179,7 @@ public class CargoExportWizardPage extends WizardPage {
 
 	@Override
 	public boolean isPageComplete() {
-		File cargo = new File(store.getDefaultString(RedoxPreferenceInitializer.cargoPathPreference));
+		File cargo = new File(store.getString(RedoxPreferenceInitializer.cargoPathPreference));
 		if (!(cargo.exists() && cargo.isFile() && cargo.canExecute())) {
 			setErrorMessage("Cargo command not found. Fix path in the Rust Preferences Page.");
 			return false;

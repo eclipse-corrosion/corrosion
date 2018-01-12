@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -112,7 +112,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		String vcs = wizardPage.getVCS();
 
 		IPreferenceStore store = RedoxPlugin.getDefault().getPreferenceStore();
-		String cargo = store.getDefaultString(RedoxPreferenceInitializer.cargoPathPreference);
+		String cargo = store.getString(RedoxPreferenceInitializer.cargoPathPreference);
 
 		Boolean makeLocation = !location.exists();
 		if (makeLocation) {

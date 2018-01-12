@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -216,8 +218,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 			}
 		}
 		setToolchainSelection(toolchainIndex);
-		useDefaultPathsCheckbox
-				.setSelection(store.getDefaultBoolean(RedoxPreferenceInitializer.defaultPathsPreference));
+		setDefaultPathsSelection(store.getDefaultBoolean(RedoxPreferenceInitializer.defaultPathsPreference));
 		rustupPathText.setText(store.getDefaultString(RedoxPreferenceInitializer.rustupPathPreference));
 		cargoPathText.setText(store.getDefaultString(RedoxPreferenceInitializer.cargoPathPreference));
 		rlsPathText.setText(store.getDefaultString(RedoxPreferenceInitializer.rlsPathPreference));
@@ -336,7 +337,11 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		installButton = new Button(parent, SWT.NONE);
 		installButton.setLayoutData(buttonGridData);
 		installButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			installCommands();
+			if (Platform.getOS().equals(Platform.OS_WIN32)) {
+				Program.launch("https://rustup.rs/");
+			}else {
+				installCommands();
+			}
 		}));
 
 		rustupLabel = new Label(parent, SWT.NONE);
@@ -388,9 +393,9 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		Job.create("Installing Rustup and Cargo", (ICoreRunnable) monitor -> {
 			try {
 				Bundle bundle = Platform.getBundle("org.eclipse.redox");
-				URL fileURL = bundle.getEntry("scripts/rustup.sh");
-				File file = new File(FileLocator.resolve(fileURL).toURI());
-				String[] command = new String[] { "/bin/sh", file.getAbsolutePath() };
+				URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup.sh"));
+				File file = new File(new URI(fileURL.getProtocol(), fileURL.getPath(), null));
+				String[] command = new String[] { "/bin/bash", "-c", file.getAbsolutePath() };
 				ProcessBuilder builder = new ProcessBuilder(command);
 				Process process = builder.start();
 				if (process.waitFor() == 0) {
@@ -407,8 +412,8 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 			} catch (InterruptedException | URISyntaxException | IOException e) {
 				// will be caught with dialog
 			}
-			setInstallRequired(true);
 			Display.getDefault().asyncExec(() -> {
+				setInstallRequired(true);
 				MessageDialog.openError(getShell(), "Cannot install Rust and Cargo",
 						"We were unable to perform the install, you can do so manually by going to doc.crates.io");
 			});

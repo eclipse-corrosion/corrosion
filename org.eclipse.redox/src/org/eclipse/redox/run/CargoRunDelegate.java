@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -107,7 +107,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 			throws CoreException {
 		List<String> cargoRunCommand = new ArrayList<>();
 		IPreferenceStore store = RedoxPlugin.getDefault().getPreferenceStore();
-		String cargo = store.getDefaultString(RedoxPreferenceInitializer.cargoPathPreference);
+		String cargo = store.getString(RedoxPreferenceInitializer.cargoPathPreference);
 		cargoRunCommand.add(cargo);
 		cargoRunCommand.add("run");
 		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, "");
