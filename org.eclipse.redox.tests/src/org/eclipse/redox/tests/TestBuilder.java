@@ -14,6 +14,7 @@ package org.eclipse.redox.tests;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 
@@ -23,6 +24,10 @@ import org.eclipse.core.expressions.EvaluationContext;
 import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.redox.builder.AddCargoBuilder;
 import org.eclipse.redox.builder.RemoveCargoBuilder;
@@ -49,10 +54,20 @@ public class TestBuilder extends AbstractRedoxTest {
 	public void testBuild() throws Exception {
 		IProject project = getProject("basic");
 		addBuilder(project);
+		try {
+			project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, new NullProgressMonitor());
+		} catch (CoreException e1) {
+			fail();
+		}
 		new DisplayHelper() {
 
 			@Override
 			protected boolean condition() {
+				try {
+					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				} catch (CoreException e) {
+					// caught with failing test
+				}
 				return project.getFolder("target").getFolder("debug").getFile("basic").exists();
 			}
 		}.waitForCondition(getShell().getDisplay(), 10000);

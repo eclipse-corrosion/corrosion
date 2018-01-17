@@ -138,10 +138,18 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-           name="Cargo Based Rust Project"
-           delegate="org.eclipse.redox.run.CargoRunDelegate"
-           modes="run"
-           id="org.eclipse.redox.run.CargoRunDelegate">
+            delegate="org.eclipse.redox.run.CargoRunDelegate"
+            id="org.eclipse.redox.run.CargoRunDelegate"
+            modes="run"
+            name="Cargo Based Rust Project">
+      </launchConfigurationType>
+      <launchConfigurationType
+            delegate="org.eclipse.redox.debug.RustDebugDelegate"
+            id="org.eclipse.redox.debug.RustDebugDelegate"
+            modes="debug"
+            name="Rust"
+            public="true"
+            sourceLocatorId="com.eclipse.redox.debug.SourceLocator">
       </launchConfigurationType>
    </extension>
    <extension
@@ -151,12 +159,22 @@
             id="org.eclipse.redox.run.CargoRunTabGroup"
             type="org.eclipse.redox.run.CargoRunDelegate">
       </launchConfigurationTabGroup>
+      <launchConfigurationTabGroup
+            class="org.eclipse.redox.debug.RustDebugTabGroup"
+            id="org.eclipse.redox.debug.RustDebugTabGroup"
+            type="org.eclipse.redox.debug.RustDebugDelegate">
+      </launchConfigurationTabGroup>
    </extension>
    <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             id="org.eclipse.redox.run.CargoRunTypeImage"
             configTypeID="org.eclipse.redox.run.CargoRunDelegate"
             icon="icons/cargo.png">
+      </launchConfigurationTypeImage>
+      <launchConfigurationTypeImage
+            id="org.eclipse.redox.debug.RustDebugTypeImage"
+            configTypeID="org.eclipse.redox.debug.RustDebugDelegate"
+            icon="icons/rust.png">
       </launchConfigurationTypeImage>
    </extension>
    <extension point="org.eclipse.core.expressions.propertyTesters">
@@ -181,6 +199,26 @@
             </enablement>
          </contextualLaunch>
       </shortcut>
+      <shortcut
+            class="org.eclipse.redox.debug.RustDebugDelegate"
+            icon="icons/rust.png"
+            id="org.eclipse.redox.debug.Shortcut"
+            label="Rust Project"
+            modes="debug">
+         <contextualLaunch>
+            <enablement>
+               <reference definitionId="org.eclipse.redox.isCargoProject"/>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            class="org.eclipse.redox.debug.SourceLookupDirector"
+            id="com.eclipse.redox.debug.SourceLocator"
+            name="Source Locator">
+      </sourceLocator>
    </extension>
 
 <!-- INCREMENTAL BUILD PROCESS -->
@@ -297,4 +335,25 @@
             icon="icons/rust.png">
         </perspective> 
     </extension>
+<!-- BREAKPOINTS -->
+	<extension point="org.eclipse.debug.ui.toggleBreakpointsTargetFactories">
+      <toggleTargetFactory
+            class="org.eclipse.redox.debug.ToggleBreakpointsTargetFactory"
+            id="com.eclipse.redox.debug.ToggleBreakpointsTargetFactory">
+      </toggleTargetFactory>
+   </extension>
+
+   <extension point="org.eclipse.ui.editorActions">
+      <editorContribution
+         targetID="org.eclipse.ui.genericeditor.GenericEditor"
+         id="com.github.rustdt.ide.debug.ui.EditorBreakpointRulerActions">
+
+         <action
+               actionID="RulerDoubleClick"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               id="Editor.rulerDoubleClickAction"
+               label="Toggle Breakpoint">
+         </action>
+      </editorContribution>
+   </extension>
 </plugin>

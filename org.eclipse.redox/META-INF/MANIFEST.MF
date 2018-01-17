@@ -26,7 +26,14 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.lsp4j,
  com.google.gson;bundle-version="2.7.0",
  org.eclipse.jface.text,
- org.eclipse.ui.editors
+ org.eclipse.ui.editors,
+ org.eclipse.cdt.debug.core,
+ org.eclipse.cdt.launch,
+ org.eclipse.cdt.core,
+ org.eclipse.cdt.dsf.gdb,
+ org.eclipse.cdt.dsf,
+ org.eclipse.cdt.debug.ui,
+ org.eclipse.cdt.dsf.gdb.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.redox;x-friends:="org.eclipse.redox.tests",

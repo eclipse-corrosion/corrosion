@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -203,6 +203,40 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 	@Override
 	public void stop() {
 		process.destroy();
+	}
+
+	@Override
+	public InputStream getErrorStream() {
+		if (DEBUG) {
+			return new FilterInputStream(process.getErrorStream()) {
+				@Override
+				public int read() throws IOException {
+					int res = super.read();
+					System.err.print((char) res);
+					return res;
+				}
+
+				@Override
+				public int read(byte[] b, int off, int len) throws IOException {
+					int bytes = super.read(b, off, len);
+					byte[] payload = new byte[bytes];
+					System.arraycopy(b, off, payload, 0, bytes);
+					System.err.print(new String(payload));
+					return bytes;
+				}
+
+				@Override
+				public int read(byte[] b) throws IOException {
+					int bytes = super.read(b);
+					byte[] payload = new byte[bytes];
+					System.arraycopy(b, 0, payload, 0, bytes);
+					System.err.print(new String(payload));
+					return bytes;
+				}
+			};
+		} else {
+			return process.getErrorStream();
+		}
 	}
 
 }

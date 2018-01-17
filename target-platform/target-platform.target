@@ -27,5 +27,24 @@
 <unit id="org.junit" version="0.0.0"/>
 <repository location="http://download.eclipse.org/eclipse/updates/4.8-I-builds/"/>
 </location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.debug.core" version="0.0.0"/>
+<unit id="org.eclipse.cdt.core" version="0.0.0"/>
+<unit id="org.eclipse.cdt.launch" version="0.0.0"/>
+<unit id="org.eclipse.cdt.dsf.gdb" version="0.0.0"/>
+<unit id="org.eclipse.cdt.dsf.gdb.ui" version="0.0.0"/>
+<unit id="org.eclipse.cdt.dsf" version="0.0.0"/>
+<repository location="http://download.eclipse.org/tools/cdt/releases/9.2"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.launchbar.core" version="0.0.0"/>
+<repository location="http://download.eclipse.org/tools/cdt/launchbar/oxygen/"/>
+</location>
+
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.tm.terminal.control" version="0.0.0"/>
+<repository location="http://download.eclipse.org/tm/terminal/updates/4.0"/>
+</location>
+
 </locations>
 </target>
