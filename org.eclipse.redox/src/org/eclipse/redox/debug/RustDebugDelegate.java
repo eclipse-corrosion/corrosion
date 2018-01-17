@@ -54,7 +54,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
 public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut {
-	public static final String TOOLCHAIN_ATTRIBUTE = RedoxPlugin.PLUGIN_ID + "TOOLCHAIN";
 	public static final String BUILD_COMMAND_ATTRIBUTE = RedoxPlugin.PLUGIN_ID + "BUILD_COMMAND";
 
 	@Override
@@ -62,26 +61,26 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			throws CoreException {
 		IPreferenceStore store = RedoxPlugin.getDefault().getPreferenceStore();
 		String cargo = store.getString(RedoxPreferenceInitializer.cargoPathPreference);
-		String toolchain = config.getAttribute(TOOLCHAIN_ATTRIBUTE, "");
 		String buildCommand = config.getAttribute(BUILD_COMMAND_ATTRIBUTE, "");
 		File projectLocation = new File(
 				config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""));
 
 		List<String> cmdLine = new ArrayList<>();
 		cmdLine.add(cargo);
-		cmdLine.add("test");
-		cmdLine.add("--no-run");
-		if (!toolchain.isEmpty()) {
-			cmdLine.add("--target");
-			cmdLine.add(toolchain);
+		if (buildCommand.isEmpty()) {
+			buildCommand = "build";
 		}
-		if (!buildCommand.isEmpty()) {
-			IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-			buildCommand = manager.performStringSubstitution(buildCommand);
-			cmdLine.addAll(Arrays.asList(buildCommand.replace('\n', ' ').split("(\n| )")));
-		}
+		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+		buildCommand = manager.performStringSubstitution(buildCommand);
+		cmdLine.addAll(Arrays.asList(buildCommand.replace('\n', ' ').split(" ")));
 		Process restoreProcess = DebugPlugin.exec(cmdLine.toArray(new String[cmdLine.size()]), projectLocation);
-		IProcess process = DebugPlugin.newProcess(launch, restoreProcess, "cargo test --no-run");
+		String labelString = "cargo ";
+		if (buildCommand.length() > 20) {
+			labelString += buildCommand.substring(0, 20) + "...";
+		} else {
+			labelString += buildCommand;
+		}
+		IProcess process = DebugPlugin.newProcess(launch, restoreProcess, labelString);
 		process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine));
 
 		try {

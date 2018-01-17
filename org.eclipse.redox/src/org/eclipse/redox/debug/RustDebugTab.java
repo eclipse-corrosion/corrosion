@@ -15,7 +15,6 @@ package org.eclipse.redox.debug;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.File;
-import java.util.Arrays;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
@@ -27,12 +26,10 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.redox.CargoProjectTester;
-import org.eclipse.redox.RustManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -46,7 +43,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 
 	private Text projectText;
 	private Text buildCommandText;
-	private Combo toolchainCombo;
 	private Button defaultExecutablePathButton;
 
 	private Text executablePathText;
@@ -65,13 +61,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 			configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
 					project.getLocation().toString());
 		}
-
-		String toolchain = "";
-		int toolchainIndex = toolchainCombo.getSelectionIndex();
-		if (toolchainIndex != 0) {
-			toolchain = toolchainCombo.getItem(toolchainIndex);
-		}
-		configuration.setAttribute(RustDebugDelegate.TOOLCHAIN_ATTRIBUTE, toolchain);
 		setDirty(false);
 	}
 
@@ -120,28 +109,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 				updateLaunchConfigurationDialog();
 			}
 		}));
-
-		Label locationLabel = new Label(container, SWT.NONE);
-		locationLabel.setText("Toolchain:");
-		locationLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-
-		toolchainCombo = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-		toolchainCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		String defaultString = "Default";
-		final String defaultToolchain = RustManager.getDefaultToolchain();
-		if (!defaultToolchain.isEmpty()) {
-			defaultString += "(Currently " + defaultToolchain + ")";
-		}
-		toolchainCombo.add(defaultString);
-		toolchainCombo.select(0);
-		for (String toolchain : RustManager.getToolchains()) {
-			toolchainCombo.add(toolchain);
-		}
-		toolchainCombo.addSelectionListener(widgetSelectedAdapter(e -> {
-			setDirty(true);
-			updateLaunchConfigurationDialog();
-		}));
-		new Label(container, SWT.NONE);
 
 		Group buildCommandGroup = new Group(container, SWT.NONE);
 		buildCommandGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
@@ -226,8 +193,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(RustDebugDelegate.TOOLCHAIN_ATTRIBUTE, "");
-		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "");
+		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build");
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "");
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "");
@@ -241,16 +207,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 			projectText.setText("");
 		}
 		try {
-			int initializedIndex = Arrays.asList(toolchainCombo.getItems())
-					.indexOf(configuration.getAttribute(RustDebugDelegate.TOOLCHAIN_ATTRIBUTE, ""));
-			if (initializedIndex != -1) {
-				toolchainCombo.select(initializedIndex);
-			}
-		} catch (CoreException ce) {
-			toolchainCombo.select(0);
-		}
-		try {
-			buildCommandText.setText(configuration.getAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, ""));
+			buildCommandText.setText(configuration.getAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build"));
 		} catch (CoreException ce) {
 			buildCommandText.setText("");
 		}
@@ -272,6 +229,10 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public boolean canSave() {
+		if (buildCommandText.getText().isEmpty()) {
+			setErrorMessage("Cargo Build command cannot be empty");
+			return false;
+		}
 		if (project == null || !project.exists() || !tester.test(project, "isCargoProject", null, null)) {
 			setErrorMessage("Input a valid cargo project name");
 			return false;

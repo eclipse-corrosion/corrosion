@@ -51,8 +51,7 @@ import org.eclipse.ui.PlatformUI;
 public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 
 	public static final String PROJECT_ATTRIBUTE = "PROJECT";
-	public static final String TOOLCHAIN_ATTRIBUTE = "TOOLCHAIN";
-	public static final String BUILD_COMMAND_ATTRIBUTE = "BUILD_COMMAND";
+	public static final String RUN_COMMAND_ATTRIBUTE = "RUN_COMMAND";
 
 	@Override
 	public void launch(ISelection selection, String mode) {
@@ -109,10 +108,8 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		IPreferenceStore store = RedoxPlugin.getDefault().getPreferenceStore();
 		String cargo = store.getString(RedoxPreferenceInitializer.cargoPathPreference);
 		cargoRunCommand.add(cargo);
-		cargoRunCommand.add("run");
 		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, "");
-		String toolchain = configuration.getAttribute(TOOLCHAIN_ATTRIBUTE, "");
-		String buildCommand = configuration.getAttribute(BUILD_COMMAND_ATTRIBUTE, "");
+		String runCommand = configuration.getAttribute(RUN_COMMAND_ATTRIBUTE, "");
 
 		IProject project = null;
 		if (!projectName.isEmpty()) {
@@ -133,18 +130,16 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 			});
 			return;
 		}
+		if (runCommand.isEmpty()) {
+			runCommand = "run";
+		}
+		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+		runCommand = manager.performStringSubstitution(runCommand);
+		cargoRunCommand.addAll(Arrays.asList(runCommand.replace('\n', ' ').split("(\n| )")));
+
 		final String cargoPathString = cargoManifest.getLocation().toPortableString();
 		cargoRunCommand.add("--manifest-path");
 		cargoRunCommand.add(cargoPathString);
-		if (!toolchain.isEmpty()) {
-			cargoRunCommand.add("--target");
-			cargoRunCommand.add(toolchain);
-		}
-		if (!buildCommand.isEmpty()) {
-			IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-			buildCommand = manager.performStringSubstitution(buildCommand);
-			cargoRunCommand.addAll(Arrays.asList(buildCommand.replace('\n', ' ').split("(\n| )")));
-		}
 
 		final List<String> finalRunCommand = cargoRunCommand;
 		CompletableFuture.runAsync(() -> {
