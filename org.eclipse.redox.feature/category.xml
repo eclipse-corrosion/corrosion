@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.redox.feature_0.1.0.201801181621.jar" id="org.eclipse.redox.feature" version="0.1.0.201801181621">
+   <feature url="features/org.eclipse.redox.feature_0.1.0.qualifier.jar" id="org.eclipse.redox.feature" version="0.1.0.qualifier">
       <category name="org.eclipse.redox.category"/>
    </feature>
    <category-def name="org.eclipse.redox.category" label="RedOx: Rust edition in Eclipse IDE">

@@ -339,7 +339,7 @@ public class RedoxPreferencePage extends PreferencePage implements IWorkbenchPre
 		installButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			if (Platform.getOS().equals(Platform.OS_WIN32)) {
 				Program.launch("https://rustup.rs/");
-			}else {
+			} else {
 				installCommands();
 			}
 		}));

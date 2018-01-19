@@ -3,7 +3,7 @@
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.lsp4e" version="0.0.0"/>
-<repository location="http://download.eclipse.org/lsp4e/snapshots/"/>
+<repository location="http://download.eclipse.org/lsp4e/releases/latest/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="tm-feature.feature.group" version="0.0.0"/>
@@ -25,7 +25,10 @@
 <unit id="org.eclipse.ui.genericeditor" version="0.0.0"/>
 <unit id="org.eclipse.ui.tests.harness" version="0.0.0"/>
 <unit id="org.junit" version="0.0.0"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.8-I-builds/"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.7/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<repository location="http://download.eclipse.org/releases/oxygen/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.cdt.debug.core" version="0.0.0"/>
@@ -46,5 +49,13 @@
 <repository location="http://download.eclipse.org/tm/terminal/updates/4.0"/>
 </location>
 
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.license.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/cbi/updates/license/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.apache.commons.io" version="0.0.0"/>
+<repository location="http://download.eclipse.org/tools/orbit/R-builds/R20170516192513/repository"/>
+</location>
 </locations>
 </target>

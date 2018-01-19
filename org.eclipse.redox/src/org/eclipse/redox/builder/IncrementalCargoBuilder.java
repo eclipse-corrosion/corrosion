@@ -37,7 +37,7 @@ public class IncrementalCargoBuilder extends IncrementalProjectBuilder {
 
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-		if(wasCausedByRefresh) {
+		if (wasCausedByRefresh) {
 			wasCausedByRefresh = false;
 			return null;
 		}
@@ -57,13 +57,13 @@ public class IncrementalCargoBuilder extends IncrementalProjectBuilder {
 					String cargo = store.getString(RedoxPreferenceInitializer.cargoPathPreference);
 					String[] commandList = { cargo, "build", "--manifest-path", manifest.toString() };
 					Process buildProcess = DebugPlugin.exec(commandList, project.getLocation().makeAbsolute().toFile());
-					while(buildProcess.isAlive() && !subMonitor.isCanceled()) {
+					while (buildProcess.isAlive() && !subMonitor.isCanceled()) {
 						Thread.sleep(50);
 					}
 					wasCausedByRefresh = true;
 					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					buildJob = null;
-					if(subMonitor.isCanceled()) {
+					if (subMonitor.isCanceled()) {
 						buildProcess.destroyForcibly();
 						return;
 					}

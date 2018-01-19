@@ -35,7 +35,8 @@ public class Snippet {
 		this.kind = kind;
 	}
 
-	public ICompletionProposal convertToCompletionProposal(int offset, LSPDocumentInfo info, String prefix, String lineIndentation) {
+	public ICompletionProposal convertToCompletionProposal(int offset, LSPDocumentInfo info, String prefix,
+			String lineIndentation) {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(display);
 		item.setKind(kind);
@@ -45,7 +46,7 @@ public class Snippet {
 		try {
 			int line = info.getDocument().getLineOfOffset(offset);
 			int lineOffset = offset - info.getDocument().getLineOffset(line);
-			r  = new Range(new Position(line, lineOffset - prefix.length()), new Position(line, lineOffset));
+			r = new Range(new Position(line, lineOffset - prefix.length()), new Position(line, lineOffset));
 		} catch (BadLocationException e) {
 			// Caught by null return
 		}
@@ -64,11 +65,11 @@ public class Snippet {
 	private String createReplacement(String lineIndentation) {
 		StringBuilder responseBuilder = new StringBuilder();
 
-		if(replacementLines.length == 1) {
+		if (replacementLines.length == 1) {
 			return replacementLines[0];
-		}else if(replacementLines.length > 1) {
+		} else if (replacementLines.length > 1) {
 			for (String line : replacementLines) {
-				if(responseBuilder.length() == 0) {
+				if (responseBuilder.length() == 0) {
 					responseBuilder.append(line);
 					continue;
 				}

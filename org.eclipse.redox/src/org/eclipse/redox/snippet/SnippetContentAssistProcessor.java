@@ -56,11 +56,11 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 			StringBuilder snippetsBuilder = new StringBuilder();
 			Files.readAllLines(new File(url.getFile()).toPath()).forEach(line -> snippetsBuilder.append(line));
 			snippetArray = parser.parse(snippetsBuilder.toString()).getAsJsonArray();
-		}catch (IOException e) {
+		} catch (IOException e) {
 			// Caught with null snippetArray
 		}
 
-		if(snippetArray != null) {
+		if (snippetArray != null) {
 			for (JsonElement jsonElement : snippetArray) {
 				JsonObject snippet = jsonElement.getAsJsonObject();
 
@@ -87,18 +87,17 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 		IDocument document = viewer.getDocument();
 		String textToOffset = document.get().substring(0, offset);
 
-		Matcher matcher = ENDS_WITH_WORD_PATTERN.matcher(textToOffset.substring(textToOffset.lastIndexOf('\n')+1));
+		Matcher matcher = ENDS_WITH_WORD_PATTERN.matcher(textToOffset.substring(textToOffset.lastIndexOf('\n') + 1));
 		matcher.matches();
 		String indent = matcher.group("indent");
 		String prefix = matcher.group("prefix");
 
-		Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(
-				document,
+		Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document,
 				capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
 
 		List<ICompletionProposal> proposals = new ArrayList<>();
 		for (Snippet snippet : snippets) {
-			if(snippet.matchesPrefix(prefix)) {
+			if (snippet.matchesPrefix(prefix)) {
 				proposals.add(snippet.convertToCompletionProposal(offset, infos.iterator().next(), prefix, indent));
 			}
 		}

@@ -80,15 +80,13 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 			params.setContext(new ReferenceContext(true));
 			params.setTextDocument(new TextDocumentIdentifier(info.getFileUri().toString()));
 			params.setPosition(position);
-			info.getInitializedLanguageClient()
-					.thenCompose(languageServer -> ((RLSServerInterface) languageServer).implementations(params))
-					.thenAccept(locs -> {
-						// Loop for each LSP Location and convert it to Match search.
-						for (Location loc : locs) {
-							Match match = toMatch(loc);
-							result.addMatch(match);
-						}
-					});
+			((RLSServerInterface) info.getLanguageClient()).implementations(params).thenAccept(locs -> {
+				// Loop for each LSP Location and convert it to Match search.
+				for (Location loc : locs) {
+					Match match = toMatch(loc);
+					result.addMatch(match);
+				}
+			});
 			return Status.OK_STATUS;
 		} catch (Exception ex) {
 			return new Status(IStatus.ERROR, LanguageServerPlugin.getDefault().getBundle().getSymbolicName(),

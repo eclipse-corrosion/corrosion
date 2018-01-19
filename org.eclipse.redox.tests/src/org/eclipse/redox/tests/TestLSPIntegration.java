@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IFile;
@@ -46,12 +45,11 @@ public class TestLSPIntegration extends AbstractRedoxTest {
 	public void testLSFound() throws Exception {
 		IProject project = getProject("basic");
 		IFile rustFile = project.getFolder("src").getFile("main.rs");
-		CompletableFuture<LanguageServer> languageServer = LanguageServiceAccessor
-				.getInitializedLanguageServers(rustFile, capabilities -> capabilities.getHoverProvider() != null)
-				.iterator().next();
+		LanguageServer languageServer = LanguageServiceAccessor
+				.getLanguageServers(rustFile, capabilities -> capabilities.getHoverProvider() != null).iterator()
+				.next();
 		String uri = rustFile.getLocationURI().toString();
-		Either<List<CompletionItem>, CompletionList> completionItems = languageServer.get(1, TimeUnit.MINUTES)
-				.getTextDocumentService()
+		Either<List<CompletionItem>, CompletionList> completionItems = languageServer.getTextDocumentService()
 				.completion(new TextDocumentPositionParams(new TextDocumentIdentifier(uri), new Position(1, 4)))
 				.get(1, TimeUnit.MINUTES);
 		Assert.assertNotNull(completionItems);

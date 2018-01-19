@@ -79,7 +79,7 @@ public class RustManager {
 	private static Job settingToolchainJob = null;
 
 	public static void setDefaultToolchain(String toolchainId) {
-		if(settingToolchainJob != null) {
+		if (settingToolchainJob != null) {
 			settingToolchainJob.cancel();
 		}
 
@@ -89,9 +89,9 @@ public class RustManager {
 			subMonitor.split(1);
 			if (!runRustupCommand(subMonitor, "toolchain", "install", toolchainId)) {
 				if (!monitor.isCanceled()) {
-				showToolchainSelectionError("Unable to install toolchain `" + toolchainId
-						+ "`. Ensure the `rustup` command path is correct and that `" + toolchainId
-						+ "` is a valid toolchain ID.");
+					showToolchainSelectionError("Unable to install toolchain `" + toolchainId
+							+ "`. Ensure the `rustup` command path is correct and that `" + toolchainId
+							+ "` is a valid toolchain ID.");
 				}
 				return;
 			}
@@ -117,7 +117,8 @@ public class RustManager {
 			if (!runRustupCommand(subMonitor, "component", "add", "rust-analysis")
 					|| !runRustupCommand(subMonitor, "component", "add", "rust-src")) {
 				if (!monitor.isCanceled()) {
-					showToolchainSelectionError("Unable to add required components, please select a different toolchain");
+					showToolchainSelectionError(
+							"Unable to add required components, please select a different toolchain");
 				}
 				return;
 			}
@@ -134,8 +135,7 @@ public class RustManager {
 		params.setSettings(updatedSettings);
 		LSPDocumentInfo info = infoFromOpenEditors();
 		if (info != null) {
-			info.getInitializedLanguageClient()
-					.thenAccept(languageServer -> languageServer.getWorkspaceService().didChangeConfiguration(params));
+			info.getLanguageClient().getWorkspaceService().didChangeConfiguration(params);
 		}
 	}
 
@@ -184,14 +184,14 @@ public class RustManager {
 			ProcessBuilder builder = new ProcessBuilder(command);
 			builder.inheritIO();
 			Process process = builder.start();
-			while(process.isAlive() && !monitor.isCanceled()) {
+			while (process.isAlive() && !monitor.isCanceled()) {
 				Thread.sleep(50);
 			}
-			if(monitor.isCanceled()) {
+			if (monitor.isCanceled()) {
 				process.destroyForcibly();
 				return false;
 			}
-			
+
 			return process.waitFor() == 0;
 		} catch (IOException | InterruptedException e) {
 			return false;

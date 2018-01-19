@@ -26,9 +26,10 @@ public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
 
 	@Override
 	public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
-		setTabs(new ILaunchConfigurationTab[] { new RustDebugTab(), new EnvironmentTab(), new RustLocalApplicationCDebuggerTab(), new SourceLookupTab(), new CommonTab() });
+		setTabs(new ILaunchConfigurationTab[] { new RustDebugTab(), new EnvironmentTab(),
+				new RustLocalApplicationCDebuggerTab(), new SourceLookupTab(), new CommonTab() });
 	}
-	
+
 	protected class RustLocalApplicationCDebuggerTab extends LocalApplicationCDebuggerTab {
 
 		@Override
