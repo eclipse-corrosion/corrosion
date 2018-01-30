@@ -19,6 +19,7 @@ import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.redox.RedoxPlugin;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -31,20 +32,20 @@ public class ToggleBreakpointsTargetFactory implements IToggleBreakpointsTargetF
 
 	@Override
 	public Set<String> getToggleTargets(IWorkbenchPart part, ISelection selection) {
-		if (part instanceof ITextEditor && ((FileEditorInput) ((ITextEditor) part).getEditorInput()).getPath()
-				.getFileExtension().equals("rs")) {
-			return Collections.singleton(FACTORY_ID);
-		}
-		return Collections.emptySet();
+		return isRustPart(part) ? Collections.singleton(FACTORY_ID) : Collections.emptySet();
 	}
 
 	@Override
 	public String getDefaultToggleTarget(IWorkbenchPart part, ISelection selection) {
-		if (part instanceof ITextEditor && ((FileEditorInput) ((ITextEditor) part).getEditorInput()).getPath()
-				.getFileExtension().equals("rs")) {
-			return FACTORY_ID;
+		return isRustPart(part) ? FACTORY_ID : null;
+	}
+	
+	private boolean isRustPart(IWorkbenchPart part) {
+		if (part instanceof ITextEditor) {
+			IEditorInput editorInput = ((ITextEditor) part).getEditorInput();
+			return editorInput instanceof FileEditorInput && "rs".equals(((FileEditorInput) editorInput).getPath().getFileExtension());
 		}
-		return null;
+		return false;
 	}
 
 	@Override
