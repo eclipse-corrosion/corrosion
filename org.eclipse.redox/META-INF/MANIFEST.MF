@@ -9,7 +9,7 @@ Bundle-Vendor: Red Hat Inc.
 Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.ui.genericeditor;bundle-version="1.0.1",
  org.eclipse.ui,
- org.eclipse.lsp4e;bundle-version="0.4.0",
+ org.eclipse.lsp4e;bundle-version="0.5.0",
  org.eclipse.tm4e.core,
  org.eclipse.tm4e.ui,
  org.eclipse.core.runtime;bundle-version="3.13.0",

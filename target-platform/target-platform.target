@@ -3,7 +3,7 @@
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.lsp4e" version="0.0.0"/>
-<repository location="http://download.eclipse.org/lsp4e/releases/latest/"/>
+<repository location="http://download.eclipse.org/lsp4e/0.5.x-snapshots/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="tm-feature.feature.group" version="0.0.0"/>
