@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests for Corrosion
+Bundle-SymbolicName: org.eclipse.corrosion.tests;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Vendor: Red Hat Inc.
+Eclipse-BundleShape: dir
+Automatic-Module-Name: org.eclipse.corrosion.tests
+Require-Bundle: org.eclipse.corrosion;bundle-version="0.1.0",
+ org.junit;bundle-version="4.11.0",
+ org.eclipse.core.runtime;bundle-version="3.13.0",
+ org.eclipse.core.resources;bundle-version="3.12.0",
+ org.eclipse.ui;bundle-version="3.109.0",
+ org.apache.commons.io;bundle-version="2.2.0",
+ org.eclipse.ui.tests.harness;bundle-version="1.4.100",
+ org.eclipse.ui.ide;bundle-version="3.13.1",
+ org.eclipse.ui.genericeditor;bundle-version="1.0.1",
+ org.eclipse.lsp4e;bundle-version="0.5.0",
+ org.eclipse.lsp4j,
+ org.eclipse.lsp4j.jsonrpc;bundle-version="0.2.0",
+ org.eclipse.ui.editors,
+ org.eclipse.debug.core,
+ org.eclipse.core.expressions,
+ org.eclipse.search,
+ org.eclipse.ui.console
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
