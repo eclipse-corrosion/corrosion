@@ -47,11 +47,11 @@
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
             path="grammar/Rust.tmLanguage"
-            scopeName="source.rs">
+            scopeName="source.rust">
       </grammar>
       <scopeNameContentTypeBinding
             contentTypeId="org.eclipse.corrosion.rust"
-            scopeName="source.rs">
+            scopeName="source.rust">
       </scopeNameContentTypeBinding>
       <grammar
             path="grammar/TOML.tmLanguage"
