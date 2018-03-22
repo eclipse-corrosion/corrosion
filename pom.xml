@@ -18,6 +18,8 @@
 		<module>target-platform</module>
 		<module>org.eclipse.corrosion</module>
 		<module>org.eclipse.corrosion.tests</module>
+		<module>org.eclipse.corrosion.feature</module>
+		<module>repository</module>
 	</modules>
 	<build>
 		<plugins>
