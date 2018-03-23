@@ -89,6 +89,12 @@
             id="org.eclipse.corrosion.preferencePage"
             name="Rust">
       </page>
+      <page
+            category="org.eclipse.corrosion.preferencePage"
+            class="org.eclipse.corrosion.TextEditorPreferencePage"
+            id="org.eclipse.corrosion.texteditor"
+            name="Text Editor">
+      </page>
    </extension>
    <extension
        point="org.eclipse.core.expressions.definitions">
