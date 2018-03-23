@@ -1,12 +1,12 @@
 # Corrosion
 
-> Corrosion was formerly called RedOx, but required a name change due to naming overlap with another project ([See issue #24](https://github.com/LucasBullen/redOx/issues/24))
+> Corrosion was formerly called RedOx, but required a name change due to naming overlap with another project ([See issue #24](https://github.com/eclipse/corrosion/issues/24))
 
 Support for Rust editing in Eclipse IDE.
 
-Corrosion is a Rust development plugin for the Eclipse IDE. Both [issue reports](https://github.com/LucasBullen/corrosion/issues) and [pull requests](https://github.com/LucasBullen/corrosion/pulls) are greatly appreciated.
+Corrosion is a Rust development plugin for the Eclipse IDE. Both [issue reports](https://github.com/eclipse/corrosion/issues) and [pull requests](https://github.com/eclipse/corrosion/pulls) are greatly appreciated.
 
-[![Build Status](https://travis-ci.org/LucasBullen/corrosion.svg?branch=master)](https://travis-ci.org/LucasBullen/corrosion)
+[![Build Status](https://travis-ci.org/eclipse/corrosion.svg?branch=master)](https://travis-ci.org/eclipse/corrosion)
 
 ![Screenshot](images/editorOverview.png "Screenshot of Corrosion editor")
 
