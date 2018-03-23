@@ -23,4 +23,4 @@ script:
     else
        mvn clean verify;
     fi
-after_failure: "cat /home/travis/build/LucasBullen/corrosion/org.eclipse.corrosion.tests/target/work/data/.metadata/.log"
+after_failure: "cat /home/travis/build/eclipse/corrosion/org.eclipse.corrosion.tests/target/work/data/.metadata/.log"
