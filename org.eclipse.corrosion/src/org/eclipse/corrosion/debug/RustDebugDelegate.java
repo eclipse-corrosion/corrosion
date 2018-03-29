@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.debug.sourcelookup.DsfSourceLookupDirector;
+import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchUtils;
 import org.eclipse.cdt.dsf.service.DsfSession;
@@ -33,6 +34,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.corrosion.RustGDBLaunchWrapper;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -46,8 +50,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -89,6 +91,9 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		}
 		if (restoreProcess.exitValue() != 0) { // errors will be shown in console
 			return;
+		}
+		if (!(launch instanceof RustGDBLaunchWrapper)) {
+			launch = new RustGDBLaunchWrapper(launch);
 		}
 		super.launch(config, mode, launch, monitor);
 	}
@@ -168,6 +173,9 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		setDefaultProcessFactory(configuration); // Reset process factory to what GdbLaunch expected
 
 		ILaunch launch = super.getLaunch(configuration, mode);
+		if (!(launch instanceof RustGDBLaunchWrapper)) {
+			launch = new RustGDBLaunchWrapper(launch);
+		}
 		// workaround for DLTK bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=419273
 		launch.setAttribute("org.eclipse.dltk.debug.debugConsole", "false");
 		return launch;
@@ -200,6 +208,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 					project.getLocation().toString() + "/target/debug/" + projectName);
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
+			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb");
 			wc.doSave();
 			return wc;
 		} catch (CoreException e) {

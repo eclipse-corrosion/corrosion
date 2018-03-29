@@ -13,6 +13,7 @@
 package org.eclipse.corrosion.debug;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LocalApplicationCDebuggerTab;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
@@ -22,6 +23,7 @@ import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 
+@SuppressWarnings("restriction")
 public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
 
 	@Override
@@ -36,6 +38,7 @@ public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
 		public void setDefaults(ILaunchConfigurationWorkingCopy config) {
 			super.setDefaults(config);
 			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
+			config.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb");
 		}
 	}
 }
