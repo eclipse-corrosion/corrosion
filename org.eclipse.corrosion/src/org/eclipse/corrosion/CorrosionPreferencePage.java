@@ -393,8 +393,9 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		Job.create("Installing Rustup and Cargo", (ICoreRunnable) monitor -> {
 			try {
 				Bundle bundle = Platform.getBundle("org.eclipse.corrosion");
-				URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup.sh"));
+				URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup-init.sh"));
 				File file = new File(new URI(fileURL.getProtocol(), fileURL.getPath(), null));
+				file.setExecutable(true);
 				String[] command = new String[] { "/bin/bash", "-c", file.getAbsolutePath() + " -y" };
 				ProcessBuilder builder = new ProcessBuilder(command);
 				Process process = builder.start();

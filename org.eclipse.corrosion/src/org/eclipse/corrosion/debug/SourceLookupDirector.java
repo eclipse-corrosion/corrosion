@@ -21,6 +21,7 @@ import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputer;
 import org.eclipse.corrosion.CorrosionPlugin;
 
+@SuppressWarnings("restriction")
 public class SourceLookupDirector extends CSourceLookupDirector {
 	@Override
 	public ISourcePathComputer getSourcePathComputer() {
