@@ -25,12 +25,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Adapters;
@@ -38,14 +35,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.CorrosionPreferenceInitializer;
-import org.eclipse.corrosion.builder.IncrementalCargoBuilder;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
@@ -195,25 +190,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject project = root.getProject(name);
 		try {
-			if (!project.exists()) {
-				final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				IProjectDescription projectDescription = workspace.newProjectDescription(project.getName());
-
-				String projectLocation = directory.getAbsolutePath();
-				IPath projectPath = new Path(projectLocation);
-
-				projectDescription.setLocation(projectPath);
-
-				ICommand[] commands = projectDescription.getBuildSpec();
-				ICommand command = projectDescription.newCommand();
-				command.setBuilderName(IncrementalCargoBuilder.BUILDER_ID);
-				ICommand[] nc = new ICommand[commands.length + 1];
-				System.arraycopy(commands, 0, nc, 1, commands.length);
-				nc[0] = command;
-				projectDescription.setBuildSpec(nc);
-
-				project.create(projectDescription, monitor);
-			}
+			project.create(monitor);
 			project.open(monitor);
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 
