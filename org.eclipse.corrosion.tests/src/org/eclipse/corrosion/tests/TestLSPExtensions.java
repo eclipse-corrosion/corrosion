@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.corrosion.RLSClientImplementation;
+import org.eclipse.corrosion.extensions.ProgressParams;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.Test;
@@ -26,27 +27,61 @@ import org.junit.Test;
 public class TestLSPExtensions {
 
 	@Test
-	public void testInitializationMessages() {
+	public void testBuildingMessages() {
+		String jobType = "Building";
 		RLSClientImplementation clientImplementation = new RLSClientImplementation();
 		IJobManager jobManager = Job.getJobManager();
-		clientImplementation.beginBuild();
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return getRustDiagnosticsJob(jobManager) != null;
-			}
-		}.waitForCondition(Display.getCurrent(), 5000);
+		clientImplementation.progress(new ProgressParams("progress_1", jobType));
+		waitUntilJobIsStarted(jobManager, jobType);
 
-		Job rustJob = getRustDiagnosticsJob(jobManager);
+		Job rustJob = getRustDiagnosticsJob(jobManager, jobType);
 		assertNotNull(rustJob);
-		clientImplementation.diagnosticsBegin();
-		clientImplementation.diagnosticsEnd();
+
+		clientImplementation.progress(new ProgressParams("progress_1", jobType, "rust_project", 0));
+		clientImplementation.progress(new ProgressParams("progress_1", jobType, null, 50));
+
+		clientImplementation.progress(new ProgressParams("progress_1", jobType, true));
+		waitUntilJobIsDone(jobManager, jobType);
 		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
 	}
 
-	private Job getRustDiagnosticsJob(IJobManager jobManager) {
+	@Test
+	public void testIndexingMessages() {
+		String jobType = "Indexing";
+		RLSClientImplementation clientImplementation = new RLSClientImplementation();
+		IJobManager jobManager = Job.getJobManager();
+		clientImplementation.progress(new ProgressParams("progress_2", jobType));
+		waitUntilJobIsStarted(jobManager, jobType);
+
+		Job rustJob = getRustDiagnosticsJob(jobManager, jobType);
+		assertNotNull(rustJob);
+
+		clientImplementation.progress(new ProgressParams("progress_2", jobType, true));
+		waitUntilJobIsDone(jobManager, jobType);
+		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
+	}
+
+	private void waitUntilJobIsStarted(IJobManager jobManager, String jobType) {
+		new DisplayHelper() {
+			@Override
+			protected boolean condition() {
+				return getRustDiagnosticsJob(jobManager, jobType) != null;
+			}
+		}.waitForCondition(Display.getCurrent(), 5000);
+	}
+
+	private void waitUntilJobIsDone(IJobManager jobManager, String jobType) {
+		new DisplayHelper() {
+			@Override
+			protected boolean condition() {
+				return getRustDiagnosticsJob(jobManager, jobType) == null;
+			}
+		}.waitForCondition(Display.getCurrent(), 5000);
+	}
+
+	private Job getRustDiagnosticsJob(IJobManager jobManager, String jobType) {
 		for (Job job : jobManager.find(null)) {
-			if ("Compiling Rust project diagnostics".equals(job.getName())) {
+			if (jobType.equals(job.getName())) {
 				return job;
 			}
 		}

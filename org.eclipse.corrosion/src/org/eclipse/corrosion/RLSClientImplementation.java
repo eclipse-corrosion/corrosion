@@ -12,64 +12,29 @@
  *******************************************************************************/
 package org.eclipse.corrosion;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.Job;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.corrosion.extensions.ProgressIndicatorJob;
+import org.eclipse.corrosion.extensions.ProgressParams;
 import org.eclipse.lsp4e.LanguageClientImpl;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 
 @SuppressWarnings("restriction")
 public class RLSClientImplementation extends LanguageClientImpl {
+	private static Map<String, ProgressIndicatorJob> progressJobs = new HashMap<>();
 
-	private static Job diagnosticsJob;
-	private String status;
-
-	@JsonNotification("rustDocument/beginBuild")
-	public void beginBuild() {
-		status = "Building project";
-		initializeJob();
-	}
-
-	@JsonNotification("rustDocument/diagnosticsBegin")
-	public void diagnosticsBegin() {
-		status = "Compiling diagnostics";
-		initializeJob();
-	}
-
-	@JsonNotification("rustDocument/diagnosticsEnd")
-	public void diagnosticsEnd() {
-		status = null;
-		if (diagnosticsJob != null) {
-			diagnosticsJob.done(new Status(IStatus.OK, CorrosionPlugin.PLUGIN_ID, null));
-			diagnosticsJob = null;
+	@JsonNotification("window/progress")
+	public void progress(ProgressParams progress) {
+		String id = progress.getId();
+		if (!progressJobs.containsKey(id)) {
+			ProgressIndicatorJob job = new ProgressIndicatorJob(progress.getTitle());
+			job.schedule();
+			progressJobs.put(id, job);
 		}
-	}
-
-	private void initializeJob() {
-		if (diagnosticsJob == null) {
-			diagnosticsJob = Job.create("Compiling Rust project diagnostics", monitor -> {
-				SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-				subMonitor.worked(1);
-				try {
-					int maxWaitTime = 60000; // 1 minute
-					subMonitor.beginTask("Building project", IProgressMonitor.UNKNOWN);
-					while (maxWaitTime > 0 && !subMonitor.isCanceled()) {
-						if (status == null || subMonitor.isCanceled()) {
-							break;
-						} else {
-							subMonitor.subTask(status);
-						}
-						Thread.sleep(50);
-						maxWaitTime -= 50;
-					}
-					diagnosticsJob = null;
-				} catch (InterruptedException e) {
-					// Exception ends the job
-				}
-			});
-			diagnosticsJob.schedule();
+		progressJobs.get(id).update(progress);
+		if (progress.isDone()) {
+			progressJobs.remove(id);
 		}
 	}
 }
