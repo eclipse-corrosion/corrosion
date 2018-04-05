@@ -6,8 +6,6 @@ Support for Rust editing in Eclipse IDE.
 
 Corrosion is a Rust development plugin for the Eclipse IDE. Both [issue reports](https://github.com/eclipse/corrosion/issues) and [pull requests](https://github.com/eclipse/corrosion/pulls) are greatly appreciated.
 
-[![Build Status](https://travis-ci.org/eclipse/corrosion.svg?branch=master)](https://travis-ci.org/eclipse/corrosion)
-
 ![Screenshot](images/editorOverview.png "Screenshot of Corrosion editor")
 
 ## Installation
