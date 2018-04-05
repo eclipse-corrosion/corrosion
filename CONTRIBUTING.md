@@ -7,11 +7,9 @@ Issue reports and feature requests are always appreciated and are made in the [I
 
 For setting up Corrosion for testing and development follow the [Using Github Installation Instructions](documentation/Installation.md#using-github)
 
-The p2 repository is not kept up to date with the master branch. Releases to the p2 repository will be made in more controlled released after the initial release of Corrosion v1.
-
 ### Making Pull Requests
 
-To keep the commit history clean and navigatable, PR are limitied to a single commit. If your PR has multiple commits that all work together, they should be squashed into a single commit. If you believe that the different commits are too unrelated to be squashed together, then they should be put into multiple PRs to allow single feature PRs.
+To keep the commit history clean and navigatable, PR are limited to a single commit. If your PR has multiple commits that all work together, they should be squashed into a single commit. If you believe that the different commits are too unrelated to be squashed together, then they should be put into multiple PRs to allow single feature PRs.
 
 Corrosion is an Eclipse project and all contributors must do the following before having a pull request merged:
  - Sign the Eclipse Contributor Agreement (ECA)
