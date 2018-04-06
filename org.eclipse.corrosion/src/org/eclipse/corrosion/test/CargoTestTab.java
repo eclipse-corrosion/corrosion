@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen   (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion.run;
+package org.eclipse.corrosion.test;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
@@ -39,9 +39,10 @@ import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-public class CargoRunTab extends AbstractLaunchConfigurationTab {
+public class CargoTestTab extends AbstractLaunchConfigurationTab {
 
 	private Text projectText;
+	private Text testnameText;
 	private Text optionsText;
 	private Text argsText;
 
@@ -49,9 +50,10 @@ public class CargoRunTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(CargoRunDelegate.PROJECT_ATTRIBUTE, projectText.getText());
-		configuration.setAttribute(CargoRunDelegate.RUN_ARGUMENTS_ATTRIBUTE, argsText.getText());
-		configuration.setAttribute(CargoRunDelegate.RUN_OPTIONS_ATTRIBUTE, optionsText.getText());
+		configuration.setAttribute(CargoTestDelegate.PROJECT_ATTRIBUTE, projectText.getText());
+		configuration.setAttribute(CargoTestDelegate.TEST_OPTIONS_ATTRIBUTE, optionsText.getText());
+		configuration.setAttribute(CargoTestDelegate.TEST_ARGUMENTS_ATTRIBUTE, argsText.getText());
+		configuration.setAttribute(CargoTestDelegate.TEST_NAME_ATTRIBUTE, testnameText.getText());
 		setDirty(false);
 	}
 
@@ -94,7 +96,6 @@ public class CargoRunTab extends AbstractLaunchConfigurationTab {
 				updateLaunchConfigurationDialog();
 			}
 		}));
-
 		createTestCommandGroup(container);
 	}
 
@@ -102,7 +103,7 @@ public class CargoRunTab extends AbstractLaunchConfigurationTab {
 		Group testCommandGroup = new Group(container, SWT.NONE);
 		testCommandGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		testCommandGroup.setLayout(new GridLayout(4, false));
-		testCommandGroup.setText("cargo run [options] [--] [arguments]");
+		testCommandGroup.setText("cargo test [options] [test name] [--] [arguments]");
 
 		Label optionLabel = new Label(testCommandGroup, SWT.NONE);
 		optionLabel.setText("Options:");
@@ -118,7 +119,7 @@ public class CargoRunTab extends AbstractLaunchConfigurationTab {
 		optionButton.setText("Options");
 		optionButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 		optionButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			OptionSelector dialog = new OptionSelector(optionButton.getShell(), CargoTools.getOptions("run").stream()
+			OptionSelector dialog = new OptionSelector(optionButton.getShell(), CargoTools.getOptions("test").stream()
 					.filter(o -> !o.getFlag().equals("--manifest-path")).collect(Collectors.toList()));
 			dialog.open();
 			String result = dialog.returnOptionSelection();
@@ -129,6 +130,24 @@ public class CargoRunTab extends AbstractLaunchConfigurationTab {
 			}
 		}));
 		createVariablesButton(testCommandGroup, optionsText);
+
+		Label testnameLabel = new Label(testCommandGroup, SWT.NONE);
+		testnameLabel.setText("Test name:");
+		testnameLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+
+		testnameText = new Text(testCommandGroup, SWT.BORDER);
+		testnameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		testnameText.addModifyListener(e -> {
+			setDirty(true);
+			updateLaunchConfigurationDialog();
+		});
+		new Label(testCommandGroup, SWT.NONE);
+
+		new Label(testCommandGroup, SWT.NONE);
+		Label testnameExplanation = new Label(testCommandGroup, SWT.NONE);
+		testnameExplanation.setText("If specified, only run tests containing this string in their names");
+		testnameExplanation.setEnabled(false);
+		testnameExplanation.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 
 		Label argsLabel = new Label(testCommandGroup, SWT.NONE);
 		argsLabel.setText("Arguments:");
@@ -161,25 +180,29 @@ public class CargoRunTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(CargoRunDelegate.PROJECT_ATTRIBUTE, "");
-		configuration.setAttribute(CargoRunDelegate.RUN_ARGUMENTS_ATTRIBUTE, "");
-		configuration.setAttribute(CargoRunDelegate.RUN_OPTIONS_ATTRIBUTE, "");
+		configuration.setAttribute(CargoTestDelegate.PROJECT_ATTRIBUTE, "");
+		configuration.setAttribute(CargoTestDelegate.TEST_OPTIONS_ATTRIBUTE, "");
 	}
 
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		try {
-			projectText.setText(configuration.getAttribute(CargoRunDelegate.PROJECT_ATTRIBUTE, ""));
+			projectText.setText(configuration.getAttribute(CargoTestDelegate.PROJECT_ATTRIBUTE, ""));
 		} catch (CoreException ce) {
 			projectText.setText("");
 		}
 		try {
-			optionsText.setText(configuration.getAttribute(CargoRunDelegate.RUN_OPTIONS_ATTRIBUTE, ""));
+			optionsText.setText(configuration.getAttribute(CargoTestDelegate.TEST_OPTIONS_ATTRIBUTE, ""));
 		} catch (CoreException ce) {
 			optionsText.setText("");
 		}
 		try {
-			argsText.setText(configuration.getAttribute(CargoRunDelegate.RUN_ARGUMENTS_ATTRIBUTE, ""));
+			testnameText.setText(configuration.getAttribute(CargoTestDelegate.TEST_NAME_ATTRIBUTE, ""));
+		} catch (CoreException ce) {
+			testnameText.setText("");
+		}
+		try {
+			argsText.setText(configuration.getAttribute(CargoTestDelegate.TEST_ARGUMENTS_ATTRIBUTE, ""));
 		} catch (CoreException ce) {
 			argsText.setText("");
 		}

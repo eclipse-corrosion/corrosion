@@ -35,10 +35,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Display;
@@ -106,9 +104,6 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		Boolean isBin = wizardPage.isBinaryTemplate();
 		String vcs = wizardPage.getVCS();
 
-		IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
-		String cargo = store.getString(CorrosionPreferenceInitializer.cargoPathPreference);
-
 		Boolean makeLocation = !location.exists();
 		if (makeLocation) {
 			location.mkdirs();
@@ -118,7 +113,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 			getContainer().run(true, true, monitor -> {
 				monitor.beginTask("Creating Rust project", 0);
 				List<String> commandLine = new ArrayList<>();
-				commandLine.add(cargo);
+				commandLine.add(CargoTools.getCargoCommand());
 				commandLine.add("init");
 
 				commandLine.add("--name");

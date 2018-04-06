@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion.run;
+package org.eclipse.corrosion.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,11 +47,12 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
-public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
+public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 
 	public static final String PROJECT_ATTRIBUTE = "PROJECT";
-	public static final String RUN_OPTIONS_ATTRIBUTE = "RUN_OPTIONS";
-	public static final String RUN_ARGUMENTS_ATTRIBUTE = "RUN_ARGUMENTS";
+	public static final String TEST_OPTIONS_ATTRIBUTE = "TEST_OPTIONS";
+	public static final String TEST_ARGUMENTS_ATTRIBUTE = "TEST_ARGUMENTS";
+	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME";
 
 	@Override
 	public void launch(ISelection selection, String mode) {
@@ -104,12 +105,13 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
-		List<String> cargoRunCommand = new ArrayList<>();
-		cargoRunCommand.add(CargoTools.getCargoCommand());
-		cargoRunCommand.add("run");
+		List<String> cargoTestCommand = new ArrayList<>();
+		cargoTestCommand.add(CargoTools.getCargoCommand());
+		cargoTestCommand.add("test");
 		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, "");
-		String options = configuration.getAttribute(RUN_OPTIONS_ATTRIBUTE, "");
-		String arguments = configuration.getAttribute(RUN_ARGUMENTS_ATTRIBUTE, "");
+		String options = configuration.getAttribute(TEST_OPTIONS_ATTRIBUTE, "");
+		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, "");
+		String arguments = configuration.getAttribute(TEST_ARGUMENTS_ATTRIBUTE, "");
 
 		IProject project = null;
 		if (!projectName.isEmpty()) {
@@ -132,24 +134,28 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		}
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
 		if (options != null && !options.isEmpty()) {
-			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("(\n| )")));
+			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("(\n| )")));
 		}
 
 		final String cargoPathString = cargoManifest.getLocation().toPortableString();
-		cargoRunCommand.add("--manifest-path");
-		cargoRunCommand.add(cargoPathString);
+		cargoTestCommand.add("--manifest-path");
+		cargoTestCommand.add(cargoPathString);
 
-		if (arguments != null && !arguments.isEmpty()) {
-			cargoRunCommand.add("--");
-			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("(\n| )")));
+		if (testName != null && !testName.isEmpty()) {
+			cargoTestCommand.add(testName);
 		}
 
-		final List<String> finalRunCommand = cargoRunCommand;
+		if (arguments != null && !arguments.isEmpty()) {
+			cargoTestCommand.add("--");
+			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("(\n| )")));
+		}
+
+		final List<String> finalTestCommand = cargoTestCommand;
 		CompletableFuture.runAsync(() -> {
 			try {
-				String[] cmdLine = finalRunCommand.toArray(new String[finalRunCommand.size()]);
+				String[] cmdLine = finalTestCommand.toArray(new String[finalTestCommand.size()]);
 				Process p = DebugPlugin.exec(cmdLine, null);
-				IProcess process = DebugPlugin.newProcess(launch, p, "cargo run");
+				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test");
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine));
 			} catch (CoreException e) {
 				Display.getDefault().asyncExec(() -> {
@@ -163,7 +169,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType configType = launchManager
-				.getLaunchConfigurationType("org.eclipse.corrosion.run.CargoRunDelegate");
+				.getLaunchConfigurationType("org.eclipse.corrosion.test.CargoTestDelegate");
 		try {
 			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
 			final String projectName = resource.getProject().getName();

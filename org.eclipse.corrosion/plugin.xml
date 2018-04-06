@@ -150,6 +150,12 @@
             name="Cargo Based Rust Project">
       </launchConfigurationType>
       <launchConfigurationType
+            delegate="org.eclipse.corrosion.test.CargoTestDelegate"
+            id="org.eclipse.corrosion.test.CargoTestDelegate"
+            modes="run"
+            name="Cargo Based Rust Test">
+      </launchConfigurationType>
+      <launchConfigurationType
             delegate="org.eclipse.corrosion.debug.RustDebugDelegate"
             id="org.eclipse.corrosion.debug.RustDebugDelegate"
             modes="debug"
@@ -166,6 +172,11 @@
             type="org.eclipse.corrosion.run.CargoRunDelegate">
       </launchConfigurationTabGroup>
       <launchConfigurationTabGroup
+            class="org.eclipse.corrosion.test.CargoTestTabGroup"
+            id="org.eclipse.corrosion.test.CargoTestTabGroup"
+            type="org.eclipse.corrosion.test.CargoTestDelegate">
+      </launchConfigurationTabGroup>
+      <launchConfigurationTabGroup
             class="org.eclipse.corrosion.debug.RustDebugTabGroup"
             id="org.eclipse.corrosion.debug.RustDebugTabGroup"
             type="org.eclipse.corrosion.debug.RustDebugDelegate">
@@ -175,6 +186,11 @@
       <launchConfigurationTypeImage
             id="org.eclipse.corrosion.run.CargoRunTypeImage"
             configTypeID="org.eclipse.corrosion.run.CargoRunDelegate"
+            icon="icons/cargo.png">
+      </launchConfigurationTypeImage>
+      <launchConfigurationTypeImage
+            id="org.eclipse.corrosion.test.CargoTestTypeImage"
+            configTypeID="org.eclipse.corrosion.test.CargoTestDelegate"
             icon="icons/cargo.png">
       </launchConfigurationTypeImage>
       <launchConfigurationTypeImage
@@ -197,6 +213,18 @@
             id="org.eclipse.corrosion.run.Shortcut"
             class="org.eclipse.corrosion.run.CargoRunDelegate"
             label="Cargo Based Rust Project"
+            icon="icons/cargo.png"
+            modes="run">
+         <contextualLaunch>
+            <enablement>
+               <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+      <shortcut
+            id="org.eclipse.corrosion.test.Shortcut"
+            class="org.eclipse.corrosion.test.CargoTestDelegate"
+            label="Cargo Based Rust Test"
             icon="icons/cargo.png"
             modes="run">
          <contextualLaunch>
