@@ -35,8 +35,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.corrosion.RustGDBLaunchWrapper;
+import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -47,7 +47,6 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
@@ -61,14 +60,12 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 	@Override
 	public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
-		IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
-		String cargo = store.getString(CorrosionPreferenceInitializer.cargoPathPreference);
 		String buildCommand = config.getAttribute(BUILD_COMMAND_ATTRIBUTE, "");
 		File projectLocation = new File(
 				config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""));
 
 		List<String> cmdLine = new ArrayList<>();
-		cmdLine.add(cargo);
+		cmdLine.add(CargoTools.getCargoCommand());
 		if (buildCommand.isEmpty()) {
 			buildCommand = "build";
 		}

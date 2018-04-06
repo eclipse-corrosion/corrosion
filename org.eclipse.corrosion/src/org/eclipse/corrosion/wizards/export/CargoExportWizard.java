@@ -24,16 +24,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.Launch;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IExportWizard;
 import org.eclipse.ui.IWorkbench;
@@ -75,11 +73,8 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 		Boolean noMetadata = wizardPage.noMetadata();
 		Boolean allowDirty = wizardPage.allowDirty();
 
-		IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
-		String cargo = store.getString(CorrosionPreferenceInitializer.cargoPathPreference);
-
 		List<String> exportCommandList = new ArrayList<>();
-		exportCommandList.add(cargo);
+		exportCommandList.add(CargoTools.getCargoCommand());
 		exportCommandList.add("package");
 		if (noVerify) {
 			exportCommandList.add("--no-verify");
