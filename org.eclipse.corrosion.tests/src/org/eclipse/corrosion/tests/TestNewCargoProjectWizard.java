@@ -15,17 +15,24 @@ package org.eclipse.corrosion.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizard;
+import org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizardPage;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizard;
-import org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizardPage;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.Test;
 
@@ -79,6 +86,42 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		assertEquals(1, projects.length);
 		assertTrue(projects[0].getFile("Cargo.toml").exists());
+	}
+
+	@Test
+	public void testCreateNewProjectOutOfWorkspace() throws Exception {
+		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
+		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		wizard.init(getWorkbench(), new StructuredSelection());
+		dialog.create();
+		confirmPageState(wizard, "new_rust_project", "none", true);
+		Composite composite = (Composite) wizard.getPages()[0].getControl();
+		Optional<Text> locationText = Arrays.stream(composite.getChildren())
+			.filter(Text.class::isInstance)
+			.map(Text.class::cast)
+			.findFirst();
+		Path tempDir = Files.createTempDirectory("corrosion-test");
+		locationText.get().setText(tempDir.toString());
+		confirmPageState(wizard, tempDir.getFileName().toString(), "none", true);
+		assertTrue(wizard.canFinish());
+		assertTrue(wizard.performFinish());
+		dialog.close();
+		new DisplayHelper() {
+
+			@Override
+			protected boolean condition() {
+				return ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0;
+			}
+		}.waitForCondition(getShell().getDisplay(), 15000);
+		try {
+			IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+			assertEquals(1, projects.length);
+			IProject project = projects[0];
+			assertEquals(tempDir.toFile(), project.getLocation().toFile());
+			assertTrue(projects[0].getFile("Cargo.toml").exists());
+		} finally {
+			FileUtils.deleteDirectory(tempDir.toFile());
+		}
 	}
 
 	@Override
