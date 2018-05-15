@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="corrosion" sequenceNumber="3">
+<?pde version="3.8"?><target name="corrosion" sequenceNumber="4">
 <locations>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.mylyn.wikitext_feature.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/mylyn/docs/releases/3.0.24"/>
-</location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.jface.text" version="0.0.0"/>
 <unit id="org.eclipse.jdt.annotation" version="0.0.0"/>
@@ -17,7 +13,6 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="tm-feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.mylyn.commons.notifications.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.lsp4e" version="0.0.0"/>
 <unit id="org.eclipse.cdt.debug.core" version="0.0.0"/>
 <unit id="org.eclipse.cdt.core" version="0.0.0"/>
