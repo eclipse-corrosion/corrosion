@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for Corrosion
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.corrosion.tests;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Bundle-Vendor: Red Hat Inc.
+Bundle-Vendor: %Bundle-Vendor
 Eclipse-BundleShape: dir
 Automatic-Module-Name: org.eclipse.corrosion.tests
 Require-Bundle: org.eclipse.corrosion;bundle-version="0.1.0",

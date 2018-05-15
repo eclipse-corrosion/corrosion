@@ -7,14 +7,14 @@
             base-type="org.eclipse.core.runtime.text"
             file-extensions="rs"
             id="org.eclipse.corrosion.rust"
-            name="Rust project file"
+            name="%content-type.name"
             priority="normal">
       </content-type>
       <content-type
             base-type="org.eclipse.core.runtime.text"
             file-names="Cargo.toml"
             id="org.eclipse.corrosion.manifest"
-            name="Cargo manifest file"
+            name="%content-type.name.0"
             priority="normal">
       </content-type>
    </extension>
@@ -87,13 +87,13 @@
       <page
             class="org.eclipse.corrosion.CorrosionPreferencePage"
             id="org.eclipse.corrosion.preferencePage"
-            name="Rust">
+            name="%page.name">
       </page>
       <page
             category="org.eclipse.corrosion.preferencePage"
             class="org.eclipse.corrosion.TextEditorPreferencePage"
             id="org.eclipse.corrosion.texteditor"
-            name="Text Editor">
+            name="%page.name.0">
       </page>
    </extension>
    <extension
@@ -115,14 +115,14 @@
          point="org.eclipse.ui.newWizards">
       <category
             id="org.eclipse.corrosion.rust"
-            name="Rust">
+            name="%category.name">
       </category>
       <wizard
             category="org.eclipse.corrosion.rust"
             class="org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizard"
             icon="icons/cargo.png"
             id="org.eclipse.corrosion.wizards.newCargo"
-            name="Cargo project"
+            name="%wizard.name"
             project="true">
       </wizard>
    </extension>
@@ -130,11 +130,11 @@
          point="org.eclipse.ui.exportWizards">
       <wizard
             id="org.eclipse.corrosion.wizards.export"
-            name="Rust Crate Packager"
+            name="%wizard.name.0"
             class="org.eclipse.corrosion.wizards.export.CargoExportWizard"
             icon="icons/cargo.png">
          <description>
-            A wizard to assist with packaging Cargo based Rust projects into crates
+            %wizard.description
          </description>
          <selection class="org.eclipse.core.resources.IResource"/>
       </wizard>
@@ -147,19 +147,19 @@
             delegate="org.eclipse.corrosion.run.CargoRunDelegate"
             id="org.eclipse.corrosion.run.CargoRunDelegate"
             modes="run"
-            name="Cargo Based Rust Project">
+            name="%launchConfigurationType.name">
       </launchConfigurationType>
       <launchConfigurationType
             delegate="org.eclipse.corrosion.test.CargoTestDelegate"
             id="org.eclipse.corrosion.test.CargoTestDelegate"
             modes="run"
-            name="Cargo Based Rust Test">
+            name="%launchConfigurationType.name.0">
       </launchConfigurationType>
       <launchConfigurationType
             delegate="org.eclipse.corrosion.debug.RustDebugDelegate"
             id="org.eclipse.corrosion.debug.RustDebugDelegate"
             modes="debug"
-            name="Rust"
+            name="%launchConfigurationType.name.1"
             public="true"
             sourceLocatorId="com.eclipse.corrosion.debug.SourceLocator">
       </launchConfigurationType>
@@ -212,7 +212,7 @@
       <shortcut
             id="org.eclipse.corrosion.run.Shortcut"
             class="org.eclipse.corrosion.run.CargoRunDelegate"
-            label="Cargo Based Rust Project"
+            label="%shortcut.label"
             icon="icons/cargo.png"
             modes="run">
          <contextualLaunch>
@@ -224,7 +224,7 @@
       <shortcut
             id="org.eclipse.corrosion.test.Shortcut"
             class="org.eclipse.corrosion.test.CargoTestDelegate"
-            label="Cargo Based Rust Test"
+            label="%shortcut.label.0"
             icon="icons/cargo.png"
             modes="run">
          <contextualLaunch>
@@ -237,7 +237,7 @@
             class="org.eclipse.corrosion.debug.RustDebugDelegate"
             icon="icons/rust.png"
             id="org.eclipse.corrosion.debug.Shortcut"
-            label="Rust Project"
+            label="%shortcut.label.1"
             modes="debug">
          <contextualLaunch>
             <enablement>
@@ -251,14 +251,14 @@
       <sourceLocator
             class="org.eclipse.corrosion.debug.SourceLookupDirector"
             id="com.eclipse.corrosion.debug.SourceLocator"
-            name="Source Locator">
+            name="%sourceLocator.name">
       </sourceLocator>
    </extension>
 
 <!-- INCREMENTAL BUILD PROCESS -->
    <extension
          id="org.eclipse.corrosion.builder.IncrementalCargoBuilder"
-         name="Cargo Builder"
+         name="%extension.name"
          point="org.eclipse.core.resources.builders">
       <builder>
          <run class="org.eclipse.corrosion.builder.IncrementalCargoBuilder"/>
@@ -317,18 +317,18 @@
           point="org.eclipse.ui.commands">
       <command
             defaultHandler="org.eclipse.corrosion.builder.AddCargoBuilder"
-            name="Add Cargo Builder"
+            name="%command.name"
             id="org.eclipse.corrosion.builder.AddCargoBuilder">
       </command>
       <command
             defaultHandler="org.eclipse.corrosion.builder.RemoveCargoBuilder"
             id="org.eclipse.corrosion.builder.RemoveCargoBuilder"
-            name="Remove Cargo Builder">
+            name="%command.name.0">
       </command>
       <command
             categoryId="org.eclipse.lsp4e.category"
             id="org.eclipse.corrosion.commands.Implementations"
-            name="Implementations">
+            name="%command.name.1">
       </command>
    </extension>
    <extension
@@ -364,7 +364,7 @@
         point="org.eclipse.ui.perspectives">
         <perspective
             id="org.eclipse.corrosion.rustPerspective"
-            name="Rust"
+            name="%perspective.name"
             class="org.eclipse.corrosion.RustPerspective"
             icon="icons/rust.png">
         </perspective> 
@@ -386,7 +386,7 @@
                actionID="RulerDoubleClick"
                class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
                id="Editor.rulerDoubleClickAction"
-               label="Toggle Breakpoint">
+               label="%action.label">
          </action>
       </editorContribution>
    </extension>
