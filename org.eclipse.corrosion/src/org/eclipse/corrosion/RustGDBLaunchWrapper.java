@@ -67,7 +67,7 @@ public class RustGDBLaunchWrapper extends GdbLaunch {
 	private String getGDBLocation() {
 		String[] command = new String[] { "/bin/bash", "-c", "which gdb" };
 		if (Platform.getOS().equals(Platform.OS_WIN32)) {
-			command = new String[] { "cmd", "/c", "which gdb" };
+			command = new String[] { "cmd", "/c", "where gdb" };
 		}
 		try {
 			Process process = Runtime.getRuntime().exec(command);
