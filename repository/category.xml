@@ -12,7 +12,7 @@
    <bundle id="org.apache.commons.lang" version="2.6.0.v201404270220">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
-   <bundle id="org.eclipse.lsp4e" version="0.5.0.201802161151">
+   <bundle id="org.eclipse.lsp4e" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
    <bundle id="org.eclipse.lsp4j" version="0.0.0">
