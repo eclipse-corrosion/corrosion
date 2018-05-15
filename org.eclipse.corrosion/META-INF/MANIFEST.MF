@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Rust edition in Eclipse IDE
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.corrosion;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Automatic-Module-Name: org.eclipse.corrosion
 Bundle-Activator: org.eclipse.corrosion.CorrosionPlugin
-Bundle-Vendor: Red Hat Inc.
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.ui.genericeditor;bundle-version="1.0.1",
  org.eclipse.ui,
