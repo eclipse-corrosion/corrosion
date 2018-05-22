@@ -95,6 +95,12 @@
             id="org.eclipse.corrosion.texteditor"
             name="%page.name.0">
       </page>
+      <page
+            category="org.eclipse.corrosion.preferencePage"
+            class="org.eclipse.corrosion.debug.DebugPreferencePage"
+            id="org.eclipse.corrosion.debug"
+            name="%debugPreferencePage">
+      </page>
    </extension>
    <extension
        point="org.eclipse.core.expressions.definitions">
