@@ -26,19 +26,16 @@ import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 @SuppressWarnings("restriction")
 public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
 
-	@Override
-	public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
-		setTabs(new ILaunchConfigurationTab[] { new RustDebugTab(), new EnvironmentTab(),
-				new RustLocalApplicationCDebuggerTab(), new SourceLookupTab(), new CommonTab() });
+	@Override public void createTabs(ILaunchConfigurationDialog arg0, String arg1) {
+		setTabs(new ILaunchConfigurationTab[] { new RustDebugTab(), new EnvironmentTab(), new RustLocalApplicationCDebuggerTab(), new SourceLookupTab(), new CommonTab() });
 	}
 
 	protected class RustLocalApplicationCDebuggerTab extends LocalApplicationCDebuggerTab {
 
-		@Override
-		public void setDefaults(ILaunchConfigurationWorkingCopy config) {
+		@Override public void setDefaults(ILaunchConfigurationWorkingCopy config) {
 			super.setDefaults(config);
 			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
-			config.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb");
+			config.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb"); //$NON-NLS-1$
 		}
 	}
 }

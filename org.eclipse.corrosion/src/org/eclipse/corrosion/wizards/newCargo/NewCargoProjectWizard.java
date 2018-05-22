@@ -37,10 +37,12 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
@@ -52,17 +54,16 @@ import org.eclipse.ui.ide.IDE;
 
 public class NewCargoProjectWizard extends Wizard implements INewWizard {
 	private NewCargoProjectWizardPage wizardPage;
-	public static final String ID = "org.eclipse.corrosion.wizards.newCargo";
+	public static final String ID = "org.eclipse.corrosion.wizards.newCargo"; //$NON-NLS-1$
 
 	public NewCargoProjectWizard() {
 		super();
 		setNeedsProgressMonitor(true);
 	}
 
-	@Override
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
+	@Override public void init(IWorkbench workbench, IStructuredSelection selection) {
 		wizardPage = new NewCargoProjectWizardPage();
-		setWindowTitle("New Cargo Based Rust Project");
+		setWindowTitle(Messages.NewCargoProjectWizard_title);
 
 		Iterator<?> selectionIterator = selection.iterator();
 		Set<IWorkingSet> workingSets = new HashSet<>();
@@ -94,13 +95,11 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		}
 	}
 
-	@Override
-	public void addPages() {
+	@Override public void addPages() {
 		addPage(wizardPage);
 	}
 
-	@Override
-	public boolean performFinish() {
+	@Override public boolean performFinish() {
 		File location = wizardPage.getDirectory();
 		String projectName = wizardPage.getProjectName();
 		Boolean isBin = wizardPage.isBinaryTemplate();
@@ -113,21 +112,21 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 
 		try {
 			getContainer().run(true, true, monitor -> {
-				monitor.beginTask("Creating Rust project", 0);
+				monitor.beginTask(Messages.NewCargoProjectWizard_task, 0);
 				List<String> commandLine = new ArrayList<>();
 				commandLine.add(CargoTools.getCargoCommand());
-				commandLine.add("init");
+				commandLine.add("init"); //$NON-NLS-1$
 
-				commandLine.add("--name");
+				commandLine.add("--name"); //$NON-NLS-1$
 				commandLine.add(projectName);
 
-				commandLine.add("--vcs");
+				commandLine.add("--vcs"); //$NON-NLS-1$
 				commandLine.add(vcs);
 
 				if (isBin) {
-					commandLine.add("--bin");
+					commandLine.add("--bin"); //$NON-NLS-1$
 				} else {
-					commandLine.add("--lib");
+					commandLine.add("--lib"); //$NON-NLS-1$
 				}
 
 				ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
@@ -145,23 +144,22 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 					if (process.exitValue() == 0) {
 						String mainFileName;
 						if (isBin) {
-							mainFileName = "main.rs";
+							mainFileName = "main.rs"; //$NON-NLS-1$
 						} else {
-							mainFileName = "lib.rs";
+							mainFileName = "lib.rs"; //$NON-NLS-1$
 						}
 						createProject(projectName, location, mainFileName, monitor);
 					} else {
-						String errorOutput = "";
+						String errorOutput = ""; //$NON-NLS-1$
 						try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
 							String errorLine;
 							while ((errorLine = in.readLine()) != null) {
-								errorOutput += errorLine + "\n";
+								errorOutput += errorLine + '\n';
 							}
 						}
 						final String finalErrorOutput = errorOutput;
 						Display.getDefault().asyncExec(() -> {
-							MessageDialog.openError(getShell(), "Cannot Create Rust Project", "Create unsuccessful.`"
-									+ String.join(" ", commandLine) + "` error log:\n\n" + finalErrorOutput);
+							MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject, NLS.bind(Messages.NewCargoProjectWizard_cannotCreateRustProject_commandFailedDetails, String.join(" ", commandLine), finalErrorOutput)); //$NON-NLS-1$
 						});
 						if (makeLocation) {
 							location.delete();
@@ -170,14 +168,14 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 					monitor.done();
 				} catch (IOException e) {
 					monitor.done();
-					MessageDialog.openError(getShell(), "Cannot Create Rust project", e.toString());
+					MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject, e.toString());
 					if (makeLocation) {
 						location.delete();
 					}
 				}
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
-			MessageDialog.openError(getShell(), "Cannot Create Rust Project", e.toString());
+			MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject, e.toString());
 			return false;
 		}
 		return true;
@@ -193,11 +191,11 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 			project.open(monitor);
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		} catch (CoreException e) {
-			MessageDialog.openError(getShell(), "Unable to load project description", e.toString());
+			MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_unableToLoadProjectDescriptor, e.toString());
 		}
 
 		IWorkingSetManager wsm = PlatformUI.getWorkbench().getWorkingSetManager();
-		IFile rsPrgramFile = project.getFile("src/" + mainFileName);
+		IFile rsPrgramFile = project.getFile("src/" + mainFileName); //$NON-NLS-1$
 
 		Display.getDefault().asyncExec(() -> {
 
@@ -210,7 +208,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 						IDE.openEditor(page, rsPrgramFile);
 					}
 				} catch (CoreException e) {
-					MessageDialog.openError(getShell(), "Cannot open project", e.toString());
+					MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotOpenProject, e.toString());
 				}
 			}
 		});
@@ -219,10 +217,10 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 	private File newFolderLocation() {
 		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
 		int appendedNumber = 0;
-		File newFile = workspacePath.append("new_rust_project").toFile();
+		File newFile = workspacePath.append("new_rust_project").toFile(); //$NON-NLS-1$
 		while (newFile.isDirectory()) {
 			appendedNumber++;
-			newFile = workspacePath.append("new_rust_project_" + appendedNumber).toFile();
+			newFile = workspacePath.append("new_rust_project_" + appendedNumber).toFile(); //$NON-NLS-1$
 		}
 		return newFile;
 	}

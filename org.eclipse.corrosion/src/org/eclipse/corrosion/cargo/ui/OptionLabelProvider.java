@@ -18,29 +18,27 @@ import org.eclipse.swt.graphics.Image;
 
 public class OptionLabelProvider extends LabelProvider {
 
-	@Override
-	public Image getImage(Object element) {
+	@Override public Image getImage(Object element) {
 		return null;
 	}
 
-	@Override
-	public String getText(Object element) {
+	@Override public String getText(Object element) {
 		String returnString;
 		if (element instanceof CLIOption) {
 			String flag = ((CLIOption) element).getFlag();
-			if (flag.startsWith("--")) {
+			if (flag.startsWith("--")) { //$NON-NLS-1$
 				returnString = flag.substring(2);
-			} else if (flag.startsWith("-")) {
+			} else if (flag.startsWith("-")) { //$NON-NLS-1$
 				returnString = flag.substring(1);
 			} else {
 				returnString = flag;
 			}
 			String[] arguments = ((CLIOption) element).getArguments();
 			if (arguments != null) {
-				returnString += " " + String.join(" ", arguments);
+				returnString += ' ' + String.join(" ", arguments); //$NON-NLS-1$
 			}
 			return returnString;
 		}
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 }

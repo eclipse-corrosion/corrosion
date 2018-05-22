@@ -18,17 +18,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 
 public class CargoProjectTester extends PropertyTester {
-	private static final String PROPERTY_NAME = "isCargoProject";
+	public static final String PROPERTY_NAME = "isCargoProject"; //$NON-NLS-1$
 
-	@Override
-	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
+	@Override public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		if (property.equals(PROPERTY_NAME)) {
 			IResource resource = toResource(receiver);
 			if (resource == null) {
 				return false;
 			}
 			IProject project = resource.getProject();
-			return project.getFile("Cargo.toml").exists();
+			return project.getFile("Cargo.toml").exists(); //$NON-NLS-1$
 		}
 		return false;
 	}

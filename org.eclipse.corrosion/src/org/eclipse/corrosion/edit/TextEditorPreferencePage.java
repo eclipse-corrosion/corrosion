@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion.edit;
 
+import org.eclipse.corrosion.Messages;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -40,37 +41,37 @@ public class TextEditorPreferencePage extends PreferencePage implements IWorkben
 
 		Link textEditorsLink = new Link(container, SWT.NONE);
 		textEditorsLink.setText(
-				"See <A>Text Editors</A> for general text editor settings (including setting tabs/spaces for formatting)");
+				Messages.TextEditorPreferencePage_linkTextEditorsPref);
 		textEditorsLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
 					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.ui.preferencePages.GeneralTextEditor", null);
+					.openPage("org.eclipse.ui.preferencePages.GeneralTextEditor", null); //$NON-NLS-1$
 				}
 			}
 		});
 
 		Link textMateLink = new Link(container, SWT.NONE);
-		textMateLink.setText("See <A>TextMate Theme</A> to configure the syntax highlighting");
+		textMateLink.setText(Messages.TextEditorPreferencePage_linkTextMatePref);
 		textMateLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
 					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.tm4e.ui.preferences.ThemePreferencePage", null);
+					.openPage("org.eclipse.tm4e.ui.preferences.ThemePreferencePage", null); //$NON-NLS-1$
 				}
 			}
 		});
 
 		Link fontsLink = new Link(container, SWT.NONE);
-		fontsLink.setText("See <A>Colors and Fonts</A> to configure the font");
+		fontsLink.setText(Messages.TextEditorPreferencePage_linkColorAndFontsPref);
 		fontsLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
 					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.ui.preferencePages.ColorsAndFonts", null);
+					.openPage("org.eclipse.ui.preferencePages.ColorsAndFonts", null); //$NON-NLS-1$
 				}
 			}
 		});

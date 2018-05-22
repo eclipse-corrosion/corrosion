@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -32,6 +33,7 @@ import org.eclipse.debug.core.Launch;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IExportWizard;
 import org.eclipse.ui.IWorkbench;
@@ -44,29 +46,26 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 		setNeedsProgressMonitor(true);
 	}
 
-	@Override
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		setWindowTitle("Package Cargo Based Rust Project");
+	@Override public void init(IWorkbench workbench, IStructuredSelection selection) {
+		setWindowTitle(Messages.CargoExportWizard_title);
 
 		Iterator<?> selectionIterator = selection.iterator();
 		IProject project = null;
 
 		while (selectionIterator.hasNext() && project == null) {
 			IResource resource = (IResource) selectionIterator.next();
-			if (resource.getProject().getFile("Cargo.toml").exists()) {
+			if (resource.getProject().getFile("Cargo.toml").exists()) { //$NON-NLS-1$
 				project = resource.getProject();
 			}
 		}
 		wizardPage = new CargoExportWizardPage(project);
 	}
 
-	@Override
-	public void addPages() {
+	@Override public void addPages() {
 		addPage(wizardPage);
 	}
 
-	@Override
-	public boolean performFinish() {
+	@Override public boolean performFinish() {
 		IProject project = wizardPage.getProject();
 		String toolchain = wizardPage.getToolchain();
 		Boolean noVerify = wizardPage.noVerify();
@@ -75,31 +74,30 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 
 		List<String> exportCommandList = new ArrayList<>();
 		exportCommandList.add(CargoTools.getCargoCommand());
-		exportCommandList.add("package");
+		exportCommandList.add("package"); //$NON-NLS-1$
 		if (noVerify) {
-			exportCommandList.add("--no-verify");
+			exportCommandList.add("--no-verify"); //$NON-NLS-1$
 		}
 		if (noMetadata) {
-			exportCommandList.add("--no-metadata");
+			exportCommandList.add("--no-metadata"); //$NON-NLS-1$
 		}
 		if (allowDirty) {
-			exportCommandList.add("--allow-dirty");
+			exportCommandList.add("--allow-dirty"); //$NON-NLS-1$
 		}
 		if (!toolchain.isEmpty()) {
-			exportCommandList.add("--target");
+			exportCommandList.add("--target"); //$NON-NLS-1$
 			exportCommandList.add(toolchain);
 		}
-		exportCommandList.add("--manifest-path");
-		exportCommandList.add(project.getFile("Cargo.toml").getLocation().toString());
+		exportCommandList.add("--manifest-path"); //$NON-NLS-1$
+		exportCommandList.add(project.getFile("Cargo.toml").getLocation().toString()); //$NON-NLS-1$
 
-		Job.create("Cargo Package", (ICoreRunnable) monitor -> {
+		Job.create("Cargo Package", (ICoreRunnable) monitor -> { //$NON-NLS-1$
 			try {
 				ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 				ILaunch newLaunch = new Launch(null, ILaunchManager.RUN_MODE, null);
 
-				Process packageProcess = DebugPlugin
-						.exec(exportCommandList.toArray(new String[exportCommandList.size()]), null);
-				DebugPlugin.newProcess(newLaunch, packageProcess, "cargo package");
+				Process packageProcess = DebugPlugin.exec(exportCommandList.toArray(new String[exportCommandList.size()]), null);
+				DebugPlugin.newProcess(newLaunch, packageProcess, "cargo package"); //$NON-NLS-1$
 				launchManager.addLaunch(newLaunch);
 
 				try {
@@ -109,27 +107,24 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 				if (packageProcess.exitValue() == 0) {
 					project.refreshLocal(IResource.DEPTH_INFINITE, null);
 				} else {
-					String errorOutput = "";
-					try (BufferedReader in = new BufferedReader(
-							new InputStreamReader(packageProcess.getErrorStream()))) {
+					String errorOutput = ""; //$NON-NLS-1$
+					try (BufferedReader in = new BufferedReader(new InputStreamReader(packageProcess.getErrorStream()))) {
 						String errorLine;
 						while ((errorLine = in.readLine()) != null) {
-							errorOutput += errorLine + "\n";
+							errorOutput += errorLine + '\n';
 						}
 					} catch (IOException e) {
-						errorOutput = "Unable to generate error log.";
+						errorOutput = Messages.CargoExportWizard_unableToGenerateLog;
 					}
 					final String finalErrorOutput = errorOutput;
 					Display.getDefault().asyncExec(() -> {
-						MessageDialog.openError(getShell(), "Cannot Create Rust Project", "Create unsuccessful.`"
-								+ String.join(" ", exportCommandList) + "` error log:\n\n" + finalErrorOutput);
+						MessageDialog.openError(getShell(), Messages.CargoExportWizard_cannotCreateProject, NLS.bind(Messages.CargoExportWizard_cannotCreateProject_details, String.join(" ", exportCommandList), finalErrorOutput)); //$NON-NLS-1$
 					});
 				}
 
 			} catch (CoreException e) {
 				Display.getDefault().asyncExec(() -> {
-					MessageDialog.openError(getShell(), "Cannot Package Cargo Based Rust Project",
-							"The '" + String.join(" ", exportCommandList) + "' command failed: " + e);
+					MessageDialog.openError(getShell(), Messages.CargoExportWizard_cannotPackageProject, NLS.bind(Messages.CargoExportWizard_commandFailed, String.join(" ", exportCommandList), e)); //$NON-NLS-1$
 				});
 			}
 		}).schedule();

@@ -15,27 +15,29 @@ package org.eclipse.corrosion.cargo.core;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.corrosion.Messages;
+
 public class CLIOption {
 	private String flag;
 	private String[] arguments;
 	private String description;
 
 	public CLIOption(List<String> lines) {
-		if (lines == null || lines.size() == 0 || !lines.get(0).matches("\\s*-+.*")) {
-			throw new IllegalArgumentException("lines is not the option help content");
+		if (lines == null || lines.size() == 0 || !lines.get(0).matches("\\s*-+.*")) { //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.CLIOption_lineIsNotHelp);
 		}
 
-		String[] firstLine = lines.get(0).trim().split("  ");
-		int start = firstLine[0].lastIndexOf(", ");
+		String[] firstLine = lines.get(0).trim().split("  "); //$NON-NLS-1$
+		int start = firstLine[0].lastIndexOf(", "); //$NON-NLS-1$
 		start = start == -1 ? 0 : start + 2;
-		String[] flagSection = firstLine[0].substring(start).split("\\s");
+		String[] flagSection = firstLine[0].substring(start).split("\\s"); //$NON-NLS-1$
 		flag = flagSection[0];
 		arguments = Arrays.copyOfRange(flagSection, 1, flagSection.length);
 
-		description = String.join("  ", Arrays.copyOfRange(firstLine, 1, firstLine.length)).trim();
+		description = String.join("  ", Arrays.copyOfRange(firstLine, 1, firstLine.length)).trim(); //$NON-NLS-1$
 		lines.remove(0);
 		for (String string : lines) {
-			description += " " + string.trim();
+			description += ' ' + string.trim();
 		}
 	}
 

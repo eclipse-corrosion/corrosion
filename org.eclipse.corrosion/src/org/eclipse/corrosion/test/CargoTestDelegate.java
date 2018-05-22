@@ -29,7 +29,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
+import org.eclipse.corrosion.run.CargoRunDelegate;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -49,13 +51,12 @@ import org.eclipse.ui.PlatformUI;
 
 public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 
-	public static final String PROJECT_ATTRIBUTE = "PROJECT";
-	public static final String TEST_OPTIONS_ATTRIBUTE = "TEST_OPTIONS";
-	public static final String TEST_ARGUMENTS_ATTRIBUTE = "TEST_ARGUMENTS";
-	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME";
+	public static final String PROJECT_ATTRIBUTE = CargoRunDelegate.PROJECT_ATTRIBUTE;
+	public static final String TEST_OPTIONS_ATTRIBUTE = CargoRunDelegate.RUN_OPTIONS_ATTRIBUTE;
+	public static final String TEST_ARGUMENTS_ATTRIBUTE = CargoRunDelegate.RUN_ARGUMENTS_ATTRIBUTE;
+	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 
-	@Override
-	public void launch(ISelection selection, String mode) {
+	@Override public void launch(ISelection selection, String mode) {
 
 		if (selection instanceof IStructuredSelection) {
 			Iterator<?> selectionIterator = ((IStructuredSelection) selection).iterator();
@@ -82,13 +83,11 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 			}
 		}
 		Display.getDefault().asyncExec(() -> {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Unable to Launch",
-					"Unable to launch Rust Project from selection.");
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToLaunch);
 		});
 	}
 
-	@Override
-	public void launch(IEditorPart editor, String mode) {
+	@Override public void launch(IEditorPart editor, String mode) {
 		IEditorInput input = editor.getEditorInput();
 		IFile file = input.getAdapter(IFile.class);
 
@@ -102,16 +101,14 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		}
 	}
 
-	@Override
-	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
-			throws CoreException {
+	@Override public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		List<String> cargoTestCommand = new ArrayList<>();
 		cargoTestCommand.add(CargoTools.getCargoCommand());
-		cargoTestCommand.add("test");
-		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, "");
-		String options = configuration.getAttribute(TEST_OPTIONS_ATTRIBUTE, "").trim();
-		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, "");
-		String arguments = configuration.getAttribute(TEST_ARGUMENTS_ATTRIBUTE, "").trim();
+		cargoTestCommand.add("test"); //$NON-NLS-1$
+		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
+		String options = configuration.getAttribute(TEST_OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, ""); //$NON-NLS-1$
+		String arguments = configuration.getAttribute(TEST_ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
 
 		IProject project = null;
 		if (!projectName.isEmpty()) {
@@ -119,26 +116,24 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		}
 		if (project == null || !project.exists()) {
 			Display.getDefault().asyncExec(() -> {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Unable to Launch", "Unable to find project.");
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
 			});
 			return;
 		}
-		IFile cargoManifest = project.getFile("Cargo.toml");
+		IFile cargoManifest = project.getFile("Cargo.toml"); //$NON-NLS-1$
 		if (!cargoManifest.exists()) {
 			Display.getDefault().asyncExec(() -> {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Unable to Launch", "Unable to find Cargo.toml file.");
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindToml);
 			});
 			return;
 		}
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
 		if (!options.isEmpty()) {
-			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("\\s+")));
+			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final String cargoPathString = cargoManifest.getLocation().toPortableString();
-		cargoTestCommand.add("--manifest-path");
+		cargoTestCommand.add("--manifest-path"); //$NON-NLS-1$
 		cargoTestCommand.add(cargoPathString);
 
 		if (testName != null && !testName.isEmpty()) {
@@ -146,8 +141,8 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		}
 
 		if (!arguments.isEmpty()) {
-			cargoTestCommand.add("--");
-			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("\\s+")));
+			cargoTestCommand.add("--"); //$NON-NLS-1$
+			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final List<String> finalTestCommand = cargoTestCommand;
@@ -155,12 +150,11 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 			try {
 				String[] cmdLine = finalTestCommand.toArray(new String[finalTestCommand.size()]);
 				Process p = DebugPlugin.exec(cmdLine, null);
-				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test");
-				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine));
+				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test"); //$NON-NLS-1$
+				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
 				Display.getDefault().asyncExec(() -> {
-					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-							"Unable to Launch", e.getLocalizedMessage());
+					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
 				});
 			}
 		});
@@ -168,20 +162,19 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType configType = launchManager
-				.getLaunchConfigurationType("org.eclipse.corrosion.test.CargoTestDelegate");
+		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType("org.eclipse.corrosion.test.CargoTestDelegate"); //$NON-NLS-1$
 		try {
 			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
 			final String projectName = resource.getProject().getName();
 
 			for (ILaunchConfiguration iLaunchConfiguration : launchConfigurations) {
-				if (iLaunchConfiguration.getAttribute("PROJECT", "").equals(projectName)) {
+				if (iLaunchConfiguration.getAttribute(PROJECT_ATTRIBUTE, "").equals(projectName)) { //$NON-NLS-1$
 					return iLaunchConfiguration;
 				}
 			}
 			String configName = launchManager.generateLaunchConfigurationName(projectName);
 			ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, configName);
-			wc.setAttribute("PROJECT", projectName);
+			wc.setAttribute(PROJECT_ATTRIBUTE, projectName); // $NON-NLS-3$
 			return wc;
 		} catch (CoreException e) {
 			CorrosionPlugin.logError(e);

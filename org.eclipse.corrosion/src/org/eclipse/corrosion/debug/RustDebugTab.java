@@ -20,6 +20,7 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoProjectTester;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -52,27 +53,24 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 	private IProject project;
 	private File executable;
 
-	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+	@Override public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, buildCommandText.getText());
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectText.getText());
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executablePathText.getText());
 		if (project != null) {
-			configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
-					project.getLocation().toString());
+			configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
 		}
 		setDirty(false);
 	}
 
-	@Override
-	public void createControl(Composite parent) {
+	@Override public void createControl(Composite parent) {
 		Composite container = new Group(parent, SWT.BORDER);
 		setControl(container);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(container);
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Label projectLabel = new Label(container, SWT.NONE);
-		projectLabel.setText("Project:");
+		projectLabel.setText(Messages.RustDebugTab_project);
 		projectLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		projectText = new Text(container, SWT.BORDER);
@@ -91,13 +89,11 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		});
 
 		Button browseButton = new Button(container, SWT.NONE);
-		browseButton.setText("Browse...");
+		browseButton.setText(Messages.RustDebugTab_browse);
 		browseButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		browseButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			ListSelectionDialog dialog = new ListSelectionDialog(browseButton.getShell(),
-					ResourcesPlugin.getWorkspace().getRoot(), new BaseWorkbenchContentProvider(),
-					new WorkbenchLabelProvider(), "Select the Project:");
-			dialog.setTitle("Project Selection");
+			ListSelectionDialog dialog = new ListSelectionDialog(browseButton.getShell(), ResourcesPlugin.getWorkspace().getRoot(), new BaseWorkbenchContentProvider(), new WorkbenchLabelProvider(), Messages.RustDebugTab_selectProject);
+			dialog.setTitle(Messages.RustDebugTab_projectSelection);
 			int returnCode = dialog.open();
 			Object[] results = dialog.getResult();
 			if (returnCode == 0 && results.length > 0) {
@@ -113,7 +109,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		Group buildCommandGroup = new Group(container, SWT.NONE);
 		buildCommandGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		buildCommandGroup.setLayout(new GridLayout(2, false));
-		buildCommandGroup.setText("Build Command");
+		buildCommandGroup.setText(Messages.RustDebugTab_buildCommand);
 
 		buildCommandText = new Text(buildCommandGroup, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 		GridData buildCommandGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -125,11 +121,10 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		});
 
 		Button variableButton = new Button(buildCommandGroup, SWT.NONE);
-		variableButton.setText("Variables");
+		variableButton.setText(Messages.RustDebugTab_variables);
 		variableButton.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
 		variableButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			StringVariableSelectionDialog variableSelector = new StringVariableSelectionDialog(
-					variableButton.getShell());
+			StringVariableSelectionDialog variableSelector = new StringVariableSelectionDialog(variableButton.getShell());
 			int returnCode = variableSelector.open();
 			String result = variableSelector.getVariableExpression();
 			if (returnCode == 0 && result != null) {
@@ -140,14 +135,13 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		}));
 
 		defaultExecutablePathButton = new Button(container, SWT.CHECK);
-		defaultExecutablePathButton.setText("Use default path to executable");
+		defaultExecutablePathButton.setText(Messages.RustDebugTab_useDefaultPathToExecutable);
 		defaultExecutablePathButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 3, 1));
-		defaultExecutablePathButton.addSelectionListener(
-				widgetSelectedAdapter(e -> setDefaultExecutionPath(defaultExecutablePathButton.getSelection())));
+		defaultExecutablePathButton.addSelectionListener(widgetSelectedAdapter(e -> setDefaultExecutionPath(defaultExecutablePathButton.getSelection())));
 		defaultExecutablePathButton.setSelection(true);
 
 		executableLabel = new Label(container, SWT.NONE);
-		executableLabel.setText("Executable:");
+		executableLabel.setText(Messages.RustDebugTab_Executable);
 		executableLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		executablePathText = new Text(container, SWT.BORDER);
@@ -159,7 +153,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		});
 
 		browseExecutableButton = new Button(container, SWT.NONE);
-		browseExecutableButton.setText("Browse...");
+		browseExecutableButton.setText(Messages.RustDebugTab_BrowseExecutable);
 		browseExecutableButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		browseExecutableButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			FileDialog dialog = new FileDialog(browseExecutableButton.getShell());
@@ -175,7 +169,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 
 	private void setDefaultExecutionPath(boolean state) {
 		defaultExecutablePathButton.setEnabled(state);
-		executableLabel.setEnabled(!state);
 		executablePathText.setEnabled(!state);
 		browseExecutableButton.setEnabled(!state);
 		if (state) {
@@ -185,72 +178,66 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 
 	private String getDefaultExecutablePath() {
 		if (project == null) {
-			return "";
+			return ""; //$NON-NLS-1$
 		} else {
-			return project.getLocation().toString() + "/target/debug/" + project.getName();
+			return project.getLocation().toString() + "/target/debug/" + project.getName(); //$NON-NLS-1$
 		}
 	}
 
-	@Override
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build");
-		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
-		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "");
-		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "");
+	@Override public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build"); //$NON-NLS-1$
+		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
+		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
 	}
 
-	@Override
-	public void initializeFrom(ILaunchConfiguration configuration) {
+	@Override public void initializeFrom(ILaunchConfiguration configuration) {
 		try {
-			projectText.setText(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""));
+			projectText.setText(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "")); //$NON-NLS-1$
 		} catch (CoreException ce) {
-			projectText.setText("");
+			projectText.setText(""); //$NON-NLS-1$
 		}
 		try {
-			buildCommandText.setText(configuration.getAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build"));
+			buildCommandText.setText(configuration.getAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build")); //$NON-NLS-1$
 		} catch (CoreException ce) {
-			buildCommandText.setText("");
+			buildCommandText.setText(""); //$NON-NLS-1$
 		}
 		try {
-			executablePathText
-					.setText(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""));
+			executablePathText.setText(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "")); //$NON-NLS-1$
 		} catch (CoreException ce) {
-			executablePathText.setText("");
+			executablePathText.setText(""); //$NON-NLS-1$
 		}
 		setDefaultExecutionPath(executablePathText.getText().equals(getDefaultExecutablePath()));
 	}
 
-	@Override
-	public boolean isValid(ILaunchConfiguration launchConfig) {
+	@Override public boolean isValid(ILaunchConfiguration launchConfig) {
 		return canSave();
 	}
 
 	private static CargoProjectTester tester = new CargoProjectTester();
 
-	@Override
-	public boolean canSave() {
+	@Override public boolean canSave() {
 		if (buildCommandText.getText().isEmpty()) {
-			setErrorMessage("Cargo Build command cannot be empty");
+			setErrorMessage(Messages.RustDebugTab_cargoCommandConnotBeEmpty);
 			return false;
 		}
-		if (project == null || !project.exists() || !tester.test(project, "isCargoProject", null, null)) {
-			setErrorMessage("Input a valid cargo project name");
+		if (project == null || !project.exists() || !tester.test(project, CargoProjectTester.PROPERTY_NAME, null, null)) {
+			setErrorMessage(Messages.RustDebugTab_InvalidCargoProjectName);
 			return false;
 		}
 		if (executable == null || !executable.exists() || !executable.canExecute()) {
-			setErrorMessage("Input a valid project executable path");
+			setErrorMessage(Messages.RustDebugTab_InvalidProjectExecutablePath);
 			return false;
 		}
 		if (!executable.canExecute()) {
-			setErrorMessage("Executable File is not executable");
+			setErrorMessage(Messages.RustDebugTab_ExecutableNotExecutable);
 			return false;
 		}
 		setErrorMessage(null);
 		return true;
 	}
 
-	@Override
-	public String getName() {
-		return "Main";
+	@Override public String getName() {
+		return "Main"; //$NON-NLS-1$
 	}
 }

@@ -34,6 +34,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -58,11 +59,11 @@ public class NewCargoProjectWizardPage extends WizardPage {
 
 	protected NewCargoProjectWizardPage() {
 		super(NewCargoProjectWizardPage.class.getName());
-		setTitle("Create a Cargo Based Rust Project");
-		setDescription("Create a new Rust project, using the `cargo init` command");
+		setTitle(Messages.NewCargoProjectWizardPage_title);
+		setDescription(Messages.NewCargoProjectWizardPage_description);
 
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = bundle.getEntry("images/cargo.png");
+		URL url = bundle.getEntry("images/cargo.png"); //$NON-NLS-1$
 		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
 		setImageDescriptor(imageDescriptor);
 	}
@@ -75,7 +76,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		if (isDirectoryAndProjectLinked) {
 			return directory;
 		} else {
-			return new File(directory.toString() + "/" + projectName);
+			return new File(directory.toString() + "/" + projectName); //$NON-NLS-1$
 		}
 	}
 
@@ -98,19 +99,19 @@ public class NewCargoProjectWizardPage extends WizardPage {
 	public String getVCS() {
 		if (vcsCheckBox.getSelection()) {
 			if (gitRadioButton.getSelection()) {
-				return "git";
+				return "git"; //$NON-NLS-1$
 			}
 			if (hgRadioButton.getSelection()) {
-				return "hg";
+				return "hg"; //$NON-NLS-1$
 			}
 			if (pijulRadioButton.getSelection()) {
-				return "pijul";
+				return "pijul"; //$NON-NLS-1$
 			}
 			if (fossilRadioButton.getSelection()) {
-				return "fossil";
+				return "fossil"; //$NON-NLS-1$
 			}
 		}
-		return "none";
+		return "none"; //$NON-NLS-1$
 	}
 
 	@Override
@@ -133,24 +134,24 @@ public class NewCargoProjectWizardPage extends WizardPage {
 
 	@Override
 	public boolean isPageComplete() {
-		String locationError = "";
-		String projectNameError = "";
-		String cargoError = "";
+		String locationError = ""; //$NON-NLS-1$
+		String projectNameError = ""; //$NON-NLS-1$
+		String cargoError = ""; //$NON-NLS-1$
 
 		File cargo = new File(store.getString(CorrosionPreferenceInitializer.cargoPathPreference));
 		if (!(cargo.exists() && cargo.isFile() && cargo.canExecute())) {
-			cargoError = "Cargo command not found. Fix path in the Rust Preferences Page.";
+			cargoError = Messages.NewCargoProjectWizardPage_cargoCommandNotFound;
 		} else if (directory == null || directory.getPath().isEmpty()) {
-			locationError = "Please specify a directory";
+			locationError = Messages.NewCargoProjectWizardPage_emptyDirectory;
 		} else if (projectName == null || projectName.isEmpty()) {
-			projectNameError = "Please specify project name";
+			projectNameError = Messages.NewCargoProjectWizardPage_emptyProjectName;
 		} else if (directory.isFile()) {
-			locationError = "Invalid location: it is an existing file.";
+			locationError = Messages.NewCargoProjectWizardPage_fileExisting;
 		} else if (directory.getParentFile() == null
 				|| (!directory.exists() && !directory.getParentFile().canWrite())) {
-			locationError = "Unable to create such directory";
+			locationError = Messages.NewCargoProjectWizardPage_cannotCreateDirectory;
 		} else if (directory.exists() && !directory.canWrite()) {
-			locationError = "Cannot write in this directory";
+			locationError = Messages.NewCargoProjectWizardPage_cannotWriteInDirectory;
 		} else {
 			File cargoProject = new File(directory, IProjectDescription.DESCRIPTION_FILE_NAME);
 			if (cargoProject.exists()) {
@@ -158,10 +159,10 @@ public class NewCargoProjectWizardPage extends WizardPage {
 					IProjectDescription desc = ResourcesPlugin.getWorkspace()
 							.loadProjectDescription(Path.fromOSString(cargoProject.getAbsolutePath()));
 					if (!desc.getName().equals(projectName)) {
-						projectNameError = "Project name must match one in .project file: " + desc.getName();
+						projectNameError = Messages.NewCargoProjectWizardPage_projectNameDoesntMatchDotProject + desc.getName();
 					}
 				} catch (CoreException e) {
-					projectNameError = "Invalid .project file in directory";
+					projectNameError = Messages.NewCargoProjectWizardPage_InvalidDotProjectInDirectory;
 				}
 			} else {
 				IProject project = null;
@@ -169,10 +170,10 @@ public class NewCargoProjectWizardPage extends WizardPage {
 					project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 					if (project.exists() && (project.getLocation() == null
 							|| !directory.getAbsoluteFile().equals(project.getLocation().toFile().getAbsoluteFile()))) {
-						projectNameError = "Another project with same name already exists in workspace.";
+						projectNameError = Messages.NewCargoProjectWizardPage_projectNameAlreadyUsed;
 					}
 				} catch (IllegalArgumentException ex) {
-					projectNameError = "Invalid project name";
+					projectNameError = Messages.NewCargoProjectWizardPage_invalidProjectName;
 				}
 			}
 		}
@@ -209,7 +210,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 	private void createLocationPart(Composite container) {
 		Label locationLabel = new Label(container, SWT.NONE);
 		locationLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		locationLabel.setText("Location");
+		locationLabel.setText(Messages.NewCargoProjectWizardPage_location);
 
 		Image errorImage = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR)
 				.getImage();
@@ -228,7 +229,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 
 		Button browseButton = new Button(container, SWT.NONE);
 		browseButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		browseButton.setText("Browse...");
+		browseButton.setText(Messages.NewCargoProjectWizardPage_browse);
 		browseButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			DirectoryDialog dialog = new DirectoryDialog(browseButton.getShell());
 			String path = dialog.open();
@@ -252,9 +253,9 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		new Label(container, SWT.NONE);
 
 		linkButton = new Button(container, SWT.TOGGLE);
-		linkButton.setToolTipText("Link project name and folder name");
+		linkButton.setToolTipText(Messages.NewCargoProjectWizardPage_linkNameAndFolder);
 		linkButton.setSelection(true);
-		try (InputStream iconStream = getClass().getResourceAsStream("/icons/link_obj.png")) {
+		try (InputStream iconStream = getClass().getResourceAsStream("/icons/link_obj.png")) { //$NON-NLS-1$
 			linkImage = new Image(linkButton.getDisplay(), iconStream);
 			linkButton.setImage(linkImage);
 		} catch (IOException e) {
@@ -269,7 +270,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 
 		projectNameLabel = new Label(container, SWT.NONE);
 		projectNameLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		projectNameLabel.setText("Project name");
+		projectNameLabel.setText(Messages.NewCargoProjectWizardPage_projectName);
 
 		projectNameText = new Text(container, SWT.BORDER);
 		projectNameText.setEnabled(false);
@@ -315,7 +316,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 	private void createTemplatePart(Composite container) {
 		new Label(container, SWT.NONE);
 		binCheckBox = new Button(container, SWT.CHECK);
-		binCheckBox.setText("Use a binary application template");
+		binCheckBox.setText(Messages.NewCargoProjectWizardPage_useTemplate);
 		binCheckBox.setSelection(true);
 		binCheckBox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 	}
@@ -330,7 +331,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		new Label(container, SWT.NONE);
 		vcsCheckBox = new Button(container, SWT.CHECK);
 		vcsCheckBox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		vcsCheckBox.setText("Initialize with version control system");
+		vcsCheckBox.setText(Messages.NewCargoProjectWizardPage_useVCS);
 		vcsCheckBox.addSelectionListener(widgetSelectedAdapter(s -> {
 			Boolean shouldBeEnabled = vcsCheckBox.getSelection();
 			gitRadioButton.setEnabled(shouldBeEnabled);
@@ -346,17 +347,17 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		radioGroupdGridData.horizontalIndent = 15;
 		radioGroup.setLayoutData(radioGroupdGridData);
 		gitRadioButton = new Button(radioGroup, SWT.RADIO);
-		gitRadioButton.setText("Git");
+		gitRadioButton.setText("Git"); //$NON-NLS-1$
 		gitRadioButton.setEnabled(false);
 		gitRadioButton.setSelection(true);
 		hgRadioButton = new Button(radioGroup, SWT.RADIO);
-		hgRadioButton.setText("Mercurial (hg)");
+		hgRadioButton.setText("Mercurial (hg)"); //$NON-NLS-1$
 		hgRadioButton.setEnabled(false);
 		pijulRadioButton = new Button(radioGroup, SWT.RADIO);
-		pijulRadioButton.setText("Pijul");
+		pijulRadioButton.setText("Pijul"); //$NON-NLS-1$
 		pijulRadioButton.setEnabled(false);
 		fossilRadioButton = new Button(radioGroup, SWT.RADIO);
-		fossilRadioButton.setText("Fossil");
+		fossilRadioButton.setText("Fossil"); //$NON-NLS-1$
 		fossilRadioButton.setEnabled(false);
 	}
 
@@ -367,7 +368,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, false, 4, 1);
 		workingSetComposite.setLayoutData(layoutData);
 		workingSetComposite.setLayout(new GridLayout(1, false));
-		String[] workingSetIds = new String[] { "org.eclipse.ui.resourceWorkingSetPage" };
+		String[] workingSetIds = new String[] { "org.eclipse.ui.resourceWorkingSetPage" }; //$NON-NLS-1$
 		IStructuredSelection wsSel = null;
 		if (this.workingSets != null) {
 			wsSel = new StructuredSelection(this.workingSets.toArray());

@@ -46,9 +46,9 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.osgi.framework.Bundle;
 
 public class CorrosionPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
-	public static final String PAGE_ID = "org.eclipse.corrosion.preferencePage";
-	public static final List<String> RUST_SOURCE_OPTIONS = Arrays.asList("rustup", "other", "disabled");
-	public static final List<String> RUSTUP_TOOLCHAIN_OPTIONS = Arrays.asList("Stable", "Beta", "Nightly", "Other");
+	public static final String PAGE_ID = "org.eclipse.corrosion.preferencePage"; //$NON-NLS-1$
+	public static final List<String> RUST_SOURCE_OPTIONS = Arrays.asList("rustup", "other", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	public static final List<String> RUSTUP_TOOLCHAIN_OPTIONS = Arrays.asList("Stable", "Beta", "Nightly", "Other"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	private IPreferenceStore store;
 
@@ -56,31 +56,29 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	private Button otherRadioButton;
 	private Button disableRadioButton;
 
-	@Override
-	public void init(IWorkbench workbench) {
+	@Override public void init(IWorkbench workbench) {
 		store = doGetPreferenceStore();
 	}
 
-	@Override
-	protected Control createContents(Composite parent) {
+	@Override protected Control createContents(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 		container.setLayout(new GridLayout(2, false));
 
 		createCommandPathsPart(container);
 
 		Label rlsLocationLabel = new Label(container, SWT.NONE);
-		rlsLocationLabel.setText("Rust Language Server Location:");
+		rlsLocationLabel.setText(Messages.CorrosionPreferencePage_rlsLocation);
 		rlsLocationLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 
 		disableRadioButton = new Button(container, SWT.RADIO);
-		disableRadioButton.setText("Disable Rust editor");
+		disableRadioButton.setText(Messages.CorrosionPreferencePage_disableRustEdition);
 		disableRadioButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		disableRadioButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			setRadioSelection(2);
 		}));
 
 		otherRadioButton = new Button(container, SWT.RADIO);
-		otherRadioButton.setText("Other installation");
+		otherRadioButton.setText(Messages.CorrosionPreferencePage_otherInstallation);
 		otherRadioButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		otherRadioButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			setRadioSelection(1);
@@ -88,7 +86,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		createOtherPart(container);
 
 		rustupRadioButton = new Button(container, SWT.RADIO);
-		rustupRadioButton.setText("Use Rustup");
+		rustupRadioButton.setText(Messages.CorrosionPreferencePage_useRustup);
 		rustupRadioButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		rustupRadioButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			setRadioSelection(0);
@@ -103,8 +101,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	private void initializeContent() {
 		int sourceIndex = RUST_SOURCE_OPTIONS.indexOf(store.getString(CorrosionPreferenceInitializer.rustSourcePreference));
 		setRadioSelection(sourceIndex);
-		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS
-				.indexOf(store.getString(CorrosionPreferenceInitializer.toolchainTypePreference));
+		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS.indexOf(store.getString(CorrosionPreferenceInitializer.toolchainTypePreference));
 		String toolchainId = store.getString(CorrosionPreferenceInitializer.toolchainIdPreference);
 		otherIdText.setText(toolchainId);
 		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
@@ -121,8 +118,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		sysrootPathText.setText(store.getString(CorrosionPreferenceInitializer.sysrootPathPreference));
 	}
 
-	@Override
-	protected IPreferenceStore doGetPreferenceStore() {
+	@Override protected IPreferenceStore doGetPreferenceStore() {
 		return CorrosionPlugin.getDefault().getPreferenceStore();
 	}
 
@@ -142,20 +138,20 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private boolean isCommandPathsValid() {
-		String error = "";
+		String error = ""; //$NON-NLS-1$
 		if ((rustupPathText.getText().isEmpty() || cargoPathText.getText().isEmpty())) {
-			error = "Rustup and Cargo paths cannot be empty";
+			error = Messages.CorrosionPreferencePage_emptyRustupCargoPath;
 		} else {
 			File rustup = new File(rustupPathText.getText());
 			File cargo = new File(cargoPathText.getText());
 			if (!rustup.exists() || !rustup.isFile()) {
-				error = "Input a valid `rustup` command path";
+				error = Messages.CorrosionPreferencePage_invalidRustup;
 			} else if (!rustup.canExecute()) {
-				error = "Inputted `rustup` command is not executable";
+				error = Messages.CorrosionPreferencePage_rustupNonExecutable;
 			} else if (!cargo.exists() || !cargo.isFile()) {
-				error = "Input a valid `cargo` command path";
+				error = Messages.CorrosionPreferencePage_invalidCargo;
 			} else if (!cargo.canExecute()) {
-				error = "Inputted `cargo` command is not executable";
+				error = Messages.CorrosionPreferencePage_cargoNonExecutable;
 			}
 		}
 
@@ -170,7 +166,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 	private boolean isRustupSectionValid() {
 		if (rustupToolchainCombo.getSelectionIndex() == 3 && otherIdText.getText().isEmpty()) {
-			setErrorMessage("Toolchain ID cannot be empty");
+			setErrorMessage(Messages.CorrosionPreferencePage_emptyToolchain);
 			return false;
 		}
 		setErrorMessage(null);
@@ -179,15 +175,15 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 	private boolean isOtherInstallSectionValid() {
 		if (rlsPathText.getText().isEmpty() || sysrootPathText.getText().isEmpty()) {
-			setErrorMessage("Paths cannot be empty");
+			setErrorMessage(Messages.CorrosionPreferencePage_emptyPath);
 			return false;
 		}
 		File rls = new File(rlsPathText.getText());
 		if (!rls.exists() || !rls.isFile()) {
-			setErrorMessage("Input a valid path to the Rust Language Server (rls)");
+			setErrorMessage(Messages.CorrosionPreferencePage_invalidRlsPath);
 			return false;
 		} else if (!rls.canExecute()) {
-			setErrorMessage("Inputted `rls` command is not executable");
+			setErrorMessage(Messages.CorrosionPreferencePage_rlsNonExecutable);
 			return false;
 		}
 
@@ -195,20 +191,17 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		boolean a = sysrootPath.exists();
 		boolean b = sysrootPath.isDirectory();
 		if (!a || !b) {
-			setErrorMessage("Input a valid path to the sysroot directory");
+			setErrorMessage(Messages.CorrosionPreferencePage_invalidSysroot);
 			return false;
 		}
 		setErrorMessage(null);
 		return true;
 	}
 
-	@Override
-	protected void performDefaults() {
-		int sourceIndex = RUST_SOURCE_OPTIONS
-				.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.rustSourcePreference));
+	@Override protected void performDefaults() {
+		int sourceIndex = RUST_SOURCE_OPTIONS.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.rustSourcePreference));
 		setRadioSelection(sourceIndex);
-		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS
-				.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.toolchainTypePreference));
+		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.toolchainTypePreference));
 		String toolchainId = store.getDefaultString(CorrosionPreferenceInitializer.toolchainIdPreference);
 		otherIdText.setText(toolchainId);
 		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
@@ -273,8 +266,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		isPageValid();
 	}
 
-	@Override
-	public boolean performOk() {
+	@Override public boolean performOk() {
 		int source = getRadioSelection();
 		store.setValue(CorrosionPreferenceInitializer.rustSourcePreference, RUST_SOURCE_OPTIONS.get(source));
 		if (source == 0) {
@@ -295,7 +287,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	private String getToolchainId() {
 		int index = rustupToolchainCombo.getSelectionIndex();
 		if (index == -1) {
-			return "";
+			return ""; //$NON-NLS-1$
 		} else if (index < 3) {
 			return RUSTUP_TOOLCHAIN_OPTIONS.get(index).toLowerCase();
 		} else {
@@ -325,7 +317,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 		useDefaultPathsCheckbox = new Button(parent, SWT.CHECK);
 		useDefaultPathsCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-		useDefaultPathsCheckbox.setText("Use default paths (rustup and cargo required for most features)");
+		useDefaultPathsCheckbox.setText(Messages.CorrosionPreferencePage_useDefaultPathsRustupCargo);
 		useDefaultPathsCheckbox.addSelectionListener(widgetSelectedAdapter(e -> {
 			setDefaultPathsEnabled(!useDefaultPathsCheckbox.getSelection());
 			if (useDefaultPathsCheckbox.getSelection()) {
@@ -338,14 +330,14 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		installButton.setLayoutData(buttonGridData);
 		installButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			if (Platform.getOS().equals(Platform.OS_WIN32)) {
-				Program.launch("https://rustup.rs/");
+				Program.launch("https://rustup.rs/"); //$NON-NLS-1$
 			} else {
 				installCommands();
 			}
 		}));
 
 		rustupLabel = new Label(parent, SWT.NONE);
-		rustupLabel.setText("Rustup:");
+		rustupLabel.setText(Messages.CorrosionPreferencePage_Rustup);
 		rustupLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		rustupPathText = new Text(parent, SWT.BORDER);
@@ -356,7 +348,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 		rustupBrowseButton = new Button(parent, SWT.NONE);
 		rustupBrowseButton.setLayoutData(buttonGridData);
-		rustupBrowseButton.setText("Browse...");
+		rustupBrowseButton.setText(Messages.CorrosionPreferencePage_browse);
 		rustupBrowseButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			FileDialog dialog = new FileDialog(rustupBrowseButton.getShell());
 			String path = dialog.open();
@@ -366,7 +358,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		}));
 
 		cargoLabel = new Label(parent, SWT.NONE);
-		cargoLabel.setText("Cargo:");
+		cargoLabel.setText(Messages.CorrosionPreferencePage_caro);
 		cargoLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		cargoPathText = new Text(parent, SWT.BORDER);
@@ -377,7 +369,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 		cargoBrowseButton = new Button(parent, SWT.NONE);
 		cargoBrowseButton.setLayoutData(buttonGridData);
-		cargoBrowseButton.setText("Browse...");
+		cargoBrowseButton.setText(Messages.CorrosionPreferencePage_browser);
 		cargoBrowseButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			FileDialog dialog = new FileDialog(cargoBrowseButton.getShell());
 			String path = dialog.open();
@@ -388,15 +380,15 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private void installCommands() {
-		installButton.setText("Installling");
+		installButton.setText(Messages.CorrosionPreferencePage_installing);
 		installButton.setEnabled(false);
-		Job.create("Installing Rustup and Cargo", (ICoreRunnable) monitor -> {
+		Job.create(Messages.CorrosionPreferencePage_installingRustupCargo, (ICoreRunnable) monitor -> {
 			try {
-				Bundle bundle = Platform.getBundle("org.eclipse.corrosion");
-				URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup-init.sh"));
+				Bundle bundle = CorrosionPlugin.getDefault().getBundle();
+				URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup-init.sh")); //$NON-NLS-1$
 				File file = new File(new URI(fileURL.getProtocol(), fileURL.getPath(), null));
 				file.setExecutable(true);
-				String[] command = new String[] { "/bin/bash", "-c", file.getAbsolutePath() + " -y" };
+				String[] command = new String[] { "/bin/bash", "-c", file.getAbsolutePath() + " -y" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				ProcessBuilder builder = new ProcessBuilder(command);
 				Process process = builder.start();
 				if (process.waitFor() == 0) {
@@ -407,7 +399,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 						performDefaults();
 						setValid(isPageValid());
 					});
-					RustManager.setDefaultToolchain("beta");
+					RustManager.setDefaultToolchain("beta"); //$NON-NLS-1$
 					return;
 				}
 			} catch (InterruptedException | URISyntaxException | IOException e) {
@@ -415,17 +407,16 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			}
 			Display.getDefault().asyncExec(() -> {
 				setInstallRequired(true);
-				MessageDialog.openError(getShell(), "Cannot install Rust and Cargo",
-						"We were unable to perform the install, you can do so manually by going to doc.crates.io");
+				MessageDialog.openError(getShell(), Messages.CorrosionPreferencePage_cannotInstallRustupCargo, Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details);
 			});
 		}).schedule();
 	}
 
 	private void setInstallRequired(Boolean required) {
 		if (required) {
-			installButton.setText("Install");
+			installButton.setText(Messages.CorrosionPreferencePage_install);
 		} else {
-			installButton.setText("Installed");
+			installButton.setText(Messages.CorrosionPreferencePage_installed);
 		}
 		installButton.setEnabled(required);
 	}
@@ -444,7 +435,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		rustupToolchainLabel = new Label(parent, SWT.NONE);
-		rustupToolchainLabel.setText("Toolchain:");
+		rustupToolchainLabel.setText(Messages.CorrosionPreferencePage_toolchain);
 		GridData rustupToolchainGridData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 		rustupToolchainGridData.horizontalIndent = 25;
 		rustupToolchainLabel.setLayoutData(rustupToolchainGridData);
@@ -469,7 +460,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		otherIdData.exclude = false;
 		otherIdComposite.setLayoutData(otherIdData);
 		otherIdLabel = new Label(otherIdComposite, SWT.NONE);
-		otherIdLabel.setText("ID:");
+		otherIdLabel.setText(Messages.CorrosionPreferencePage_id);
 		otherIdLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		otherIdText = new Text(otherIdComposite, SWT.BORDER);
 		otherIdText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -516,7 +507,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		textIndent.widthHint = convertWidthInCharsToPixels(50);
 
 		rlsLabel = new Label(parent, SWT.NONE);
-		rlsLabel.setText("Path to the Rust Language Server (rls):");
+		rlsLabel.setText(Messages.CorrosionPreferencePage_rlsPath);
 		rlsLabel.setLayoutData(labelIndent);
 
 		rlsPathText = new Text(parent, SWT.BORDER);
@@ -527,7 +518,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 		rlsBrowseButton = new Button(parent, SWT.NONE);
 		rlsBrowseButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-		rlsBrowseButton.setText("Browse...");
+		rlsBrowseButton.setText(Messages.CorrosionPreferencePage_browse);
 		rlsBrowseButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			FileDialog dialog = new FileDialog(rlsBrowseButton.getShell());
 			String path = dialog.open();
@@ -537,7 +528,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		}));
 
 		sysrootLabel = new Label(parent, SWT.NONE);
-		sysrootLabel.setText("Path to `sysroot` of the Rust installation:");
+		sysrootLabel.setText(Messages.CorrosionPreferencePage_sysrootPath);
 		sysrootLabel.setLayoutData(labelIndent);
 
 		sysrootPathText = new Text(parent, SWT.BORDER);
@@ -548,7 +539,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 		sysrootBrowseButton = new Button(parent, SWT.NONE);
 		sysrootBrowseButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-		sysrootBrowseButton.setText("Browse...");
+		sysrootBrowseButton.setText(Messages.CorrosionPreferencePage_browse);
 		sysrootBrowseButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			FileDialog dialog = new FileDialog(sysrootBrowseButton.getShell());
 			String path = dialog.open();

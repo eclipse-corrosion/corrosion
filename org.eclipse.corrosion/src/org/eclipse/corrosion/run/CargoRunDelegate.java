@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -49,12 +50,11 @@ import org.eclipse.ui.PlatformUI;
 
 public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 
-	public static final String PROJECT_ATTRIBUTE = "PROJECT";
-	public static final String RUN_OPTIONS_ATTRIBUTE = "RUN_OPTIONS";
-	public static final String RUN_ARGUMENTS_ATTRIBUTE = "RUN_ARGUMENTS";
+	public static final String PROJECT_ATTRIBUTE = "PROJECT"; //$NON-NLS-1$
+	public static final String RUN_OPTIONS_ATTRIBUTE = "RUN_OPTIONS"; //$NON-NLS-1$
+	public static final String RUN_ARGUMENTS_ATTRIBUTE = "RUN_ARGUMENTS"; //$NON-NLS-1$
 
-	@Override
-	public void launch(ISelection selection, String mode) {
+	@Override public void launch(ISelection selection, String mode) {
 
 		if (selection instanceof IStructuredSelection) {
 			Iterator<?> selectionIterator = ((IStructuredSelection) selection).iterator();
@@ -81,13 +81,11 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 			}
 		}
 		Display.getDefault().asyncExec(() -> {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Unable to Launch",
-					"Unable to launch Rust Project from selection.");
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
 		});
 	}
 
-	@Override
-	public void launch(IEditorPart editor, String mode) {
+	@Override public void launch(IEditorPart editor, String mode) {
 		IEditorInput input = editor.getEditorInput();
 		IFile file = input.getAdapter(IFile.class);
 
@@ -101,15 +99,13 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		}
 	}
 
-	@Override
-	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
-			throws CoreException {
+	@Override public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		List<String> cargoRunCommand = new ArrayList<>();
 		cargoRunCommand.add(CargoTools.getCargoCommand());
-		cargoRunCommand.add("run");
-		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, "");
-		String options = configuration.getAttribute(RUN_OPTIONS_ATTRIBUTE, "").trim();
-		String arguments = configuration.getAttribute(RUN_ARGUMENTS_ATTRIBUTE, "").trim();
+		cargoRunCommand.add("run"); //$NON-NLS-1$
+		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
+		String options = configuration.getAttribute(RUN_OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+		String arguments = configuration.getAttribute(RUN_ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
 
 		IProject project = null;
 		if (!projectName.isEmpty()) {
@@ -117,31 +113,29 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		}
 		if (project == null || !project.exists()) {
 			Display.getDefault().asyncExec(() -> {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Unable to Launch", "Unable to find project.");
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
 			});
 			return;
 		}
-		IFile cargoManifest = project.getFile("Cargo.toml");
+		IFile cargoManifest = project.getFile("Cargo.toml"); //$NON-NLS-1$
 		if (!cargoManifest.exists()) {
 			Display.getDefault().asyncExec(() -> {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Unable to Launch", "Unable to find Cargo.toml file.");
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindToml);
 			});
 			return;
 		}
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
 		if (!options.isEmpty()) {
-			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("\\s+")));
+			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final String cargoPathString = cargoManifest.getLocation().toPortableString();
-		cargoRunCommand.add("--manifest-path");
+		cargoRunCommand.add("--manifest-path"); //$NON-NLS-1$
 		cargoRunCommand.add(cargoPathString);
 
 		if (!arguments.isEmpty()) {
-			cargoRunCommand.add("--");
-			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("\\s+")));
+			cargoRunCommand.add("--"); //$NON-NLS-1$
+			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final List<String> finalRunCommand = cargoRunCommand;
@@ -149,12 +143,11 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 			try {
 				String[] cmdLine = finalRunCommand.toArray(new String[finalRunCommand.size()]);
 				Process p = DebugPlugin.exec(cmdLine, null);
-				IProcess process = DebugPlugin.newProcess(launch, p, "cargo run");
-				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine));
+				IProcess process = DebugPlugin.newProcess(launch, p, "cargo run"); //$NON-NLS-1$
+				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
 				Display.getDefault().asyncExec(() -> {
-					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-							"Unable to Launch", e.getLocalizedMessage());
+					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
 				});
 			}
 		});
@@ -162,20 +155,19 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 
 	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType configType = launchManager
-				.getLaunchConfigurationType("org.eclipse.corrosion.run.CargoRunDelegate");
+		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType("org.eclipse.corrosion.run.CargoRunDelegate"); //$NON-NLS-1$
 		try {
 			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
 			final String projectName = resource.getProject().getName();
 
 			for (ILaunchConfiguration iLaunchConfiguration : launchConfigurations) {
-				if (iLaunchConfiguration.getAttribute("PROJECT", "").equals(projectName)) {
+				if (iLaunchConfiguration.getAttribute(PROJECT_ATTRIBUTE, "").equals(projectName)) { //$NON-NLS-1$
 					return iLaunchConfiguration;
 				}
 			}
 			String configName = launchManager.generateLaunchConfigurationName(projectName);
 			ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, configName);
-			wc.setAttribute("PROJECT", projectName);
+			wc.setAttribute(Messages.CargoRunDelegate_unableToLaunch, projectName);
 			return wc;
 		} catch (CoreException e) {
 			CorrosionPlugin.logError(e);

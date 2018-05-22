@@ -19,16 +19,18 @@ import java.net.URL;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.corrosion.Messages;
+import org.eclipse.corrosion.RustManager;
+import org.eclipse.corrosion.cargo.core.CargoProjectTester;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.CorrosionPreferenceInitializer;
-import org.eclipse.corrosion.RustManager;
-import org.eclipse.corrosion.cargo.core.CargoProjectTester;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -63,7 +65,7 @@ public class CargoExportWizardPage extends WizardPage {
 		if (toolchainIndex != 0) {
 			return toolchainCombo.getItem(toolchainIndex);
 		}
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	public Boolean noVerify() {
@@ -80,10 +82,10 @@ public class CargoExportWizardPage extends WizardPage {
 
 	protected CargoExportWizardPage(IProject project) {
 		super(CargoExportWizardPage.class.getName());
-		setTitle("Package Cargo Based Rust Project");
-		setDescription("Package a Cargo based Rust project into a crate, using the `cargo package` command");
+		setTitle(Messages.CargoExportWizardPage_title);
+		setDescription(Messages.CargoExportWizardPage_description);
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = bundle.getEntry("images/cargo.png");
+		URL url = bundle.getEntry("images/cargo.png"); //$NON-NLS-1$
 		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
 		setImageDescriptor(imageDescriptor);
 
@@ -92,10 +94,8 @@ public class CargoExportWizardPage extends WizardPage {
 		}
 	}
 
-	@Override
-	public void createControl(Composite parent) {
-		Image errorImage = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR)
-				.getImage();
+	@Override public void createControl(Composite parent) {
+		Image errorImage = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
 
 		Composite container = new Composite(parent, SWT.BORDER);
 		setControl(container);
@@ -103,7 +103,7 @@ public class CargoExportWizardPage extends WizardPage {
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Label projectLabelLabel = new Label(container, SWT.NONE);
-		projectLabelLabel.setText("Project:");
+		projectLabelLabel.setText(Messages.CargoExportWizardPage_project);
 		projectLabelLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
 		projectText = new Text(container, SWT.BORDER);
@@ -123,13 +123,11 @@ public class CargoExportWizardPage extends WizardPage {
 		projectControlDecoration.setImage(errorImage);
 
 		Button browseButton = new Button(container, SWT.NONE);
-		browseButton.setText("Browse...");
+		browseButton.setText(Messages.CargoExportWizardPage_browse);
 		browseButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		browseButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			ListSelectionDialog dialog = new ListSelectionDialog(browseButton.getShell(),
-					ResourcesPlugin.getWorkspace().getRoot(), new BaseWorkbenchContentProvider(),
-					new WorkbenchLabelProvider(), "Select the Project:");
-			dialog.setTitle("Project Selection");
+			ListSelectionDialog dialog = new ListSelectionDialog(browseButton.getShell(), ResourcesPlugin.getWorkspace().getRoot(), new BaseWorkbenchContentProvider(), new WorkbenchLabelProvider(), Messages.CargoExportWizardPage_selectProject);
+			dialog.setTitle(Messages.CargoExportWizardPage_projectSelection);
 			int returnCode = dialog.open();
 			Object[] results = dialog.getResult();
 			if (returnCode == 0 && results.length > 0) {
@@ -143,15 +141,15 @@ public class CargoExportWizardPage extends WizardPage {
 		outputLocationLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		Label toolchainLabel = new Label(container, SWT.NONE);
-		toolchainLabel.setText("Toolchain:");
+		toolchainLabel.setText(Messages.CargoExportWizardPage_toolchain);
 		toolchainLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
 		toolchainCombo = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
 		toolchainCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		String defaultString = "Default";
+		String defaultString = "Default"; //$NON-NLS-1$
 		final String defaultToolchain = RustManager.getDefaultToolchain();
 		if (!defaultToolchain.isEmpty()) {
-			defaultString += "(Currently " + defaultToolchain + ")";
+			defaultString += NLS.bind(Messages.CargoExportWizardPage_currentToolchain, defaultToolchain);
 		}
 		toolchainCombo.add(defaultString);
 		toolchainCombo.select(0);
@@ -162,35 +160,34 @@ public class CargoExportWizardPage extends WizardPage {
 
 		noVerifyCheckbox = new Button(container, SWT.CHECK);
 		noVerifyCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		noVerifyCheckbox.setText("Don't verify the contents by building them");
+		noVerifyCheckbox.setText(Messages.CargoExportWizardPage_dontVerifyContent);
 
 		noMetadataCheckbox = new Button(container, SWT.CHECK);
 		noMetadataCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		noMetadataCheckbox.setText("Ignore warnings about a lack of human-usable metadata");
+		noMetadataCheckbox.setText(Messages.CargoExportWizardPage_ignoreWarningMatadata);
 
 		allowDirtyCheckbox = new Button(container, SWT.CHECK);
 		allowDirtyCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
-		allowDirtyCheckbox.setText("Allow dirty working directories to be packaged");
+		allowDirtyCheckbox.setText(Messages.CargoExportWizardPage_allowDirtyDirectories);
 		setPageComplete(isPageComplete());
 	}
 
 	private IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
 	private static CargoProjectTester tester = new CargoProjectTester();
 
-	@Override
-	public boolean isPageComplete() {
+	@Override public boolean isPageComplete() {
 		File cargo = new File(store.getString(CorrosionPreferenceInitializer.cargoPathPreference));
 		if (!(cargo.exists() && cargo.isFile() && cargo.canExecute())) {
-			setErrorMessage("Cargo command not found. Fix path in the Rust Preferences Page.");
+			setErrorMessage(Messages.CargoExportWizardPage_cargoCommandNotFound);
 			return false;
 		}
-		if (!(project != null && project.exists() && tester.test(project, "isCargoProject", null, null))) {
-			setErrorMessage("Please specify a valid cargo project");
-			outputLocationLabel.setText("");
+		if (!(project != null && project.exists() && tester.test(project, CargoProjectTester.PROPERTY_NAME, null, null))) {
+			setErrorMessage(Messages.CargoExportWizardPage_invalidCargoProject);
+			outputLocationLabel.setText(""); //$NON-NLS-1$
 			projectControlDecoration.show();
 			return false;
 		}
-		outputLocationLabel.setText("Crate will be created in: " + project.getName() + "/target/package/");
+		outputLocationLabel.setText(NLS.bind(Messages.CargoExportWizardPage_outputLocation, project.getName()));
 		projectControlDecoration.hide();
 		setErrorMessage(null);
 		return true;

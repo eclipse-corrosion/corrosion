@@ -24,20 +24,20 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
 
-	public static String rustSourcePreference = "corrosion.rustSource";
+	public static String rustSourcePreference = "corrosion.rustSource"; //$NON-NLS-1$
 
-	public static String defaultPathsPreference = "corrosion.rustup_defaultPaths";
-	public static String rustupPathPreference = "corrosion.rustup_rustupPath";
-	public static String cargoPathPreference = "corrosion.rustup_cargoPath";
-	public static String toolchainIdPreference = "corrosion.rustup_toolchain_Id";
-	public static String toolchainTypePreference = "corrosion.rustup_toolchain_type";
+	public static String defaultPathsPreference = "corrosion.rustup_defaultPaths"; //$NON-NLS-1$
+	public static String rustupPathPreference = "corrosion.rustup_rustupPath"; //$NON-NLS-1$
+	public static String cargoPathPreference = "corrosion.rustup_cargoPath"; //$NON-NLS-1$
+	public static String toolchainIdPreference = "corrosion.rustup_toolchain_Id"; //$NON-NLS-1$
+	public static String toolchainTypePreference = "corrosion.rustup_toolchain_type"; //$NON-NLS-1$
 
-	public static String rlsPathPreference = "corrosion.rslPath";
-	public static String sysrootPathPreference = "corrosion.sysrootPath";
+	public static String rlsPathPreference = "corrosion.rslPath"; //$NON-NLS-1$
+	public static String sysrootPathPreference = "corrosion.sysrootPath"; //$NON-NLS-1$
 
 	@Override
 	public void initializeDefaultPreferences() {
-		STORE.setDefault(rustSourcePreference, "rustup");
+		STORE.setDefault(rustSourcePreference, "rustup"); //$NON-NLS-1$
 
 		STORE.setDefault(defaultPathsPreference, true);
 		STORE.setDefault(rustupPathPreference, getRustupPathBestGuess());
@@ -49,9 +49,9 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	}
 
 	private String getRustupPathBestGuess() {
-		String command = findCommandPath("rustup");
+		String command = findCommandPath("rustup"); //$NON-NLS-1$
 		if (command.isEmpty()) {
-			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/rustup");
+			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/rustup"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
 				return possibleCommandFile.getAbsolutePath();
 			}
@@ -60,9 +60,9 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	}
 
 	private String getCargoPathBestGuess() {
-		String command = findCommandPath("cargo");
+		String command = findCommandPath("cargo"); //$NON-NLS-1$
 		if (command.isEmpty()) {
-			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/cargo");
+			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/cargo"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
 				return possibleCommandFile.getAbsolutePath();
 			}
@@ -72,7 +72,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 
 	private String findCommandPath(String command) {
 		try {
-			ProcessBuilder builder = new ProcessBuilder("which", command);
+			ProcessBuilder builder = new ProcessBuilder("which", command); //$NON-NLS-1$
 			Process process = builder.start();
 
 			if (process.waitFor() == 0) {
@@ -83,22 +83,22 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		} catch (IOException | InterruptedException e) {
 			// Errors caught with empty return
 		}
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	private void setToolchainBestGuesses() {
 		String toolchain = RustManager.getDefaultToolchain();
 		if (toolchain == null || toolchain.isEmpty()) {
-			STORE.setDefault(toolchainIdPreference, "");
-			STORE.setDefault(toolchainTypePreference, "Other");
+			STORE.setDefault(toolchainIdPreference, ""); //$NON-NLS-1$
+			STORE.setDefault(toolchainTypePreference, "Other"); //$NON-NLS-1$
 			return;
 		}
 		int splitIndex = toolchain.indexOf('-');
 		if (splitIndex != -1) {
 			String type = toolchain.substring(0, splitIndex);
-			if ("nightly".equals(type)) {
+			if ("nightly".equals(type)) { //$NON-NLS-1$
 				STORE.setDefault(toolchainIdPreference, toolchain);
-				STORE.setDefault(toolchainTypePreference, "Nightly");
+				STORE.setDefault(toolchainTypePreference, "Nightly"); //$NON-NLS-1$
 			} else {
 				for (String option : CorrosionPreferencePage.RUSTUP_TOOLCHAIN_OPTIONS) {
 					if (option.toLowerCase().equals(type)) {
@@ -110,13 +110,13 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 			return;
 		}
 		STORE.setDefault(toolchainIdPreference, toolchain.trim());
-		STORE.setDefault(toolchainTypePreference, "Other");
+		STORE.setDefault(toolchainTypePreference, "Other"); //$NON-NLS-1$
 	}
 
 	private String getRLSPathBestGuess() {
-		String command = findCommandPath("rls");
+		String command = findCommandPath("rls"); //$NON-NLS-1$
 		if (command.isEmpty()) {
-			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/rls");
+			File possibleCommandFile = new File(System.getProperty("user.home") + "/.cargo/bin/rls"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
 				return possibleCommandFile.getAbsolutePath();
 			}
@@ -125,21 +125,21 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	}
 
 	private String getSysrootPathBestGuess() {
-		File rustc = new File(findCommandPath("rustc"));
+		File rustc = new File(findCommandPath("rustc")); //$NON-NLS-1$
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
-			rustc = new File(System.getProperty("user.home") + "/.cargo/bin/rustc");
+			rustc = new File(System.getProperty("user.home") + "/.cargo/bin/rustc"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
-			return "";
+			return ""; //$NON-NLS-1$
 		}
-		String[] command = new String[] { rustc.getAbsolutePath(), "--print", "sysroot" };
+		String[] command = new String[] { rustc.getAbsolutePath(), Messages.CorrosionPreferenceInitializer_29, Messages.CorrosionPreferenceInitializer_30 };
 		try {
 			Process process = Runtime.getRuntime().exec(command);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 				return in.readLine();
 			}
 		} catch (IOException e) {
-			return "";
+			return Messages.CorrosionPreferenceInitializer_31;
 		}
 	}
 }

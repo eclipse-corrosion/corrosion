@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -54,36 +55,34 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
 public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut {
-	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + "BUILD_COMMAND";
+	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + "BUILD_COMMAND"; //$NON-NLS-1$
 
-	@Override
-	public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor)
-			throws CoreException {
-		String buildCommand = config.getAttribute(BUILD_COMMAND_ATTRIBUTE, "");
-		File projectLocation = new File(
-				config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""));
+	@Override public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+		String buildCommand = config.getAttribute(BUILD_COMMAND_ATTRIBUTE, ""); //$NON-NLS-1$
+		File projectLocation = new File(config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "")); //$NON-NLS-1$
 
 		List<String> cmdLine = new ArrayList<>();
 		cmdLine.add(CargoTools.getCargoCommand());
 		if (buildCommand.isEmpty()) {
-			buildCommand = "build";
+			buildCommand = "build"; //$NON-NLS-1$
 		}
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
 		buildCommand = manager.performStringSubstitution(buildCommand);
-		cmdLine.addAll(Arrays.asList(buildCommand.replace('\n', ' ').split(" ")));
+		cmdLine.addAll(Arrays.asList(buildCommand.replace('\n', ' ').split(" "))); //$NON-NLS-1$
 		Process restoreProcess = DebugPlugin.exec(cmdLine.toArray(new String[cmdLine.size()]), projectLocation);
-		String labelString = "cargo ";
+		String labelString = "cargo "; //$NON-NLS-1$
 		if (buildCommand.length() > 20) {
-			labelString += buildCommand.substring(0, 20) + "...";
+			labelString += buildCommand.substring(0, 20) + "..."; //$NON-NLS-1$
 		} else {
 			labelString += buildCommand;
 		}
 		IProcess process = DebugPlugin.newProcess(launch, restoreProcess, labelString);
-		process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine));
+		process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 
 		try {
 			restoreProcess.waitFor();
 		} catch (InterruptedException e) {
+			CorrosionPlugin.logError(e);
 		}
 		if (restoreProcess.exitValue() != 0) { // errors will be shown in console
 			return;
@@ -94,8 +93,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		super.launch(config, mode, launch, monitor);
 	}
 
-	@Override
-	public void launch(ISelection selection, String mode) {
+	@Override public void launch(ISelection selection, String mode) {
 
 		if (selection instanceof IStructuredSelection) {
 			Iterator<?> selectionIterator = ((IStructuredSelection) selection).iterator();
@@ -122,13 +120,11 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			}
 		}
 		Display.getDefault().asyncExec(() -> {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Unable to Launch",
-					"Unable to launch Rust Project from selection.");
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.RustDebugDelegate_unableToLaunch_title, Messages.RustDebugDelegate_unableToLaunch_message);
 		});
 	}
 
-	@Override
-	public void launch(IEditorPart editor, String mode) {
+	@Override public void launch(IEditorPart editor, String mode) {
 		IEditorInput input = editor.getEditorInput();
 		IFile file = input.getAdapter(IFile.class);
 
@@ -142,9 +138,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		}
 	}
 
-	@Override
-	protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session)
-			throws CoreException {
+	@Override protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session) throws CoreException {
 		SourceLookupDirector locator = new SourceLookupDirector();
 		String memento = configuration.getAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_MEMENTO, (String) null);
 		if (memento == null) {
@@ -155,17 +149,13 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		return locator;
 	}
 
-	@Override
-	protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session)
-			throws CoreException {
+	@Override protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session) throws CoreException {
 		DsfSourceLookupDirector sourceLookupDirector = new DsfSourceLookupDirector(session);
-		sourceLookupDirector.setSourceContainers(
-				((SourceLookupDirector) getSourceLocator(configuration, session)).getSourceContainers());
+		sourceLookupDirector.setSourceContainers(((SourceLookupDirector) getSourceLocator(configuration, session)).getSourceContainers());
 		return sourceLookupDirector;
 	}
 
-	@Override
-	public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
+	@Override public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
 		setDefaultProcessFactory(configuration); // Reset process factory to what GdbLaunch expected
 
 		ILaunch launch = super.getLaunch(configuration, mode);
@@ -173,38 +163,34 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			launch = new RustGDBLaunchWrapper(launch);
 		}
 		// workaround for DLTK bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=419273
-		launch.setAttribute("org.eclipse.dltk.debug.debugConsole", "false");
+		launch.setAttribute("org.eclipse.dltk.debug.debugConsole", Boolean.toString(false)); //$NON-NLS-1$
 		return launch;
 	}
 
-	@Override
-	protected IPath checkBinaryDetails(ILaunchConfiguration config) throws CoreException {
+	@Override protected IPath checkBinaryDetails(ILaunchConfiguration config) throws CoreException {
 		return LaunchUtils.verifyProgramPath(config, null);
 	}
 
 	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType configType = launchManager
-				.getLaunchConfigurationType("org.eclipse.corrosion.debug.RustDebugDelegate");
+		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType("org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
 		try {
 			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
 			final IProject project = resource.getProject();
 			final String projectName = project.getName();
 
 			for (ILaunchConfiguration iLaunchConfiguration : launchConfigurations) {
-				if (iLaunchConfiguration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "")
-						.equals(projectName)) {
+				if (iLaunchConfiguration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName)) { //$NON-NLS-1$
 					return iLaunchConfiguration;
 				}
 			}
 			String configName = launchManager.generateLaunchConfigurationName(projectName);
 			ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, configName);
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectName);
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
-					project.getLocation().toString() + "/target/debug/" + projectName);
+			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, project.getLocation().toString() + "/target/debug/" + projectName); //$NON-NLS-1$
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
-			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb");
+			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb"); //$NON-NLS-1$
 			wc.doSave();
 			return wc;
 		} catch (CoreException e) {

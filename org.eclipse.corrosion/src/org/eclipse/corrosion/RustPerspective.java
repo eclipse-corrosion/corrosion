@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion;
 
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizard;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -23,10 +23,9 @@ import org.eclipse.ui.wizards.newresource.BasicNewFileResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewFolderResourceWizard;
 
 public class RustPerspective implements IPerspectiveFactory {
-	public static final String ID = "org.eclipse.corrosion.rustPerspective";
+	public static final String ID = "org.eclipse.corrosion.rustPerspective"; //$NON-NLS-1$
 
-	@Override
-	public void createInitialLayout(IPageLayout layout) {
+	@Override public void createInitialLayout(IPageLayout layout) {
 		addViewStructure(layout);
 
 		addActionSets(layout);
@@ -38,10 +37,10 @@ public class RustPerspective implements IPerspectiveFactory {
 	protected void addViewStructure(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 
-		IFolderLayout leftFolder = layout.createFolder("leftPane", IPageLayout.LEFT, 0.25f, editorArea);
+		IFolderLayout leftFolder = layout.createFolder("leftPane", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
 		leftFolder.addView(IPageLayout.ID_PROJECT_EXPLORER);
 
-		IFolderLayout bottomFolder = layout.createFolder("bottomPane", IPageLayout.BOTTOM, 0.75f, editorArea);
+		IFolderLayout bottomFolder = layout.createFolder("bottomPane", IPageLayout.BOTTOM, 0.75f, editorArea); //$NON-NLS-1$
 
 		bottomFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
 		bottomFolder.addView(IPageLayout.ID_TASK_LIST);

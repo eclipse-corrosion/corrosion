@@ -16,15 +16,14 @@ import org.eclipse.cdt.debug.internal.core.sourcelookup.CSourceLookupDirector;
 import org.eclipse.cdt.debug.internal.core.sourcelookup.CSourcePathComputerDelegate;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputer;
-import org.eclipse.corrosion.CorrosionPlugin;
 
 @SuppressWarnings("restriction")
 public class SourceLookupDirector extends CSourceLookupDirector {
-	@Override
-	public ISourcePathComputer getSourcePathComputer() {
+	@Override public ISourcePathComputer getSourcePathComputer() {
 		ISourcePathComputer computer = super.getSourcePathComputer();
 		if (computer != null) {
 			return computer;
@@ -33,15 +32,12 @@ public class SourceLookupDirector extends CSourceLookupDirector {
 
 			CSourcePathComputerDelegate langSourcePathComputer = new CSourcePathComputerDelegate();
 
-			@Override
-			public ISourceContainer[] computeSourceContainers(ILaunchConfiguration configuration,
-					IProgressMonitor monitor) throws CoreException {
+			@Override public ISourceContainer[] computeSourceContainers(ILaunchConfiguration configuration, IProgressMonitor monitor) throws CoreException {
 				return langSourcePathComputer.computeSourceContainers(configuration, monitor);
 			}
 
-			@Override
-			public String getId() {
-				return CorrosionPlugin.PLUGIN_ID + ".SourceLocator";
+			@Override public String getId() {
+				return CorrosionPlugin.PLUGIN_ID + ".SourceLocator"; //$NON-NLS-1$
 			}
 		};
 	}
