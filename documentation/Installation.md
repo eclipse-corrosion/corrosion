@@ -1,10 +1,16 @@
 ## Installing Corrosion
 
-### Using Eclipse Marketplace
+### Try the Eclipse IDE for Rust developers package
+
+Directly get the **Eclipse IDE for Rust Developers** package at https://www.eclipse.org/downloads/index-developer.php which contains a ready-to-use Eclipse IDE installation for Rust development. Java must be installed to run this IDE.
+
+*Note: After Eclipse Photon release (27th June 2018), the URL to download the package will be https://www.eclipse.org/downloads/eclipse-packages/*
+
+### Using Eclipse Marketplace to install Eclipse Corrosion in your Eclipse IDE
 Download [Corrosion from the Eclipse Marketplace](https://marketplace.eclipse.org/content/corrosion-rust-edition-eclipse-ide)
 For further instructions on how to install using Eclipse Marketplace, see [their tutorial](https://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3835145)
 
-### Using p2 repository
+### Using p2 repository to install Eclipse Corrosion in your Eclipse IDE
 The p2 site: http://download.eclipse.org/corrosion/snapshots/
  - Open Eclipse IDE
  - Open the Install New Software Wizard (Under the Help menu)
