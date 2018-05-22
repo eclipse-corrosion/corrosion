@@ -27,9 +27,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.ui.IEditorPart;
@@ -52,7 +52,7 @@ public class TestLSPIntegration extends AbstractCorrosionTest {
 		String uri = rustFile.getLocationURI().toString();
 		Either<List<CompletionItem>, CompletionList> completionItems = languageServer.get(1, TimeUnit.MINUTES)
 				.getTextDocumentService()
-				.completion(new TextDocumentPositionParams(new TextDocumentIdentifier(uri), new Position(1, 4)))
+				.completion(new CompletionParams(new TextDocumentIdentifier(uri), new Position(1, 4)))
 				.get(1, TimeUnit.MINUTES);
 		Assert.assertNotNull(completionItems);
 	}
