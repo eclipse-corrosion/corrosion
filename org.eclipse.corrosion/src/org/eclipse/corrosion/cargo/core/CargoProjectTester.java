@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion;
+package org.eclipse.corrosion.cargo.core;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;

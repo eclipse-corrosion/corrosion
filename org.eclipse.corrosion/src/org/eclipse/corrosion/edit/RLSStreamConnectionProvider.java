@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion;
+package org.eclipse.corrosion.edit;
 
 import java.io.BufferedReader;
 import java.io.FilterInputStream;
@@ -23,6 +23,9 @@ import java.io.OutputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.corrosion.CorrosionPreferencePage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;

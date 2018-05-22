@@ -35,7 +35,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.RustGDBLaunchWrapper;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;

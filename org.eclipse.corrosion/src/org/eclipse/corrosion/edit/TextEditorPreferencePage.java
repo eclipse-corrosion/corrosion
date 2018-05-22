@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion;
+package org.eclipse.corrosion.edit;
 
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;

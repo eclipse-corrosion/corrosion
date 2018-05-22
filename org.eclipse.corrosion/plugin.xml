@@ -32,11 +32,11 @@
    <extension
          point="org.eclipse.lsp4e.languageServer">
      <server
-        class="org.eclipse.corrosion.RLSStreamConnectionProvider"
+        class="org.eclipse.corrosion.edit.RLSStreamConnectionProvider"
         id="org.eclipse.corrosion.rls"
         label="org.eclipse.corrosion.RLS"
-        clientImpl="org.eclipse.corrosion.RLSClientImplementation"
-        serverInterface="org.eclipse.corrosion.RLSServerInterface">
+        clientImpl="org.eclipse.corrosion.edit.RLSClientImplementation"
+        serverInterface="org.eclipse.corrosion.edit.RLSServerInterface">
       </server>
       <contentTypeMapping
             contentType="org.eclipse.corrosion.rust"
@@ -91,7 +91,7 @@
       </page>
       <page
             category="org.eclipse.corrosion.preferencePage"
-            class="org.eclipse.corrosion.TextEditorPreferencePage"
+            class="org.eclipse.corrosion.edit.TextEditorPreferencePage"
             id="org.eclipse.corrosion.texteditor"
             name="%page.name.0">
       </page>
@@ -205,7 +205,7 @@
             type="org.eclipse.core.resources.IResource"
             namespace="org.eclipse.corrosion"
             properties="isCargoProject"
-            class="org.eclipse.corrosion.CargoProjectTester">
+            class="org.eclipse.corrosion.cargo.core.CargoProjectTester">
       </propertyTester>
    </extension>
    <extension point="org.eclipse.debug.ui.launchShortcuts">

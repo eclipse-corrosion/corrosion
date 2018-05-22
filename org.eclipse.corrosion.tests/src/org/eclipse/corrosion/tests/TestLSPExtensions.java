@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.corrosion.RLSClientImplementation;
+import org.eclipse.corrosion.edit.RLSClientImplementation;
 import org.eclipse.corrosion.extensions.ProgressParams;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;

@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion;
+package org.eclipse.corrosion.debug;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.debug.core.ILaunch;
 
 public class RustGDBLaunchWrapper extends GdbLaunch {

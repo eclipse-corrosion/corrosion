@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.corrosion.CargoProjectTester;
+import org.eclipse.corrosion.cargo.core.CargoProjectTester;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.cargo.ui.OptionSelector;
 import org.eclipse.debug.core.ILaunchConfiguration;
