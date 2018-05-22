@@ -135,15 +135,20 @@
    <extension
          point="org.eclipse.ui.exportWizards">
       <wizard
-            id="org.eclipse.corrosion.wizards.export"
-            name="%wizard.name.0"
+            category="org.eclipse.corrosion.rust"
             class="org.eclipse.corrosion.wizards.export.CargoExportWizard"
-            icon="icons/cargo.png">
+            icon="icons/cargo.png"
+            id="org.eclipse.corrosion.wizards.export"
+            name="%wizard.name.0">
          <description>
             %wizard.description
          </description>
          <selection class="org.eclipse.core.resources.IResource"/>
       </wizard>
+      <category
+            id="org.eclipse.corrosion.rust"
+            name="%category.name">
+      </category>
    </extension>
 
 <!-- LAUNCH CONFIGURATIONS -->
