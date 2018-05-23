@@ -40,6 +40,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -80,9 +81,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 				}
 			}
 		}
-		Display.getDefault().asyncExec(() -> {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
-		});
+		openError(Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
 	}
 
 	@Override public void launch(IEditorPart editor, String mode) {
@@ -112,16 +111,12 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 			project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		}
 		if (project == null || !project.exists()) {
-			Display.getDefault().asyncExec(() -> {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
-			});
+			openError(Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
 			return;
 		}
 		IFile cargoManifest = project.getFile("Cargo.toml"); //$NON-NLS-1$
 		if (!cargoManifest.exists()) {
-			Display.getDefault().asyncExec(() -> {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindToml);
-			});
+			openError(Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindToml);
 			return;
 		}
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
@@ -146,9 +141,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 				IProcess process = DebugPlugin.newProcess(launch, p, "cargo run"); //$NON-NLS-1$
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
-				Display.getDefault().asyncExec(() -> {
-					MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
-				});
+				openError(Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
 			}
 		});
 	}
@@ -167,11 +160,20 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 			}
 			String configName = launchManager.generateLaunchConfigurationName(projectName);
 			ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, configName);
-			wc.setAttribute(Messages.CargoRunDelegate_unableToLaunch, projectName);
+			wc.setAttribute(PROJECT_ATTRIBUTE, projectName);
 			return wc;
 		} catch (CoreException e) {
 			CorrosionPlugin.logError(e);
 		}
 		return null;
+	}
+
+	private void openError(String title, String message) {
+		Display.getDefault().asyncExec(() -> {
+			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
+			dialog.setBlockOnOpen(false);
+			dialog.open();
+		});
 	}
 }
