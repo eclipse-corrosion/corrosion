@@ -28,7 +28,6 @@ public class Messages extends NLS {
 	public static String CargoRunDelegate_unableToFindProject;
 	public static String CargoRunDelegate_unableToFindToml;
 	public static String CargoRunDelegate_unableToLaunch;
-	public static String CargoRunDelegate_unalbeToLaunch;
 	public static String CargoRunTab_arguments;
 	public static String CargoRunTab_browse;
 	public static String CargoRunTab_invalidCargoProjectName;

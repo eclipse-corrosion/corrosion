@@ -167,7 +167,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 			}
 			String configName = launchManager.generateLaunchConfigurationName(projectName);
 			ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, configName);
-			wc.setAttribute(Messages.CargoRunDelegate_unableToLaunch, projectName);
+			wc.setAttribute(PROJECT_ATTRIBUTE, projectName);
 			return wc;
 		} catch (CoreException e) {
 			CorrosionPlugin.logError(e);
