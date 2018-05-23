@@ -39,5 +39,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.corrosion;x-friends:="org.eclipse.corrosion.tests",
  org.eclipse.corrosion.edit;x-friends:="org.eclipse.corrosion.tests",
  org.eclipse.corrosion.extensions;x-friends:="org.eclipse.corrosion.tests",
+ org.eclipse.corrosion.run;x-friends:="org.eclipse.corrosion.tests",
  org.eclipse.corrosion.wizards.export;x-friends:="org.eclipse.corrosion.tests",
  org.eclipse.corrosion.wizards.newCargo;x-friends:="org.eclipse.corrosion.tests"
