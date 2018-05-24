@@ -15,7 +15,6 @@ package org.eclipse.corrosion.debug;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
@@ -24,35 +23,25 @@ import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate;
 import org.eclipse.cdt.dsf.gdb.launching.LaunchUtils;
 import org.eclipse.cdt.dsf.service.DsfSession;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
+import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.ui.ILaunchShortcut;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PlatformUI;
 
 public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut {
 	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + "BUILD_COMMAND"; //$NON-NLS-1$
@@ -93,49 +82,18 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		super.launch(config, mode, launch, monitor);
 	}
 
-	@Override public void launch(ISelection selection, String mode) {
-
-		if (selection instanceof IStructuredSelection) {
-			Iterator<?> selectionIterator = ((IStructuredSelection) selection).iterator();
-			while (selectionIterator.hasNext()) {
-				Object element = selectionIterator.next();
-				IResource resource = null;
-				if (element instanceof IResource) {
-					resource = (IResource) element;
-				} else if (element instanceof IAdaptable) {
-					resource = ((IAdaptable) element).getAdapter(IResource.class);
-				}
-
-				if (resource != null) {
-					try {
-						ILaunchConfiguration launchConfig = getLaunchConfiguration(mode, resource);
-						if (launchConfig != null) {
-							launchConfig.launch(mode, new NullProgressMonitor());
-						}
-					} catch (CoreException e) {
-						CorrosionPlugin.logError(e);
-					}
-					return;
-				}
-			}
-		}
-		Display.getDefault().asyncExec(() -> {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.RustDebugDelegate_unableToLaunch_title, Messages.RustDebugDelegate_unableToLaunch_message);
-		});
+	@Override
+	public void launch(ISelection selection, String mode) {
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
+				RustLaunchDelegateTools.firstResourceFromSelection(selection));
+		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
-	@Override public void launch(IEditorPart editor, String mode) {
-		IEditorInput input = editor.getEditorInput();
-		IFile file = input.getAdapter(IFile.class);
-
-		try {
-			ILaunchConfiguration launchConfig = getLaunchConfiguration(mode, file);
-			if (launchConfig != null) {
-				launchConfig.launch(mode, new NullProgressMonitor());
-			}
-		} catch (CoreException e) {
-			CorrosionPlugin.logError(e);
-		}
+	@Override
+	public void launch(IEditorPart editor, String mode) {
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
+				RustLaunchDelegateTools.resourceFromEditor(editor));
+		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
 	@Override protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session) throws CoreException {
@@ -172,30 +130,18 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 	}
 
 	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType("org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
-		try {
-			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(mode, resource,
+				"org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
+		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
+			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			final IProject project = resource.getProject();
-			final String projectName = project.getName();
-
-			for (ILaunchConfiguration iLaunchConfiguration : launchConfigurations) {
-				if (iLaunchConfiguration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName)) { //$NON-NLS-1$
-					return iLaunchConfiguration;
-				}
-			}
-			String configName = launchManager.generateLaunchConfigurationName(projectName);
-			ILaunchConfigurationWorkingCopy wc = configType.newInstance(null, configName);
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectName);
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, project.getLocation().toString() + "/target/debug/" + projectName); //$NON-NLS-1$
+			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
+			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
+					project.getLocation().toString() + "/target/debug/" + project.getName()); //$NON-NLS-1$
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
 			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb"); //$NON-NLS-1$
-			wc.doSave();
-			return wc;
-		} catch (CoreException e) {
-			CorrosionPlugin.logError(e);
 		}
-		return null;
+		return launchConfiguration;
 	}
 }
