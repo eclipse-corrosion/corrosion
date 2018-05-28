@@ -14,6 +14,10 @@ package org.eclipse.corrosion;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -54,5 +58,18 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 
 	public static void logError(Throwable t) {
 		getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, t.getMessage(), t));
+	}
+
+	public static void showError(String title, String message, Exception exception) {
+		CorrosionPlugin.showError(title, message + '\n' + exception.getLocalizedMessage());
+	}
+
+	public static void showError(String title, String message) {
+		Display.getDefault().asyncExec(() -> {
+			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
+			dialog.setBlockOnOpen(false);
+			dialog.open();
+		});
 	}
 }

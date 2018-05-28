@@ -23,10 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -382,34 +382,43 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	private void installCommands() {
 		installButton.setText(Messages.CorrosionPreferencePage_installing);
 		installButton.setEnabled(false);
-		Job.create(Messages.CorrosionPreferencePage_installingRustupCargo, (ICoreRunnable) monitor -> {
-			try {
-				Bundle bundle = CorrosionPlugin.getDefault().getBundle();
-				URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup-init.sh")); //$NON-NLS-1$
-				File file = new File(new URI(fileURL.getProtocol(), fileURL.getPath(), null));
-				file.setExecutable(true);
-				String[] command = new String[] { "/bin/bash", "-c", file.getAbsolutePath() + " -y" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				ProcessBuilder builder = new ProcessBuilder(command);
-				Process process = builder.start();
-				if (process.waitFor() == 0) {
+
+		String[] command;
+		try {
+			Bundle bundle = CorrosionPlugin.getDefault().getBundle();
+			URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup-init.sh")); //$NON-NLS-1$
+			File file = new File(new URI(fileURL.getProtocol(), fileURL.getPath(), null));
+			file.setExecutable(true);
+			command = new String[] { "/bin/bash", "-c", file.getAbsolutePath() + " -y" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		} catch (IOException | URISyntaxException e) {
+			CorrosionPlugin.showError(Messages.CorrosionPreferencePage_cannotInstallRustupCargo,
+					Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details, e);
+			return;
+		}
+
+		CommandJob installCommandJob = new CommandJob(command, Messages.CorrosionPreferencePage_installingRustupCargo,
+				Messages.CorrosionPreferencePage_cannotInstallRustupCargo,
+				Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details, 15);
+		installCommandJob.setUser(true);
+		installCommandJob.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(final IJobChangeEvent event) {
+				if (event.getResult() == Status.OK_STATUS) {
 					CorrosionPreferenceInitializer initializer = new CorrosionPreferenceInitializer();
 					initializer.initializeDefaultPreferences();
 					Display.getDefault().asyncExec(() -> {
+						if (installButton.isDisposed()) {
+							return;
+						}
 						setInstallRequired(false);
 						performDefaults();
 						setValid(isPageValid());
 					});
 					RustManager.setDefaultToolchain("beta"); //$NON-NLS-1$
-					return;
 				}
-			} catch (InterruptedException | URISyntaxException | IOException e) {
-				// will be caught with dialog
 			}
-			Display.getDefault().asyncExec(() -> {
-				setInstallRequired(true);
-				MessageDialog.openError(getShell(), Messages.CorrosionPreferencePage_cannotInstallRustupCargo, Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details);
-			});
-		}).schedule();
+		});
+		installCommandJob.schedule();
 	}
 
 	private void setInstallRequired(Boolean required) {
