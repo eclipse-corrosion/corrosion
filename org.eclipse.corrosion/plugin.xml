@@ -18,6 +18,68 @@
             priority="normal">
       </content-type>
    </extension>
+   <extension point="org.eclipse.ui.editors.templates">
+         <contextType
+               class="org.eclipse.corrosion.edit.CorrosionContextType"
+               id="org.eclipse.corrosion.templates.rust"
+               name="%content-type.name"/>
+         <template
+            autoinsert="false"
+            name="for"
+            description=""
+            contextTypeId="org.eclipse.corrosion.templates.rust"
+            id="org.eclipse.corrosion.for">
+			<pattern>%for</pattern>
+		</template>
+		<template
+            autoinsert="false"
+            name="unimplemented"
+            description=""
+            contextTypeId="org.eclipse.corrosion.templates.rust"
+            id="org.eclipse.corrosion.unimplemented">
+			<pattern>%unimplemented</pattern>
+		</template>
+		<template
+            autoinsert="false"
+            name="unreachable"
+            description=""
+            contextTypeId="org.eclipse.corrosion.templates.rust"
+            id="org.eclipse.corrosion.unreachable">
+			<pattern>%unreachable</pattern>
+		</template>
+		<template
+            autoinsert="false"
+            name="println"
+            description=""
+            contextTypeId="org.eclipse.corrosion.templates.rust"
+            id="org.eclipse.corrosion.println">
+			<pattern>%println</pattern>
+		</template>
+		<template
+            autoinsert="false"
+            name="macro_rules"
+            description=""
+            contextTypeId="org.eclipse.corrosion.templates.rust"
+            id="org.eclipse.corrosion.macro_rules">
+			<pattern>%macro_rules</pattern>
+		</template>
+		<template
+            autoinsert="false"
+            name="if let Option"
+            description=""
+            contextTypeId="org.eclipse.corrosion.templates.rust"
+            id="org.eclipse.corrosion.if_let_option">
+			<pattern>%if_let_option</pattern>
+		</template>
+		<template
+            autoinsert="false"
+            name="spawn"
+            description=""
+            contextTypeId="org.eclipse.corrosion.templates.rust"
+            id="org.eclipse.corrosion.spawn">
+			<pattern>%spawn</pattern>
+		</template>
+   </extension>
    <extension
          point="org.eclipse.ui.editors">
      <editorContentTypeBinding
@@ -72,7 +134,7 @@
    <extension
          point="org.eclipse.ui.genericeditor.contentAssistProcessors">
       <contentAssistProcessor
-            class="org.eclipse.corrosion.snippet.SnippetContentAssistProcessor"
+            class="org.eclipse.corrosion.edit.TemplateContentAssistProcessor"
             contentType="org.eclipse.corrosion.rust">
       </contentAssistProcessor>
    </extension>
@@ -100,6 +162,12 @@
             class="org.eclipse.corrosion.debug.DebugPreferencePage"
             id="org.eclipse.corrosion.debug"
             name="%debugPreferencePage">
+      </page>
+      <page
+            category="org.eclipse.corrosion.texteditor"
+            class="org.eclipse.corrosion.edit.RustTemplatePreferencePage"
+            id="org.eclipse.corrosion.templates"
+            name="Templates">
       </page>
    </extension>
    <extension

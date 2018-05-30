@@ -23,7 +23,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.eclipse.corrosion"; //$NON-NLS-1$
 
 	// The shared instance
-	private static CorrosionPlugin plugin;
+	private static CorrosionPlugin fPlugin;
 
 	/**
 	 * The constructor
@@ -34,12 +34,12 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		fPlugin = this;
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		plugin = null;
+		fPlugin = null;
 		super.stop(context);
 	}
 
@@ -49,7 +49,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	 * @return the shared instance
 	 */
 	public static CorrosionPlugin getDefault() {
-		return plugin;
+		return fPlugin;
 	}
 
 	public static void logError(Throwable t) {
