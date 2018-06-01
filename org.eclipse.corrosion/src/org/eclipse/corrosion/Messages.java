@@ -127,6 +127,7 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_toolchain;
 	public static String CorrosionPreferencePage_useDefaultPathsRustupCargo;
 	public static String CorrosionPreferencePage_useRustup;
+	public static String TemplatesPreferencePage_enable;
 	public static String NewCargoProjectWizard_cannotCreateRustProject;
 	public static String NewCargoProjectWizard_cannotOpenProject;
 	public static String NewCargoProjectWizard_task;

@@ -35,6 +35,8 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	public static String rlsPathPreference = "corrosion.rslPath"; //$NON-NLS-1$
 	public static String sysrootPathPreference = "corrosion.sysrootPath"; //$NON-NLS-1$
 
+	public static String enableTemplates = "corrosion.templates"; //$NON-NLS-1$
+
 	@Override
 	public void initializeDefaultPreferences() {
 		STORE.setDefault(rustSourcePreference, "rustup"); //$NON-NLS-1$
@@ -46,6 +48,8 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 
 		STORE.setDefault(rlsPathPreference, getRLSPathBestGuess());
 		STORE.setDefault(sysrootPathPreference, getSysrootPathBestGuess());
+
+		STORE.setDefault(enableTemplates, true);
 	}
 
 	private String getRustupPathBestGuess() {
@@ -132,7 +136,8 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
 			return ""; //$NON-NLS-1$
 		}
-		String[] command = new String[] { rustc.getAbsolutePath(), Messages.CorrosionPreferenceInitializer_29, Messages.CorrosionPreferenceInitializer_30 };
+		String[] command = new String[] { rustc.getAbsolutePath(), Messages.CorrosionPreferenceInitializer_29,
+				Messages.CorrosionPreferenceInitializer_30 };
 		try {
 			Process process = Runtime.getRuntime().exec(command);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {

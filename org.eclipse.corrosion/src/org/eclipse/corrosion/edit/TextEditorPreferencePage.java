@@ -17,7 +17,6 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -35,19 +34,17 @@ public class TextEditorPreferencePage extends PreferencePage implements IWorkben
 
 	@Override
 	protected Control createContents(Composite parent) {
-		parent.setLayoutData(new GridData(SWT.NONE, SWT.TOP, true, false));
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout(1, false));
 
 		Link textEditorsLink = new Link(container, SWT.NONE);
-		textEditorsLink.setText(
-				Messages.TextEditorPreferencePage_linkTextEditorsPref);
+		textEditorsLink.setText(Messages.TextEditorPreferencePage_linkTextEditorsPref);
 		textEditorsLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
 					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.ui.preferencePages.GeneralTextEditor", null); //$NON-NLS-1$
+							.openPage("org.eclipse.ui.preferencePages.GeneralTextEditor", null); //$NON-NLS-1$
 				}
 			}
 		});
@@ -59,7 +56,7 @@ public class TextEditorPreferencePage extends PreferencePage implements IWorkben
 			public void widgetSelected(SelectionEvent e) {
 				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
 					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.tm4e.ui.preferences.ThemePreferencePage", null); //$NON-NLS-1$
+							.openPage("org.eclipse.tm4e.ui.preferences.ThemePreferencePage", null); //$NON-NLS-1$
 				}
 			}
 		});
@@ -71,7 +68,7 @@ public class TextEditorPreferencePage extends PreferencePage implements IWorkben
 			public void widgetSelected(SelectionEvent e) {
 				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
 					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.ui.preferencePages.ColorsAndFonts", null); //$NON-NLS-1$
+							.openPage("org.eclipse.ui.preferencePages.ColorsAndFonts", null); //$NON-NLS-1$
 				}
 			}
 		});
