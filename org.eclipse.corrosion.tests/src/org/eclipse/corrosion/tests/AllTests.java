@@ -19,7 +19,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ TestIDEIntegration.class, TestSyntaxHighlighting.class, TestLSPIntegration.class,
 	TestNewCargoProjectWizard.class, TestRunConfiguration.class, TestExportCargoProjectWizard.class,
-	TestPerspective.class, TestLSPExtensions.class })
+	TestPerspective.class, TestLSPExtensions.class, TestSnippetContentAssistProcessor.class })
 public class AllTests {
 
 }

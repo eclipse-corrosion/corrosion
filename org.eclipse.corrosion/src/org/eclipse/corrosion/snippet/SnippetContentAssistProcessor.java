@@ -43,9 +43,12 @@ import com.google.gson.JsonParser;
 
 @SuppressWarnings("restriction")
 public class SnippetContentAssistProcessor implements IContentAssistProcessor {
-
+	private static final String SINGLE_LINE_COMMENT = "(?s).*(\\/\\/[^\\n]*)"; //$NON-NLS-1$
+	private static final String MULTI_LINE_COMMENT = "(?s).*\\/\\*(.(?!\\*\\/))*"; //$NON-NLS-1$
 	private static final String ENDS_WITH_WORD = "(?<indent>\\s*).*?(?<prefix>\\w*)"; //$NON-NLS-1$
 	private static final Pattern ENDS_WITH_WORD_PATTERN = Pattern.compile(ENDS_WITH_WORD);
+	private static final Pattern SINGLE_LINE_COMMENT_PATTERN = Pattern.compile(SINGLE_LINE_COMMENT);
+	private static final Pattern MULTI_LINE_COMMENT_PATTERN = Pattern.compile(MULTI_LINE_COMMENT);
 	private static final List<Snippet> snippets = new ArrayList<>();
 	static {
 		JsonArray snippetArray = null;
@@ -84,6 +87,9 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 	@Override public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 		IDocument document = viewer.getDocument();
 		String textToOffset = document.get().substring(0, offset);
+		if (isOffsetInComment(textToOffset)) {
+			return null;
+		}
 
 		Matcher matcher = ENDS_WITH_WORD_PATTERN.matcher(textToOffset.substring(textToOffset.lastIndexOf('\n') + 1));
 		matcher.matches();
@@ -99,6 +105,12 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 			}
 		}
 		return proposals.toArray(new ICompletionProposal[proposals.size()]);
+	}
+
+	private boolean isOffsetInComment(String textToOffset) {
+		Matcher singleLineCommentMatcher = SINGLE_LINE_COMMENT_PATTERN.matcher(textToOffset);
+		Matcher multiLineCommentMatcher = MULTI_LINE_COMMENT_PATTERN.matcher(textToOffset);
+		return singleLineCommentMatcher.matches() || multiLineCommentMatcher.matches();
 	}
 
 	@Override public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
