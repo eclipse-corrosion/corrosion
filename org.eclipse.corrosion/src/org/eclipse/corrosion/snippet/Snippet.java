@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.snippet;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.lsp4e.LanguageServiceAccessor.LSPDocumentInfo;
@@ -30,7 +32,11 @@ public class Snippet {
 	private CompletionItemKind kind;
 
 	public Snippet(String display, CompletionItemKind kind, String[] replacementLines) {
-		this.replacementLines = replacementLines;
+		if (replacementLines == null) {
+			this.replacementLines = null;
+		} else {
+			this.replacementLines = Arrays.copyOf(replacementLines, replacementLines.length);
+		}
 		this.display = display;
 		this.kind = kind;
 	}

@@ -15,6 +15,7 @@ package org.eclipse.corrosion;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,7 +35,11 @@ public class CommandJob extends Job {
 	public CommandJob(String[] command, String progressMessage, String errorTitle, String errorMessage,
 			int expectedWork) {
 		super(progressMessage);
-		this.command = command;
+		if (command == null) {
+			this.command = null;
+		} else {
+			this.command = Arrays.copyOf(command, command.length);
+		}
 		this.progressMessage = progressMessage;
 		this.errorTitle = errorTitle;
 		this.errorMessage = errorMessage;
@@ -47,20 +52,21 @@ public class CommandJob extends Job {
 		try {
 			subMonitor.beginTask(progressMessage, expectedWork);
 			process = new ProcessBuilder(command).start();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			CompletableFuture.runAsync(() -> {
-				reader.lines().forEachOrdered(line -> {
-					subMonitor.subTask(line);
-					if (expectedWork > 0) {
-						subMonitor.worked(1);
-					}
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+				CompletableFuture.runAsync(() -> {
+					reader.lines().forEachOrdered(line -> {
+						subMonitor.subTask(line);
+						if (expectedWork > 0) {
+							subMonitor.worked(1);
+						}
+					});
 				});
-			});
-			if (process.waitFor() != 0) {
-				if (!subMonitor.isCanceled()) {
-					CorrosionPlugin.showError(errorTitle, errorMessage);
+				if (process.waitFor() != 0) {
+					if (!subMonitor.isCanceled()) {
+						CorrosionPlugin.showError(errorTitle, errorMessage);
+					}
+					return Status.CANCEL_STATUS;
 				}
-				return Status.CANCEL_STATUS;
 			}
 			return Status.OK_STATUS;
 		} catch (IOException e) {
