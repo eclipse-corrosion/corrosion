@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion.wizards.newCargo;
+package org.eclipse.corrosion.wizards.newproject;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
@@ -76,7 +76,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		if (isDirectoryAndProjectLinked) {
 			return directory;
 		} else {
-			return new File(directory.toString() + "/" + projectName); //$NON-NLS-1$
+			return new File(directory.toString(), projectName);
 		}
 	}
 
@@ -138,7 +138,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		String projectNameError = ""; //$NON-NLS-1$
 		String cargoError = ""; //$NON-NLS-1$
 
-		File cargo = new File(store.getString(CorrosionPreferenceInitializer.cargoPathPreference));
+		File cargo = new File(store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		if (!(cargo.exists() && cargo.isFile() && cargo.canExecute())) {
 			cargoError = Messages.NewCargoProjectWizardPage_cargoCommandNotFound;
 		} else if (directory == null || directory.getPath().isEmpty()) {
@@ -202,8 +202,6 @@ public class NewCargoProjectWizardPage extends WizardPage {
 	private Text locationText;
 	private Label projectNameLabel;
 	private Text projectNameText;
-	private Image linkImage;
-	private Button linkButton;
 	private ControlDecoration locationControlDecoration;
 	private ControlDecoration projectNameControlDecoration;
 
@@ -252,11 +250,11 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		new Label(container, SWT.NONE);
 		new Label(container, SWT.NONE);
 
-		linkButton = new Button(container, SWT.TOGGLE);
+		Button linkButton = new Button(container, SWT.TOGGLE);
 		linkButton.setToolTipText(Messages.NewCargoProjectWizardPage_linkNameAndFolder);
 		linkButton.setSelection(true);
 		try (InputStream iconStream = getClass().getResourceAsStream("/icons/link_obj.png")) { //$NON-NLS-1$
-			linkImage = new Image(linkButton.getDisplay(), iconStream);
+			Image linkImage = new Image(linkButton.getDisplay(), iconStream);
 			linkButton.setImage(linkImage);
 		} catch (IOException e) {
 			CorrosionPlugin.logError(e);

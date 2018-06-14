@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion;
 
-import org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizard;
+import org.eclipse.corrosion.wizards.newproject.NewCargoProjectWizard;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IFolderLayout;

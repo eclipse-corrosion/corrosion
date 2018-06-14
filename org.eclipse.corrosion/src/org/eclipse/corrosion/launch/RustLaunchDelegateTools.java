@@ -35,6 +35,10 @@ import org.eclipse.ui.PlatformUI;
 
 public class RustLaunchDelegateTools {
 
+	private RustLaunchDelegateTools() {
+		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
+	}
+
 	/**
 	 * Returns the first resource from a structured selection
 	 *
@@ -90,16 +94,14 @@ public class RustLaunchDelegateTools {
 	 * Finds or creates a new launch configuration that matches the given search
 	 * terms
 	 *
-	 * @param mode
 	 * @param resource
-	 * @param LaunchConfigurationType
+	 * @param launchConfigurationType
 	 * @return The matching launch configuration or a new launch configuration
 	 *         working copy or null if unable to make a new one
 	 */
-	public static ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource,
-			String LaunchConfigurationType) {
+	public static ILaunchConfiguration getLaunchConfiguration(IResource resource, String launchConfigurationType) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType(LaunchConfigurationType);
+		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType(launchConfigurationType);
 		try {
 			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
 			final String projectName = resource.getProject().getName();
@@ -120,7 +122,7 @@ public class RustLaunchDelegateTools {
 
 	/**
 	 * Opens a non blocking error dialog
-	 * 
+	 *
 	 * @param title
 	 * @param message
 	 */

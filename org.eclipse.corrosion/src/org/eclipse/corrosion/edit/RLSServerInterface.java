@@ -23,6 +23,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 public interface RLSServerInterface extends LanguageServer {
 
 	@JsonRequest("rustDocument/implementations")
-	CompletableFuture<List<? extends Location>> implementations(TextDocumentPositionParams position);
+	CompletableFuture<List<Location>> implementations(TextDocumentPositionParams position);
 
 }

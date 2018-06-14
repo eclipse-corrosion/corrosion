@@ -44,7 +44,6 @@ public class Implementations extends AbstractHandler {
 					LSPEclipseUtils.getDocument((ITextEditor) part),
 					capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
 			if (!infos.isEmpty()) {
-				// TODO consider better way to choose the actual LS to use
 				LSPDocumentInfo info = infos.iterator().next();
 				ISelection sel = ((AbstractTextEditor) part).getSelectionProvider().getSelection();
 

@@ -23,7 +23,7 @@ public class CLIOption {
 	private String description;
 
 	public CLIOption(List<String> lines) {
-		if (lines == null || lines.size() == 0 || !lines.get(0).matches("\\s*-+.*")) { //$NON-NLS-1$
+		if (lines == null || lines.isEmpty() || !lines.get(0).matches("\\s*-+.*")) { //$NON-NLS-1$
 			throw new IllegalArgumentException(Messages.CLIOption_lineIsNotHelp);
 		}
 
@@ -34,11 +34,12 @@ public class CLIOption {
 		flag = flagSection[0];
 		arguments = Arrays.copyOfRange(flagSection, 1, flagSection.length);
 
-		description = String.join("  ", Arrays.copyOfRange(firstLine, 1, firstLine.length)).trim(); //$NON-NLS-1$
+		StringBuilder descriptionBuilder = new StringBuilder(String.join("  ", Arrays.copyOfRange(firstLine, 1, firstLine.length)).trim()); //$NON-NLS-1$
 		lines.remove(0);
 		for (String string : lines) {
-			description += ' ' + string.trim();
+			descriptionBuilder.append(string.trim());
 		}
+		description = descriptionBuilder.toString();
 	}
 
 	public String getFlag() {

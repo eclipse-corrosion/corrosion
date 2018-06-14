@@ -35,29 +35,31 @@ import org.junit.Test;
 @SuppressWarnings("restriction")
 public class TestSnippetContentAssistProcessor extends AbstractCorrosionTest {
 
+	private static final String[] PRINT_COMPLETION_PROPOSALS = new String[] { "println!(\"$1\", $0)" };
+
 	@Test
-	public void testCompletionsPresent() throws Exception {
-		validateCompletionProposals("println", new String[] { "println!(\"$1\", $0)" });
+	public void testCompletionsPresent() throws IOException, CoreException {
+		validateCompletionProposals("println", PRINT_COMPLETION_PROPOSALS);
 	}
 
 	@Test
-	public void testCompletionsLimited() throws Exception {
+	public void testCompletionsLimited() throws IOException, CoreException {
 		validateCompletionProposals("noExpectedCompletion", null);
 	}
 
 	@Test
-	public void testSingleLineComment() throws Exception {
+	public void testSingleLineComment() throws IOException, CoreException {
 		validateCompletionProposals("// println", null);
 		// With prefix
 		validateCompletionProposals("not a comment // println", null);
 		// With multiline
 		validateCompletionProposals("not a comment \n also not a comment // println", null);
 		// Comment on an above line
-		validateCompletionProposals("// a comment \n println", new String[] { "println!(\"$1\", $0)" });
+		validateCompletionProposals("// a comment \n println", PRINT_COMPLETION_PROPOSALS);
 	}
 
 	@Test
-	public void testMultiLineComment() throws Exception {
+	public void testMultiLineComment() throws IOException, CoreException {
 		validateCompletionProposals("/* println", null);
 		// With prefix
 		validateCompletionProposals("not a comment /* println", null);
@@ -68,15 +70,15 @@ public class TestSnippetContentAssistProcessor extends AbstractCorrosionTest {
 		// Previous closure
 		validateCompletionProposals("/* in a comment */ not a comment /* println", null);
 		// Previous closue no open
-		validateCompletionProposals("/* in a comment */ println", new String[] { "println!(\"$1\", $0)" });
+		validateCompletionProposals("/* in a comment */ println", PRINT_COMPLETION_PROPOSALS);
 		// Previous closue new line
-		validateCompletionProposals("/* in a comment */ \n  println", new String[] { "println!(\"$1\", $0)" });
+		validateCompletionProposals("/* in a comment */ \n  println", PRINT_COMPLETION_PROPOSALS);
 
 	}
 
 	private void validateCompletionProposals(String text, String[] expectedProposalTexts)
 			throws IOException, CoreException {
-		IProject project = getProject("basic");
+		IProject project = getProject(BASIC_PROJECT_NAME);
 		IFile file = project.getFolder("src").getFile("main.rs");
 		IEditorPart editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file);
 		((ITextEditor) editor).getDocumentProvider().getDocument(editor.getEditorInput()).set(text);

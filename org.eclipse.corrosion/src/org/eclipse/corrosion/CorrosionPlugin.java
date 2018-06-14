@@ -29,21 +29,19 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static CorrosionPlugin plugin;
 
-	/**
-	 * The constructor
-	 */
-	public CorrosionPlugin() {
+	private static synchronized void setSharedInstance(CorrosionPlugin newValue) {
+		plugin = newValue;
 	}
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		setSharedInstance(this);
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		plugin = null;
+		setSharedInstance(null);
 		super.stop(context);
 	}
 

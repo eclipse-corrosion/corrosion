@@ -30,7 +30,7 @@ public class TestSyntaxHighlighting extends AbstractCorrosionTest {
 
 	@Test
 	public void testRustSyntaxHighlighting() throws CoreException, IOException {
-		IFile rustFile = getProject("basic").getFolder("src").getFile("main.rs");
+		IFile rustFile = getProject(BASIC_PROJECT_NAME).getFolder("src").getFile("main.rs");
 		TextEditor editor = (TextEditor) IDE.openEditor(
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), rustFile,
 				"org.eclipse.ui.genericeditor.GenericEditor");
@@ -46,7 +46,7 @@ public class TestSyntaxHighlighting extends AbstractCorrosionTest {
 
 	@Test
 	public void testManifestSyntaxHighlighting() throws CoreException, IOException {
-		IFile rustFile = getProject("basic").getFile("Cargo.toml");
+		IFile rustFile = getProject(BASIC_PROJECT_NAME).getFile("Cargo.toml");
 		TextEditor editor = (TextEditor) IDE.openEditor(
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), rustFile,
 				"org.eclipse.ui.genericeditor.GenericEditor");

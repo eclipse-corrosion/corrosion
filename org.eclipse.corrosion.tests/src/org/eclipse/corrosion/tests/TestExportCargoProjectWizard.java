@@ -16,12 +16,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.corrosion.wizards.export.CargoExportWizard;
 import org.eclipse.corrosion.wizards.export.CargoExportWizardPage;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -36,12 +38,7 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	private Text projectText;
 	private Label locationLabel;
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-	}
-
-	private void createWizard(String selectedProjectName) throws Exception {
+	private void createWizard(String selectedProjectName) throws IOException, CoreException {
 		wizard = new CargoExportWizard();
 		if (!selectedProjectName.isEmpty()) {
 			IProject project = getProject(selectedProjectName);
@@ -60,30 +57,30 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testExportPageWithSelection() throws Exception {
-		createWizard("basic");
-		confirmPageState(getProject("basic").getName(), true);
+	public void testExportPageWithSelection() throws IOException, CoreException {
+		createWizard(BASIC_PROJECT_NAME);
+		confirmPageState(getProject(BASIC_PROJECT_NAME).getName(), true);
 
 		projectText.setText("");
 		confirmPageState(null, false);
 	}
 
 	@Test
-	public void testExportPageWithChangingProject() throws Exception {
-		createWizard("basic");
-		confirmPageState(getProject("basic").getName(), true);
+	public void testExportPageWithChangingProject() throws IOException, CoreException {
+		createWizard(BASIC_PROJECT_NAME);
+		confirmPageState(getProject(BASIC_PROJECT_NAME).getName(), true);
 
-		IProject project = getProject("basic_errors");
+		IProject project = getProject(BASIC_ERRORS_PROJECT_NAME);
 		projectText.setText(project.getName());
 		confirmPageState(project.getName(), true);
 	}
 
 	@Test
-	public void testExportPageWithNonCargoProject() throws Exception {
-		createWizard("basic");
-		confirmPageState(getProject("basic").getName(), true);
+	public void testExportPageWithNonCargoProject() throws IOException, CoreException {
+		createWizard(BASIC_PROJECT_NAME);
+		confirmPageState(getProject(BASIC_PROJECT_NAME).getName(), true);
 
-		IProject project = getProject("not_cargo");
+		IProject project = getProject(NOT_CARGO_PROJECT_NAME);
 		projectText.setText(project.getName());
 		confirmPageState(null, false);
 	}
@@ -101,9 +98,9 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testExportProject() throws Exception {
-		IProject basic = getProject("basic");
-		createWizard("basic");
+	public void testExportProject() throws IOException, CoreException {
+		IProject basic = getProject(BASIC_PROJECT_NAME);
+		createWizard(BASIC_PROJECT_NAME);
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
 		Button allowDirty = (Button) composite.getChildren()[10];
 		allowDirty.setSelection(true); // required of another test updates the project

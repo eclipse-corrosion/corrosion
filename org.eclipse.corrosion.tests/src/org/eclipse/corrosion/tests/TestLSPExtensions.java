@@ -26,23 +26,28 @@ import org.junit.Test;
 
 public class TestLSPExtensions {
 
+	private static final String PROGRESS_ID_1 = "progress_1";
+	private static final String PROGRESS_ID_2 = "progress_2";
+
 	@Test
 	public void testBuildingMessages() {
 		String jobType = "Building";
 		RLSClientImplementation clientImplementation = new RLSClientImplementation();
 		IJobManager jobManager = Job.getJobManager();
-		clientImplementation.progress(new ProgressParams("progress_1", jobType));
+		clientImplementation.progress(new ProgressParams(PROGRESS_ID_1, jobType));
 		waitUntilJobIsStarted(jobManager, jobType);
 
 		Job rustJob = getRustDiagnosticsJob(jobManager, jobType);
 		assertNotNull(rustJob);
 
-		clientImplementation.progress(new ProgressParams("progress_1", jobType, "rust_project", 0));
-		clientImplementation.progress(new ProgressParams("progress_1", jobType, null, 50));
+		clientImplementation.progress(new ProgressParams(PROGRESS_ID_1, jobType, "rust_project", 0));
+		clientImplementation.progress(new ProgressParams(PROGRESS_ID_1, jobType, null, 50));
 
-		clientImplementation.progress(new ProgressParams("progress_1", jobType, true));
+		clientImplementation.progress(new ProgressParams(PROGRESS_ID_1, jobType, true));
 		waitUntilJobIsDone(jobManager, jobType);
-		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
+		if (rustJob != null) {
+			assertEquals(rustJob.getResult().getCode(), IStatus.OK);
+		}
 	}
 
 	@Test
@@ -50,15 +55,17 @@ public class TestLSPExtensions {
 		String jobType = "Indexing";
 		RLSClientImplementation clientImplementation = new RLSClientImplementation();
 		IJobManager jobManager = Job.getJobManager();
-		clientImplementation.progress(new ProgressParams("progress_2", jobType));
+		clientImplementation.progress(new ProgressParams(PROGRESS_ID_2, jobType));
 		waitUntilJobIsStarted(jobManager, jobType);
 
 		Job rustJob = getRustDiagnosticsJob(jobManager, jobType);
 		assertNotNull(rustJob);
 
-		clientImplementation.progress(new ProgressParams("progress_2", jobType, true));
+		clientImplementation.progress(new ProgressParams(PROGRESS_ID_2, jobType, true));
 		waitUntilJobIsDone(jobManager, jobType);
-		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
+		if (rustJob != null) {
+			assertEquals(rustJob.getResult().getCode(), IStatus.OK);
+		}
 	}
 
 	private void waitUntilJobIsStarted(IJobManager jobManager, String jobType) {

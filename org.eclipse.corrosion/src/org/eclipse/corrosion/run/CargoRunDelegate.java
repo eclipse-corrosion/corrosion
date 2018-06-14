@@ -46,19 +46,20 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 
 	@Override
 	public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(
 				RustLaunchDelegateTools.firstResourceFromSelection(selection));
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
 	@Override
 	public void launch(IEditorPart editor, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
-				RustLaunchDelegateTools.resourceFromEditor(editor));
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.resourceFromEditor(editor));
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
-	@Override public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+	@Override
+	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
+			throws CoreException {
 		List<String> cargoRunCommand = new ArrayList<>();
 		cargoRunCommand.add(CargoTools.getCargoCommand());
 		cargoRunCommand.add("run"); //$NON-NLS-1$
@@ -108,8 +109,8 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		});
 	}
 
-	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
-		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(mode, resource,
+	private ILaunchConfiguration getLaunchConfiguration(IResource resource) {
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				"org.eclipse.corrosion.run.CargoRunDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;

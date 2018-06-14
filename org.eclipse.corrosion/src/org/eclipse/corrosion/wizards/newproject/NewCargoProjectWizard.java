@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion.wizards.newCargo;
+package org.eclipse.corrosion.wizards.newproject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -150,32 +150,53 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 						}
 						createProject(projectName, location, mainFileName, monitor);
 					} else {
-						String errorOutput = ""; //$NON-NLS-1$
+						StringBuilder errorOutput = new StringBuilder();
 						try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
 							String errorLine;
 							while ((errorLine = in.readLine()) != null) {
-								errorOutput += errorLine + '\n';
+								errorOutput.append(errorLine + '\n');
 							}
 						}
-						final String finalErrorOutput = errorOutput;
+						final String finalErrorOutput = errorOutput.toString();
 						Display.getDefault().asyncExec(() -> {
-							MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject, NLS.bind(Messages.NewCargoProjectWizard_cannotCreateRustProject_commandFailedDetails, String.join(" ", commandLine), finalErrorOutput)); //$NON-NLS-1$
+							if (makeLocation && !location.delete()) {
+								MessageDialog.openError(getShell(),
+										Messages.NewCargoProjectWizard_cannotCreateRustProject,
+										NLS.bind(
+												Messages.NewCargoProjectWizard_cannotCreateRustProject_commandFailedDetails_partialDeletion,
+												new String[] { location.getAbsolutePath(),
+														String.join(" ", commandLine), //$NON-NLS-1$
+														finalErrorOutput }));
+							} else {
+								MessageDialog.openError(getShell(),
+										Messages.NewCargoProjectWizard_cannotCreateRustProject,
+										NLS.bind(
+												Messages.NewCargoProjectWizard_cannotCreateRustProject_commandFailedDetails,
+												String.join(" ", commandLine), finalErrorOutput)); //$NON-NLS-1$
+							}
 						});
-						if (makeLocation) {
-							location.delete();
-						}
 					}
 					monitor.done();
 				} catch (IOException e) {
 					monitor.done();
-					MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject, e.toString());
-					if (makeLocation) {
-						location.delete();
-					}
+					Display.getDefault().asyncExec(() -> {
+						if (makeLocation && !location.delete()) {
+							MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject,
+									NLS.bind(Messages.NewCargoProjectWizard_cannotCreateRustProject_partialDeletion,
+											location.getAbsolutePath(), e.toString()));
+						} else {
+							MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject,
+									e.toString());
+						}
+					});
 				}
 			});
-		} catch (InvocationTargetException | InterruptedException e) {
+		} catch (InvocationTargetException e) {
 			MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject, e.toString());
+			return false;
+		} catch (InterruptedException e) {
+			MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_cannotCreateRustProject, e.toString());
+			Thread.currentThread().interrupt();
 			return false;
 		}
 		return true;
@@ -251,7 +272,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 
 	private File toFile(IResource r) {
 		IPath location = r.getLocation();
-		if (location.toFile().isFile()) {
+		if (location != null && location.toFile().isFile()) {
 			return location.toFile().getParentFile().getAbsoluteFile();
 		}
 		return location == null ? null : location.toFile();

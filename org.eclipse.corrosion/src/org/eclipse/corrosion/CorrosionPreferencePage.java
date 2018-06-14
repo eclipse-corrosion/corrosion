@@ -47,8 +47,8 @@ import org.osgi.framework.Bundle;
 
 public class CorrosionPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 	public static final String PAGE_ID = "org.eclipse.corrosion.preferencePage"; //$NON-NLS-1$
-	public static final List<String> RUST_SOURCE_OPTIONS = Arrays.asList("rustup", "other", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	public static final List<String> RUSTUP_TOOLCHAIN_OPTIONS = Arrays.asList("Stable", "Beta", "Nightly", "Other"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	protected static final List<String> RUST_SOURCE_OPTIONS = Arrays.asList("rustup", "other", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	protected static final List<String> RUSTUP_TOOLCHAIN_OPTIONS = Arrays.asList("Stable", "Beta", "Nightly", "Other"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	private IPreferenceStore store;
 
@@ -99,23 +99,23 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private void initializeContent() {
-		int sourceIndex = RUST_SOURCE_OPTIONS.indexOf(store.getString(CorrosionPreferenceInitializer.rustSourcePreference));
+		int sourceIndex = RUST_SOURCE_OPTIONS.indexOf(store.getString(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE));
 		setRadioSelection(sourceIndex);
-		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS.indexOf(store.getString(CorrosionPreferenceInitializer.toolchainTypePreference));
-		String toolchainId = store.getString(CorrosionPreferenceInitializer.toolchainIdPreference);
+		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS.indexOf(store.getString(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE));
+		String toolchainId = store.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
 		otherIdText.setText(toolchainId);
 		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
-			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).toLowerCase().equals(toolchainId.toLowerCase())) {
+			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).equalsIgnoreCase(toolchainId.toLowerCase())) {
 				toolchainIndex = i;
 				break;
 			}
 		}
 		setToolchainSelection(toolchainIndex);
-		rustupPathText.setText(store.getString(CorrosionPreferenceInitializer.rustupPathPreference));
-		cargoPathText.setText(store.getString(CorrosionPreferenceInitializer.cargoPathPreference));
-		setDefaultPathsSelection(store.getBoolean(CorrosionPreferenceInitializer.defaultPathsPreference));
-		rlsPathText.setText(store.getString(CorrosionPreferenceInitializer.rlsPathPreference));
-		sysrootPathText.setText(store.getString(CorrosionPreferenceInitializer.sysrootPathPreference));
+		rustupPathText.setText(store.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE));
+		cargoPathText.setText(store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
+		setDefaultPathsSelection(store.getBoolean(CorrosionPreferenceInitializer.DEFAULT_PATHS_PREFERENCE));
+		rlsPathText.setText(store.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE));
+		sysrootPathText.setText(store.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE));
 	}
 
 	@Override protected IPreferenceStore doGetPreferenceStore() {
@@ -123,18 +123,12 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private boolean isPageValid() {
-		int radioIndex = getRadioSelection();
 		if (!isCommandPathsValid()) {
 			return false;
 		}
-		if (radioIndex == 0 && isRustupSectionValid()) {
-			return true;
-		} else if (radioIndex == 1 && isOtherInstallSectionValid()) {
-			return true;
-		} else if (radioIndex == 2) {
-			return true;
-		}
-		return false;
+		int radioIndex = getRadioSelection();
+		return (radioIndex == 0 && isRustupSectionValid()) || (radioIndex == 1 && isOtherInstallSectionValid())
+				|| (radioIndex == 2);
 	}
 
 	private boolean isCommandPathsValid() {
@@ -199,31 +193,31 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	@Override protected void performDefaults() {
-		int sourceIndex = RUST_SOURCE_OPTIONS.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.rustSourcePreference));
+		int sourceIndex = RUST_SOURCE_OPTIONS.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE));
 		setRadioSelection(sourceIndex);
-		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.toolchainTypePreference));
-		String toolchainId = store.getDefaultString(CorrosionPreferenceInitializer.toolchainIdPreference);
+		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE));
+		String toolchainId = store.getDefaultString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
 		otherIdText.setText(toolchainId);
 		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
-			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).toLowerCase().equals(toolchainId.toLowerCase())) {
+			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).equalsIgnoreCase(toolchainId.toLowerCase())) {
 				toolchainIndex = i;
 				break;
 			}
 		}
 		setToolchainSelection(toolchainIndex);
-		setDefaultPathsSelection(store.getDefaultBoolean(CorrosionPreferenceInitializer.defaultPathsPreference));
-		rustupPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.rustupPathPreference));
-		cargoPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.cargoPathPreference));
-		rlsPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.rlsPathPreference));
-		sysrootPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.sysrootPathPreference));
+		setDefaultPathsSelection(store.getDefaultBoolean(CorrosionPreferenceInitializer.DEFAULT_PATHS_PREFERENCE));
+		rustupPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE));
+		cargoPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
+		rlsPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE));
+		sysrootPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE));
 		super.performDefaults();
 	}
 
 	private void setDefaultPathsSelection(boolean selection) {
 		useDefaultPathsCheckbox.setSelection(selection);
 		if (selection) {
-			rustupPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.rustupPathPreference));
-			cargoPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.cargoPathPreference));
+			rustupPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE));
+			cargoPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		}
 		setDefaultPathsEnabled(!selection);
 	}
@@ -268,18 +262,18 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 	@Override public boolean performOk() {
 		int source = getRadioSelection();
-		store.setValue(CorrosionPreferenceInitializer.rustSourcePreference, RUST_SOURCE_OPTIONS.get(source));
+		store.setValue(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE, RUST_SOURCE_OPTIONS.get(source));
 		if (source == 0) {
 			String id = getToolchainId();
-			store.setValue(CorrosionPreferenceInitializer.toolchainTypePreference, rustupToolchainCombo.getText());
-			store.setValue(CorrosionPreferenceInitializer.toolchainIdPreference, id);
-			store.setValue(CorrosionPreferenceInitializer.defaultPathsPreference, useDefaultPathsCheckbox.getSelection());
-			store.setValue(CorrosionPreferenceInitializer.rustupPathPreference, rustupPathText.getText());
-			store.setValue(CorrosionPreferenceInitializer.cargoPathPreference, cargoPathText.getText());
+			store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE, rustupToolchainCombo.getText());
+			store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE, id);
+			store.setValue(CorrosionPreferenceInitializer.DEFAULT_PATHS_PREFERENCE, useDefaultPathsCheckbox.getSelection());
+			store.setValue(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE, rustupPathText.getText());
+			store.setValue(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE, cargoPathText.getText());
 			RustManager.setDefaultToolchain(id);
 		} else if (source == 1) {
-			store.setValue(CorrosionPreferenceInitializer.rlsPathPreference, rlsPathText.getText());
-			store.setValue(CorrosionPreferenceInitializer.sysrootPathPreference, sysrootPathText.getText());
+			store.setValue(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE, rlsPathText.getText());
+			store.setValue(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE, sysrootPathText.getText());
 		}
 		return true;
 	}
@@ -321,8 +315,8 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		useDefaultPathsCheckbox.addSelectionListener(widgetSelectedAdapter(e -> {
 			setDefaultPathsEnabled(!useDefaultPathsCheckbox.getSelection());
 			if (useDefaultPathsCheckbox.getSelection()) {
-				rustupPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.rustupPathPreference));
-				cargoPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.cargoPathPreference));
+				rustupPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE));
+				cargoPathText.setText(store.getDefaultString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 			}
 			setValid(isPageValid());
 		}));
@@ -388,7 +382,11 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			Bundle bundle = CorrosionPlugin.getDefault().getBundle();
 			URL fileURL = FileLocator.toFileURL(bundle.getEntry("scripts/rustup-init.sh")); //$NON-NLS-1$
 			File file = new File(new URI(fileURL.getProtocol(), fileURL.getPath(), null));
-			file.setExecutable(true);
+			if (!file.setExecutable(true)) {
+				CorrosionPlugin.showError(Messages.CorrosionPreferencePage_cannotInstallRustupCargo,
+						Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details);
+				return;
+			}
 			command = new String[] { "/bin/bash", "-c", file.getAbsolutePath() + " -y" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} catch (IOException | URISyntaxException e) {
 			CorrosionPlugin.showError(Messages.CorrosionPreferencePage_cannotInstallRustupCargo,

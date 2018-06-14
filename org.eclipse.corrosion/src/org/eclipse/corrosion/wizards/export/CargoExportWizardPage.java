@@ -48,7 +48,6 @@ import org.osgi.framework.FrameworkUtil;
 public class CargoExportWizardPage extends WizardPage {
 	private IProject project;
 
-	private Text projectText;
 	private Label outputLocationLabel;
 	private ControlDecoration projectControlDecoration;
 	private Combo toolchainCombo;
@@ -106,7 +105,7 @@ public class CargoExportWizardPage extends WizardPage {
 		projectLabelLabel.setText(Messages.CargoExportWizardPage_project);
 		projectLabelLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 
-		projectText = new Text(container, SWT.BORDER);
+		Text projectText = new Text(container, SWT.BORDER);
 		projectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		if (project != null) {
 			projectText.setText(project.getName());
@@ -176,7 +175,7 @@ public class CargoExportWizardPage extends WizardPage {
 	private static CargoProjectTester tester = new CargoProjectTester();
 
 	@Override public boolean isPageComplete() {
-		File cargo = new File(store.getString(CorrosionPreferenceInitializer.cargoPathPreference));
+		File cargo = new File(store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		if (!(cargo.exists() && cargo.isFile() && cargo.canExecute())) {
 			setErrorMessage(Messages.CargoExportWizardPage_cargoCommandNotFound);
 			return false;

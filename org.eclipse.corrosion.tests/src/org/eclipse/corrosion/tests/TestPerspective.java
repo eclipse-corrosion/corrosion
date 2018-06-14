@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.corrosion.RustPerspective;
-import org.eclipse.corrosion.wizards.newCargo.NewCargoProjectWizard;
+import org.eclipse.corrosion.wizards.newproject.NewCargoProjectWizard;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveDescriptor;

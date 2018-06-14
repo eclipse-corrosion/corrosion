@@ -128,11 +128,13 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_useDefaultPathsRustupCargo;
 	public static String CorrosionPreferencePage_useRustup;
 	public static String NewCargoProjectWizard_cannotCreateRustProject;
+	public static String NewCargoProjectWizard_cannotCreateRustProject_partialDeletion;
 	public static String NewCargoProjectWizard_cannotOpenProject;
 	public static String NewCargoProjectWizard_task;
 	public static String NewCargoProjectWizard_title;
 	public static String NewCargoProjectWizard_unableToLoadProjectDescriptor;
 	public static String NewCargoProjectWizard_cannotCreateRustProject_commandFailedDetails;
+	public static String NewCargoProjectWizard_cannotCreateRustProject_commandFailedDetails_partialDeletion;
 	public static String NewCargoProjectWizardPage_browse;
 	public static String NewCargoProjectWizardPage_cannotCreateDirectory;
 	public static String NewCargoProjectWizardPage_cannotWriteInDirectory;

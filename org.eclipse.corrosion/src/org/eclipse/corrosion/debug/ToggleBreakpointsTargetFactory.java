@@ -28,9 +28,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class ToggleBreakpointsTargetFactory implements IToggleBreakpointsTargetFactory {
 	public static final String FACTORY_ID = CorrosionPlugin.PLUGIN_ID + "BreakpointFactory"; //$NON-NLS-1$
 
-	public ToggleBreakpointsTargetFactory() {
-	}
-
 	@Override public Set<String> getToggleTargets(IWorkbenchPart part, ISelection selection) {
 		return isRustPart(part) ? Collections.singleton(FACTORY_ID) : Collections.emptySet();
 	}

@@ -30,7 +30,7 @@ public class TestIDEIntegration extends AbstractCorrosionTest {
 	public void testRustEditorAssociation() throws IOException, CoreException {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
-		editor = IDE.openEditor(activePage, getProject("basic").getFolder("src").getFile("main.rs"));
+		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFolder("src").getFile("main.rs"));
 		Assert.assertTrue(editor instanceof ExtensionBasedTextEditor);
 	}
 
@@ -38,7 +38,7 @@ public class TestIDEIntegration extends AbstractCorrosionTest {
 	public void testManifestEditorAssociation() throws IOException, CoreException {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
-		editor = IDE.openEditor(activePage, getProject("basic").getFile("Cargo.toml"));
+		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFile("Cargo.toml"));
 		Assert.assertTrue(editor instanceof ExtensionBasedTextEditor);
 	}
 
