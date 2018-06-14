@@ -56,7 +56,7 @@ public class RustGDBLaunchWrapper extends GdbLaunch {
 	}
 
 	private String getCargoBinLocation() {
-		IPath location = Path.fromOSString(CorrosionPlugin.getDefault().getPreferenceStore().getString(CorrosionPreferenceInitializer.cargoPathPreference));
+		IPath location = Path.fromOSString(CorrosionPlugin.getDefault().getPreferenceStore().getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		String parentDirectory = location.toFile().getParent();
 		return parentDirectory != null ? parentDirectory : ""; //$NON-NLS-1$
 	}

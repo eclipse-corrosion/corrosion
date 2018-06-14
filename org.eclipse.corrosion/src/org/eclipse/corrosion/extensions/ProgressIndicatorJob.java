@@ -70,7 +70,7 @@ public class ProgressIndicatorJob extends Job {
 				return Status.OK_STATUS;
 			}
 		} catch (InterruptedException e) {
-			// Caught with returned cancel status
+			Thread.currentThread().interrupt();
 		}
 		return Status.CANCEL_STATUS;
 	}

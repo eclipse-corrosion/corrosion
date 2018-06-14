@@ -13,6 +13,7 @@
 package org.eclipse.corrosion;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,42 +39,51 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-//TODO: investigate solution not requiring breaking restrictions
 @SuppressWarnings("restriction")
 public class RustManager {
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
 
-	public static String getDefaultToolchain() {
-		String rustup = STORE.getString(CorrosionPreferenceInitializer.rustupPathPreference);
-		if (!rustup.isEmpty()) {
-			try {
-				ProcessBuilder builder = new ProcessBuilder(new String[] { rustup, "show" }); //$NON-NLS-1$
-				Process process = builder.start();
+	private RustManager() {
+		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
+	}
 
-				if (process.waitFor() == 0) {
-					try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-						String line = in.readLine();
-						while (line != null) {
-							if (line.matches("^.*\\(default\\)$")) { //$NON-NLS-1$
-								if (line.matches("^nightly-\\d{4}-\\d{2}-\\d{2}.*$")) { //$NON-NLS-1$
-									return line.substring(0, 18);// "nightly-YYYY-MM-DD".length()==18
-								}
-								int splitIndex = line.indexOf('-');
-								if (splitIndex != -1) {
-									return line.substring(0, splitIndex);
-								}
-								return line;
-							}
-							line = in.readLine();
-						}
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				// Errors will be caught with empty return
-			}
+	public static String getDefaultToolchain() {
+		String rustup = STORE.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
+		final String emptyResult = ""; //$NON-NLS-1$
+		if (rustup.isEmpty()) {
+			return emptyResult;
 		}
-		return ""; //$NON-NLS-1$
+
+		try {
+			ProcessBuilder builder = new ProcessBuilder(rustup, "show"); //$NON-NLS-1$
+			Process process = builder.start();
+			if (process.waitFor() != 0) {
+				return emptyResult;
+			}
+			try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+				String line = in.readLine();
+				while (line != null) {
+					if (line.matches("^.*\\(default\\)$")) { //$NON-NLS-1$
+						if (line.matches("^nightly-\\d{4}-\\d{2}-\\d{2}.*$")) { //$NON-NLS-1$
+							return line.substring(0, 18);// "nightly-YYYY-MM-DD".length()==18
+						}
+						int splitIndex = line.indexOf('-');
+						if (splitIndex != -1) {
+							return line.substring(0, splitIndex);
+						}
+						return line;
+					}
+					line = in.readLine();
+				}
+			}
+		} catch (IOException e) {
+			CorrosionPlugin.logError(e);
+			return emptyResult;
+		} catch (InterruptedException e) {
+			CorrosionPlugin.logError(e);
+			Thread.currentThread().interrupt();
+		}
+		return emptyResult;
 	}
 
 	private static Job settingToolchainJob = null;
@@ -129,21 +139,21 @@ public class RustManager {
 		params.setSettings(updatedSettings);
 		LSPDocumentInfo info = infoFromOpenEditors();
 		if (info != null) {
-			info.getInitializedLanguageClient().thenAccept(languageServer -> languageServer.getWorkspaceService().didChangeConfiguration(params));
+			info.getInitializedLanguageClient()
+					.thenAccept(languageServer -> languageServer.getWorkspaceService().didChangeConfiguration(params));
 		}
 	}
 
 	private static CommandJob createRustupCommandJob(String progressMessage, String errorMessage, String... arguments) {
-		String rustup = STORE.getString(CorrosionPreferenceInitializer.rustupPathPreference);
+		String rustup = STORE.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
 		if (rustup.isEmpty()) {
 			return null;
 		}
 		String[] command = new String[arguments.length + 1];
 		command[0] = rustup;
 		System.arraycopy(arguments, 0, command, 1, arguments.length);
-		CommandJob commandJob = new CommandJob(command, progressMessage,
+		return new CommandJob(command, progressMessage,
 				Messages.RustManager_rootToolchainSelectionFailure, errorMessage, 0);
-		return commandJob;
 	}
 
 	private static LSPDocumentInfo infoFromOpenEditors() {
@@ -157,12 +167,13 @@ public class RustManager {
 						continue;
 					}
 					if (input.getName().endsWith(".rs") && editor.getEditor(false) instanceof ITextEditor) { //$NON-NLS-1$
-						IDocument document = (((ITextEditor) editor.getEditor(false)).getDocumentProvider()).getDocument(input);
-						Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document, capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
-						if (infos.isEmpty()) {
-							continue;
+						IDocument document = (((ITextEditor) editor.getEditor(false)).getDocumentProvider())
+								.getDocument(input);
+						Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document,
+								capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
+						if (!infos.isEmpty()) {
+							return infos.iterator().next();
 						}
-						return infos.iterator().next();
 					}
 				}
 			}
@@ -172,37 +183,104 @@ public class RustManager {
 
 	public static List<String> getToolchains() {
 		List<String> toolchainsList = new ArrayList<>();
-		String rustup = STORE.getString(CorrosionPreferenceInitializer.rustupPathPreference);
-		if (!rustup.isEmpty()) {
-			try {
-				ProcessBuilder builder = new ProcessBuilder(new String[] { rustup, "show" }); //$NON-NLS-1$
-				Process process = builder.start();
+		String rustup = STORE.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
+		if (rustup.isEmpty()) {
+			return toolchainsList;
+		}
+		try {
+			ProcessBuilder builder = new ProcessBuilder(rustup, "show" ); //$NON-NLS-1$
+			Process process = builder.start();
 
-				if (process.waitFor() == 0) {
-					try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-						String line = in.readLine();
-						while (line != null && !line.equals("active toolchain")) { //$NON-NLS-1$
-							String toolchain = ""; //$NON-NLS-1$
-							if (line.matches("^nightly-\\d{4}-\\d{2}-\\d{2}.*$")) { //$NON-NLS-1$
-								toolchain = line.substring(0, 18);// "nightly-YYYY-MM-DD".length()==18
-							} else if (line.matches("\\w+\\-.*")) { //$NON-NLS-1$
-								int splitIndex = line.indexOf('-');
-								if (splitIndex != -1) {
-									toolchain = line.substring(0, splitIndex);
-								}
-							}
-							if (!toolchain.isEmpty()) {
-								toolchainsList.add(toolchain);
-							}
-							line = in.readLine();
+			if (process.waitFor() != 0) {
+				return toolchainsList;
+			}
+			try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+				String line = in.readLine();
+				while (line != null && !line.equals("active toolchain")) { //$NON-NLS-1$
+					String toolchain = ""; //$NON-NLS-1$
+					if (line.matches("^nightly-\\d{4}-\\d{2}-\\d{2}.*$")) { //$NON-NLS-1$
+						toolchain = line.substring(0, 18);// "nightly-YYYY-MM-DD".length()==18
+					} else if (line.matches("\\w+\\-.*")) { //$NON-NLS-1$
+						int splitIndex = line.indexOf('-');
+						if (splitIndex != -1) {
+							toolchain = line.substring(0, splitIndex);
 						}
 					}
+					if (!toolchain.isEmpty()) {
+						toolchainsList.add(toolchain);
+					}
+					line = in.readLine();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				// Errors will be caught with empty return
 			}
+		} catch (Exception e) { // Errors will be caught with empty return
+			CorrosionPlugin.logError(e);
 		}
 		return toolchainsList;
+	}
+
+	public static boolean setSystemProperties() {
+		CorrosionPlugin plugin = CorrosionPlugin.getDefault();
+		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+		int rustSourceIndex = CorrosionPreferencePage.RUST_SOURCE_OPTIONS
+				.indexOf(preferenceStore.getString(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE));
+
+		String sysrootPath = ""; //$NON-NLS-1$
+
+		if (rustSourceIndex == 0) {
+			String rustup = preferenceStore.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
+			String toolchain = preferenceStore.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
+			if (!(rustup.isEmpty() || toolchain.isEmpty())) {
+				String[] command = new String[] { rustup, "run", toolchain, "rustc", "--print", "sysroot" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				try {
+					Process process = Runtime.getRuntime().exec(command);
+					try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+						sysrootPath = in.readLine();
+					}
+				} catch (IOException e) {
+					// Caught with final return
+				}
+			}
+		} else if (rustSourceIndex == 1) {
+			sysrootPath = preferenceStore.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE);
+		}
+
+		if (!sysrootPath.isEmpty()) {
+			System.setProperty("SYS_ROOT", sysrootPath); //$NON-NLS-1$
+			System.setProperty("LD_LIBRARY_PATH", sysrootPath + "/lib"); //$NON-NLS-1$ //$NON-NLS-2$
+			String sysRoot = System.getProperty("SYS_ROOT"); //$NON-NLS-1$
+			String ldLibraryPath = System.getProperty("LD_LIBRARY_PATH"); //$NON-NLS-1$
+			if (!(sysRoot == null || sysRoot.isEmpty() || ldLibraryPath == null || ldLibraryPath.isEmpty())) {
+				return true;
+			}
+		}
+		CorrosionPlugin.getDefault().getLog()
+				.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+						Messages.RLSStreamConnectionProvider_unableToSet));
+		return false;
+	}
+
+	public static String getRLS() {
+		CorrosionPlugin plugin = CorrosionPlugin.getDefault();
+		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+		int rustSourceIndex = CorrosionPreferencePage.RUST_SOURCE_OPTIONS
+				.indexOf(preferenceStore.getString(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE));
+
+		if (rustSourceIndex == 0) {
+			String rustup = preferenceStore.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
+			String toolchain = preferenceStore.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
+			if (!(rustup.isEmpty() || toolchain.isEmpty())) {
+				return rustup + " run " + toolchain + " rls"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		} else if (rustSourceIndex == 1) {
+			String rls = preferenceStore.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
+			if (!rls.isEmpty()) {
+				return rls;
+			}
+		}
+
+		CorrosionPlugin.getDefault().getLog()
+				.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+						Messages.RLSStreamConnectionProvider_rlsNotFound));
+		return ""; //$NON-NLS-1$
 	}
 }

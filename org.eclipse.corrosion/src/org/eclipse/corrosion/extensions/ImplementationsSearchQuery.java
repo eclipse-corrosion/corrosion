@@ -19,7 +19,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.edit.RLSServerInterface;
@@ -43,7 +42,6 @@ import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 
-//TODO: investigate implementation without high reliance on restrictions
 @SuppressWarnings("restriction")
 public class ImplementationsSearchQuery extends FileSearchQuery {
 
@@ -55,7 +53,7 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 
 	private long startTime;
 
-	private CompletableFuture<List<? extends Location>> references;
+	private CompletableFuture<List<Location>> references;
 
 	public ImplementationsSearchQuery(int offset, LSPDocumentInfo info) throws BadLocationException {
 		super("", false, false, null); //$NON-NLS-1$
@@ -65,7 +63,7 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 		this.filename = resource != null ? resource.getName() : info.getFileUri().toString();
 	}
 
-	@Override public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
+	@Override public IStatus run(IProgressMonitor monitor) {
 		startTime = System.currentTimeMillis();
 		// Cancel last references future if needed.
 		if (references != null) {

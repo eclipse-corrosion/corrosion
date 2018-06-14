@@ -48,15 +48,13 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 	@Override
 	public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
-				RustLaunchDelegateTools.firstResourceFromSelection(selection));
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.firstResourceFromSelection(selection));
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
 	@Override
 	public void launch(IEditorPart editor, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
-				RustLaunchDelegateTools.resourceFromEditor(editor));
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.resourceFromEditor(editor));
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
@@ -115,8 +113,8 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		});
 	}
 
-	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
-		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(mode, resource,
+	private ILaunchConfiguration getLaunchConfiguration(IResource resource) {
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				"org.eclipse.corrosion.test.CargoTestDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;

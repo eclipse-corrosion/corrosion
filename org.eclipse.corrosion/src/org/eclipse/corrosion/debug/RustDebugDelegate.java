@@ -72,6 +72,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			restoreProcess.waitFor();
 		} catch (InterruptedException e) {
 			CorrosionPlugin.logError(e);
+			Thread.currentThread().interrupt();
 		}
 		if (restoreProcess.exitValue() != 0) { // errors will be shown in console
 			return;
@@ -84,15 +85,13 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 
 	@Override
 	public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
-				RustLaunchDelegateTools.firstResourceFromSelection(selection));
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.firstResourceFromSelection(selection));
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
 	@Override
 	public void launch(IEditorPart editor, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(mode,
-				RustLaunchDelegateTools.resourceFromEditor(editor));
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.resourceFromEditor(editor));
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
@@ -129,8 +128,8 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		return LaunchUtils.verifyProgramPath(config, null);
 	}
 
-	private ILaunchConfiguration getLaunchConfiguration(String mode, IResource resource) {
-		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(mode, resource,
+	private ILaunchConfiguration getLaunchConfiguration(IResource resource) {
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				"org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;

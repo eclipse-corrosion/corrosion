@@ -47,7 +47,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 	private Button defaultExecutablePathButton;
 
 	private Text executablePathText;
-	private Label executableLabel;
 	private Button browseExecutableButton;
 
 	private IProject project;
@@ -140,7 +139,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		defaultExecutablePathButton.addSelectionListener(widgetSelectedAdapter(e -> setDefaultExecutionPath(defaultExecutablePathButton.getSelection())));
 		defaultExecutablePathButton.setSelection(true);
 
-		executableLabel = new Label(container, SWT.NONE);
+		Label executableLabel = new Label(container, SWT.NONE);
 		executableLabel.setText(Messages.RustDebugTab_Executable);
 		executableLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 

@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -40,11 +42,14 @@ import org.junit.Before;
  * clean it up after.
  */
 public class AbstractCorrosionTest {
+	protected static final String BASIC_PROJECT_NAME = "basic";
+	protected static final String BASIC_ERRORS_PROJECT_NAME = "basic_errors";
+	protected static final String NOT_CARGO_PROJECT_NAME = "not_cargo";
 
 	private Map<String, IProject> provisionedProjects;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.provisionedProjects = new HashMap<>();
 	}
 
@@ -62,7 +67,7 @@ public class AbstractCorrosionTest {
 				Path.fromPortableString("projects/" + projectName), Collections.emptyMap());
 		url = FileLocator.toFileURL(url);
 		File folder = new File(url.getFile());
-		if (folder != null && folder.exists()) {
+		if (folder.exists()) {
 			IProject project = ResourcesPlugin.getWorkspace().getRoot()
 					.getProject(projectName + "_" + getClass().getName() + "_" + System.currentTimeMillis());
 			project.create(new NullProgressMonitor());
@@ -82,7 +87,7 @@ public class AbstractCorrosionTest {
 			try {
 				getProject(projectName).delete(true, new NullProgressMonitor());
 			} catch (CoreException | IOException e) {
-				e.printStackTrace();
+				fail(e.getMessage());
 			}
 		}
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);

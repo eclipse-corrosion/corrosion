@@ -88,7 +88,7 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 		IDocument document = viewer.getDocument();
 		String textToOffset = document.get().substring(0, offset);
 		if (isOffsetInComment(textToOffset)) {
-			return null;
+			return new ICompletionProposal[0];
 		}
 
 		Matcher matcher = ENDS_WITH_WORD_PATTERN.matcher(textToOffset.substring(textToOffset.lastIndexOf('\n') + 1));
@@ -114,15 +114,15 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 	}
 
 	@Override public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
-		return null;
+		return new IContextInformation[0];
 	}
 
 	@Override public char[] getCompletionProposalAutoActivationCharacters() {
-		return null;
+		return new char[0];
 	}
 
 	@Override public char[] getContextInformationAutoActivationCharacters() {
-		return null;
+		return new char[0];
 	}
 
 	@Override public String getErrorMessage() {

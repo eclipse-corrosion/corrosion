@@ -17,6 +17,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -38,9 +40,9 @@ import org.junit.Test;
 public class TestRunConfiguration extends AbstractCorrosionTest {
 
 	@Test
-	public void testBasicRun() throws Exception {
+	public void testBasicRun() throws IOException, CoreException, InterruptedException {
 		CargoRunDelegate delegate = new CargoRunDelegate();
-		IProject project = getProject("basic");
+		IProject project = getProject(BASIC_PROJECT_NAME);
 		delegate.launch(new StructuredSelection(project), "run");
 		new DisplayHelper() {
 			@Override
@@ -61,36 +63,33 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		}
 	}
 
-	// TODO: Unable to test multiple failing runs do to bug
-	// computer crashes if multiple popups are made one after another
-	// a popup is made if the configuration is unable to run
 	@Test
-	public void testFailOnFakeProjectName() throws Exception {
-		IProject project = getProject("basic");
-		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project, "launch");
+	public void testFailOnFakeProjectName() throws IOException, CoreException {
+		IProject project = getProject(BASIC_PROJECT_NAME);
+		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		launchConfiguration.setAttribute("PROJECT", "fakeProjectName");
 		confirmErrorPopup(launchConfiguration);
 	}
 
 	@Test
-	public void testFailOnDeletedProject() throws Exception {
-		IProject project = getProject("basic");
-		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project, "launch");
+	public void testFailOnDeletedProject() throws IOException, CoreException {
+		IProject project = getProject(BASIC_PROJECT_NAME);
+		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		project.delete(true, new NullProgressMonitor());
 		confirmErrorPopup(launchConfiguration);
 	}
 
 	@Test
-	public void testFailOnNonCargoProject() throws Exception {
-		IProject project = getProject("not_cargo");
-		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project, "launch");
+	public void testFailOnNonCargoProject() throws IOException, CoreException {
+		IProject project = getProject(NOT_CARGO_PROJECT_NAME);
+		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		confirmErrorPopup(launchConfiguration);
 	}
 
 	@Test
-	public void testTranslateVariablesInBuildCommand() throws Exception {
-		IProject project = getProject("basic");
-		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project, "launch");
+	public void testTranslateVariablesInBuildCommand() throws InterruptedException, IOException, CoreException {
+		IProject project = getProject(BASIC_PROJECT_NAME);
+		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		launchConfiguration.setAttribute("BUILD_COMMAND", "-- ${workspace_loc}");
 		ILaunch launch = launchConfiguration.launch(ILaunchManager.RUN_MODE, new NullProgressMonitor());
 
@@ -117,17 +116,16 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		fail();
 	}
 
-	private ILaunchConfigurationWorkingCopy createLaunchConfiguration(IProject project, String name)
-			throws CoreException {
+	private ILaunchConfigurationWorkingCopy createLaunchConfiguration(IProject project) throws CoreException {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType configType = launchManager
 				.getLaunchConfigurationType("org.eclipse.corrosion.run.CargoRunDelegate");
-		ILaunchConfigurationWorkingCopy wc = configType.newInstance(project, name);
+		ILaunchConfigurationWorkingCopy wc = configType.newInstance(project, "launch");
 		wc.setAttribute("PROJECT", project.getName());
 		return wc;
 	}
 
-	private void confirmErrorPopup(ILaunchConfiguration configuration) throws Exception {
+	private void confirmErrorPopup(ILaunchConfiguration configuration) throws CoreException {
 		configuration.launch(ILaunchManager.RUN_MODE, new NullProgressMonitor());
 		new DisplayHelper() {
 			@Override

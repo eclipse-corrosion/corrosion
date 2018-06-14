@@ -58,7 +58,6 @@ public class Snippet {
 	}
 
 	public boolean matchesPrefix(String prefix) {
-		// TODO: expand matching if not extensive enough
 		return this.display.startsWith(prefix);
 	}
 

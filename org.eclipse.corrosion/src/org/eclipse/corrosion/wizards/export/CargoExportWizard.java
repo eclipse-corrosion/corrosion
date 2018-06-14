@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.corrosion.wizards.export;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,19 +19,15 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ICoreRunnable;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.corrosion.CommandJob;
+import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.core.Launch;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IExportWizard;
 import org.eclipse.ui.IWorkbench;
 
@@ -91,43 +84,23 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 		exportCommandList.add("--manifest-path"); //$NON-NLS-1$
 		exportCommandList.add(project.getFile("Cargo.toml").getLocation().toString()); //$NON-NLS-1$
 
-		Job.create("Cargo Package", (ICoreRunnable) monitor -> { //$NON-NLS-1$
-			try {
-				ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-				ILaunch newLaunch = new Launch(null, ILaunchManager.RUN_MODE, null);
-
-				Process packageProcess = DebugPlugin.exec(exportCommandList.toArray(new String[exportCommandList.size()]), null);
-				DebugPlugin.newProcess(newLaunch, packageProcess, "cargo package"); //$NON-NLS-1$
-				launchManager.addLaunch(newLaunch);
-
-				try {
-					packageProcess.waitFor();
-				} catch (InterruptedException e) { // errors will be shown in console
-				}
-				if (packageProcess.exitValue() == 0) {
-					project.refreshLocal(IResource.DEPTH_INFINITE, null);
-				} else {
-					String errorOutput = ""; //$NON-NLS-1$
-					try (BufferedReader in = new BufferedReader(new InputStreamReader(packageProcess.getErrorStream()))) {
-						String errorLine;
-						while ((errorLine = in.readLine()) != null) {
-							errorOutput += errorLine + '\n';
-						}
-					} catch (IOException e) {
-						errorOutput = Messages.CargoExportWizard_unableToGenerateLog;
+		CommandJob packageCommandJob = new CommandJob(exportCommandList.toArray(new String[exportCommandList.size()]), "Cargo Package", //$NON-NLS-1$
+				Messages.CargoExportWizard_cannotCreateProject,
+				Messages.CargoExportWizard_cannotCreateProject_details, 0);
+		packageCommandJob.setUser(true);
+		packageCommandJob.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(final IJobChangeEvent event) {
+				if (event.getResult() == Status.OK_STATUS) {
+					try {
+						project.refreshLocal(IResource.DEPTH_INFINITE, null);
+					} catch (CoreException e) {
+						CorrosionPlugin.logError(e);
 					}
-					final String finalErrorOutput = errorOutput;
-					Display.getDefault().asyncExec(() -> {
-						MessageDialog.openError(getShell(), Messages.CargoExportWizard_cannotCreateProject, NLS.bind(Messages.CargoExportWizard_cannotCreateProject_details, String.join(" ", exportCommandList), finalErrorOutput)); //$NON-NLS-1$
-					});
 				}
-
-			} catch (CoreException e) {
-				Display.getDefault().asyncExec(() -> {
-					MessageDialog.openError(getShell(), Messages.CargoExportWizard_cannotPackageProject, NLS.bind(Messages.CargoExportWizard_commandFailed, String.join(" ", exportCommandList), e)); //$NON-NLS-1$
-				});
 			}
-		}).schedule();
+		});
+		packageCommandJob.schedule();
 		return true;
 	}
 }

@@ -25,6 +25,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 public class CargoTools {
 
+	private CargoTools() {
+		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
+	}
+
 	public static List<CLIOption> getOptions(String subCommand) {
 		String[] command = new String[] { getCargoCommand(), subCommand, "--help" }; //$NON-NLS-1$
 		try {
@@ -46,17 +50,17 @@ public class CargoTools {
 					if (line.matches("\\s*")) { //$NON-NLS-1$
 						break;
 					} else if (line.matches("\\s*-+.*")) { //$NON-NLS-1$
-						if (currentOptionLines.size() > 0) {
+						if (!currentOptionLines.isEmpty()) {
 							options.add(new CLIOption(currentOptionLines));
 							currentOptionLines.clear();
 						}
 						currentOptionLines.add(line);
-					} else if (currentOptionLines.size() > 0) {
+					} else if (!currentOptionLines.isEmpty()) {
 						currentOptionLines.add(line);
 					}
 					line = in.readLine();
 				}
-				if (currentOptionLines.size() > 0) {
+				if (!currentOptionLines.isEmpty()) {
 					options.add(new CLIOption(currentOptionLines));
 					currentOptionLines.clear();
 				}
@@ -69,6 +73,6 @@ public class CargoTools {
 
 	public static String getCargoCommand() {
 		IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
-		return store.getString(CorrosionPreferenceInitializer.cargoPathPreference);
+		return store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE);
 	}
 }

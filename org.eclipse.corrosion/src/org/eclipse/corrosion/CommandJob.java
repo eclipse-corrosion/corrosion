@@ -63,8 +63,12 @@ public class CommandJob extends Job {
 				return Status.CANCEL_STATUS;
 			}
 			return Status.OK_STATUS;
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException e) {
 			CorrosionPlugin.showError(errorTitle, errorMessage, e);
+			return Status.CANCEL_STATUS;
+		} catch (InterruptedException e) {
+			CorrosionPlugin.showError(errorTitle, errorMessage, e);
+			Thread.currentThread().interrupt();
 			return Status.CANCEL_STATUS;
 		}
 	}
