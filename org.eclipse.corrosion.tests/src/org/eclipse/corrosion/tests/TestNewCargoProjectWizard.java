@@ -13,6 +13,7 @@
 package org.eclipse.corrosion.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -105,12 +106,10 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 				.map(Text.class::cast)
 				.findFirst();
 		Path tempDir = Files.createTempDirectory("corrosion-test");
-		if (locationText.isPresent()) {
-			locationText.get().setText(tempDir.toString());
-		} else {
-			fail();
-		}
-		confirmPageState(wizard, tempDir.getFileName().toString(), "none", true);
+		locationText.get().setText(tempDir.toString());
+		Path fileName = tempDir.getFileName();
+		assertNotNull(fileName);
+		confirmPageState(wizard, fileName.toString(), "none", true);
 		assertTrue(wizard.canFinish());
 		assertTrue(wizard.performFinish());
 		dialog.close();

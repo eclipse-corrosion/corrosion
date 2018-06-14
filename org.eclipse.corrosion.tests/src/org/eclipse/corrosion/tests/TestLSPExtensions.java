@@ -45,9 +45,7 @@ public class TestLSPExtensions {
 
 		clientImplementation.progress(new ProgressParams(PROGRESS_ID_1, jobType, true));
 		waitUntilJobIsDone(jobManager, jobType);
-		if (rustJob != null) {
-			assertEquals(rustJob.getResult().getCode(), IStatus.OK);
-		}
+		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
 	}
 
 	@Test
@@ -63,9 +61,7 @@ public class TestLSPExtensions {
 
 		clientImplementation.progress(new ProgressParams(PROGRESS_ID_2, jobType, true));
 		waitUntilJobIsDone(jobManager, jobType);
-		if (rustJob != null) {
-			assertEquals(rustJob.getResult().getCode(), IStatus.OK);
-		}
+		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
 	}
 
 	private void waitUntilJobIsStarted(IJobManager jobManager, String jobType) {

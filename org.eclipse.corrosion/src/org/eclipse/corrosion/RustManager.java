@@ -88,7 +88,7 @@ public class RustManager {
 
 	private static Job settingToolchainJob = null;
 
-	public static void setDefaultToolchain(String toolchainId) {
+	public static synchronized void setDefaultToolchain(String toolchainId) {
 		if (settingToolchainJob != null) {
 			settingToolchainJob.cancel();
 		}
@@ -152,8 +152,8 @@ public class RustManager {
 		String[] command = new String[arguments.length + 1];
 		command[0] = rustup;
 		System.arraycopy(arguments, 0, command, 1, arguments.length);
-		return new CommandJob(command, progressMessage,
-				Messages.RustManager_rootToolchainSelectionFailure, errorMessage, 0);
+		return new CommandJob(command, progressMessage, Messages.RustManager_rootToolchainSelectionFailure,
+				errorMessage, 0);
 	}
 
 	private static LSPDocumentInfo infoFromOpenEditors() {
@@ -188,7 +188,7 @@ public class RustManager {
 			return toolchainsList;
 		}
 		try {
-			ProcessBuilder builder = new ProcessBuilder(rustup, "show" ); //$NON-NLS-1$
+			ProcessBuilder builder = new ProcessBuilder(rustup, "show"); //$NON-NLS-1$
 			Process process = builder.start();
 
 			if (process.waitFor() != 0) {
@@ -244,7 +244,7 @@ public class RustManager {
 			sysrootPath = preferenceStore.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE);
 		}
 
-		if (!sysrootPath.isEmpty()) {
+		if (sysrootPath != null && !sysrootPath.isEmpty()) {
 			System.setProperty("SYS_ROOT", sysrootPath); //$NON-NLS-1$
 			System.setProperty("LD_LIBRARY_PATH", sysrootPath + "/lib"); //$NON-NLS-1$ //$NON-NLS-2$
 			String sysRoot = System.getProperty("SYS_ROOT"); //$NON-NLS-1$

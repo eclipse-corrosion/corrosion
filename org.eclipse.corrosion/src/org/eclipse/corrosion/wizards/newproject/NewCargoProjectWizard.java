@@ -61,7 +61,8 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		setNeedsProgressMonitor(true);
 	}
 
-	@Override public void init(IWorkbench workbench, IStructuredSelection selection) {
+	@Override
+	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		wizardPage = new NewCargoProjectWizardPage();
 		setWindowTitle(Messages.NewCargoProjectWizard_title);
 
@@ -95,11 +96,13 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		}
 	}
 
-	@Override public void addPages() {
+	@Override
+	public void addPages() {
 		addPage(wizardPage);
 	}
 
-	@Override public boolean performFinish() {
+	@Override
+	public boolean performFinish() {
 		File location = wizardPage.getDirectory();
 		String projectName = wizardPage.getProjectName();
 		Boolean isBin = wizardPage.isBinaryTemplate();
@@ -212,7 +215,8 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 			project.open(monitor);
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		} catch (CoreException e) {
-			MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_unableToLoadProjectDescriptor, e.toString());
+			MessageDialog.openError(getShell(), Messages.NewCargoProjectWizard_unableToLoadProjectDescriptor,
+					e.toString());
 		}
 
 		IWorkingSetManager wsm = PlatformUI.getWorkbench().getWorkingSetManager();
@@ -273,7 +277,8 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 	private File toFile(IResource r) {
 		IPath location = r.getLocation();
 		if (location != null && location.toFile().isFile()) {
-			return location.toFile().getParentFile().getAbsoluteFile();
+			File parent = location.toFile().getParentFile();
+			return parent == null ? null : parent.getAbsoluteFile();
 		}
 		return location == null ? null : location.toFile();
 	}
