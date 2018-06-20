@@ -49,6 +49,9 @@ Rustup (Workswith)
 [TOML.tmLanguage](https://github.com/LucasBullen/corrosion/commit/c2b13af2e08622c177df4b12e48c47a61de01e69)
 * License: [Custom](https://github.com/textmate/toml.tmbundle/blob/37c532ae892d2af2da76e05918af673efc1111a6/README.mdown)
 
+Rust and Cargo logos
+* License: [CC-BY-4.0](https://www.rust-lang.org/en-US/legal.html)
+
 ## Cryptography
 
 Content may contain encryption software. The country in which you are currently
