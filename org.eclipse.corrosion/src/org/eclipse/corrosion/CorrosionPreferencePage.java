@@ -26,9 +26,11 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -142,10 +144,16 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 				error = Messages.CorrosionPreferencePage_invalidRustup;
 			} else if (!rustup.canExecute()) {
 				error = Messages.CorrosionPreferencePage_rustupNonExecutable;
+			} else if (!CorrosionPlugin.validateCommandVersion(rustupPathText.getText(),
+					RustManager.RUSTUP_VERSION_FORMAT_PATTERN)) {
+				error = NLS.bind(Messages.CorrosionPreferencePage_invalidVersion, "rustup"); //$NON-NLS-1$
 			} else if (!cargo.exists() || !cargo.isFile()) {
 				error = Messages.CorrosionPreferencePage_invalidCargo;
 			} else if (!cargo.canExecute()) {
 				error = Messages.CorrosionPreferencePage_cargoNonExecutable;
+			} else if (!CorrosionPlugin.validateCommandVersion(cargoPathText.getText(),
+					RustManager.CARGO_VERSION_FORMAT_PATTERN)) {
+				error = NLS.bind(Messages.CorrosionPreferencePage_invalidVersion, "cargo"); //$NON-NLS-1$
 			}
 		}
 
@@ -163,6 +171,12 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			setErrorMessage(Messages.CorrosionPreferencePage_emptyToolchain);
 			return false;
 		}
+		String rlsPath = rustupPathText.getText() + " run " + getToolchainId() + " rls"; //$NON-NLS-1$ //$NON-NLS-2$
+		if (!CorrosionPlugin.validateCommandVersion(rlsPath, RustManager.RLS_VERSION_FORMAT_PATTERN)) {
+			setErrorMessage(Messages.CorrosionPreferencePage_rustupMissingRLS);
+			setInstallRequired(true);
+			return false;
+		}
 		setErrorMessage(null);
 		return true;
 	}
@@ -178,6 +192,10 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			return false;
 		} else if (!rls.canExecute()) {
 			setErrorMessage(Messages.CorrosionPreferencePage_rlsNonExecutable);
+			return false;
+		}
+		if (CorrosionPlugin.validateCommandVersion(rlsPathText.getText(), RustManager.RLS_VERSION_FORMAT_PATTERN)) {
+			setErrorMessage(NLS.bind(Messages.CorrosionPreferencePage_invalidVersion, "rls")); //$NON-NLS-1$
 			return false;
 		}
 
@@ -264,13 +282,16 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		int source = getRadioSelection();
 		store.setValue(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE, RUST_SOURCE_OPTIONS.get(source));
 		if (source == 0) {
-			String id = getToolchainId();
 			store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE, rustupToolchainCombo.getText());
-			store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE, id);
 			store.setValue(CorrosionPreferenceInitializer.DEFAULT_PATHS_PREFERENCE, useDefaultPathsCheckbox.getSelection());
 			store.setValue(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE, rustupPathText.getText());
 			store.setValue(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE, cargoPathText.getText());
-			RustManager.setDefaultToolchain(id);
+
+			String id = getToolchainId();
+			if (!store.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE).equals(id)) {
+				RustManager.setDefaultToolchain(id);
+				store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE, id);
+			}
 		} else if (source == 1) {
 			store.setValue(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE, rlsPathText.getText());
 			store.setValue(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE, sysrootPathText.getText());
@@ -373,6 +394,8 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		}));
 	}
 
+	private boolean installInProgress = false;
+
 	private void installCommands() {
 		installButton.setText(Messages.CorrosionPreferencePage_installing);
 		installButton.setEnabled(false);
@@ -397,29 +420,41 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		CommandJob installCommandJob = new CommandJob(command, Messages.CorrosionPreferencePage_installingRustupCargo,
 				Messages.CorrosionPreferencePage_cannotInstallRustupCargo,
 				Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details, 15);
-		installCommandJob.setUser(true);
+		String toolchain = getToolchainId();
 		installCommandJob.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(final IJobChangeEvent event) {
 				if (event.getResult() == Status.OK_STATUS) {
 					CorrosionPreferenceInitializer initializer = new CorrosionPreferenceInitializer();
 					initializer.initializeDefaultPreferences();
-					Display.getDefault().asyncExec(() -> {
-						if (installButton.isDisposed()) {
-							return;
+					Job setDefaultToolchainJob = RustManager.setDefaultToolchain(
+							toolchain.isEmpty() ? RUSTUP_TOOLCHAIN_OPTIONS.get(0).toLowerCase() : toolchain);
+					setDefaultToolchainJob.addJobChangeListener(new JobChangeAdapter() {
+						@Override
+						public void done(final IJobChangeEvent event) {
+							installInProgress = false;
+							Display.getDefault().asyncExec(() -> {
+								if (installButton.isDisposed()) {
+									return;
+								}
+								setInstallRequired(false);
+								performDefaults();
+								setValid(isPageValid());
+							});
 						}
-						setInstallRequired(false);
-						performDefaults();
-						setValid(isPageValid());
 					});
-					RustManager.setDefaultToolchain("beta"); //$NON-NLS-1$
+				} else {
+					installInProgress = false;
 				}
 			}
 		});
+		installInProgress = true;
 		installCommandJob.schedule();
 	}
 
 	private void setInstallRequired(Boolean required) {
+		if (installInProgress)
+			return;
 		if (required) {
 			installButton.setText(Messages.CorrosionPreferencePage_install);
 		} else {

@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferencePage;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.RustManager;
@@ -25,6 +26,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.lsp4e.server.StreamConnectionProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
@@ -35,9 +37,9 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 	private Process process;
 
 	@Override public void start() throws IOException {
-		boolean wereSystemPropertiesSet = RustManager.setSystemProperties();
 		String rls = RustManager.getRLS();
-		if ((rls.isEmpty() || !wereSystemPropertiesSet)) {
+		if ((rls.isEmpty() || !RustManager.setSystemProperties()
+				|| !CorrosionPlugin.validateCommandVersion(rls, RustManager.RLS_VERSION_FORMAT_PATTERN))) {
 			showSetupRustNotification();
 			return;
 		}
@@ -49,18 +51,24 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 	}
 
 	private void showSetupRustNotification() {
-		if (hasCancelledSetup) {
-			return;
-		}
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		int dialogResponse = MessageDialog.open(MessageDialog.CONFIRM, shell, Messages.RLSStreamConnectionProvider_rustSupportNotFound, Messages.RLSStreamConnectionProvider_requirementsNotFound, SWT.NONE, Messages.RLSStreamConnectionProvider_OpenPreferences, IDialogConstants.CANCEL_LABEL); // $NON-NLS-4$
-		if (dialogResponse == 0) {
-			PreferenceDialog preferenceDialog = PreferencesUtil.createPreferenceDialogOn(shell, CorrosionPreferencePage.PAGE_ID, new String[] { CorrosionPreferencePage.PAGE_ID }, null);
-			preferenceDialog.setBlockOnOpen(true);
-			preferenceDialog.open();
-		} else {
+		Display.getDefault().asyncExec(() -> {
+			if (hasCancelledSetup) {
+				return;
+			}
 			setHasCancelledSetup(true);
-		}
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			int dialogResponse = MessageDialog.open(MessageDialog.CONFIRM, shell,
+					Messages.RLSStreamConnectionProvider_rustSupportNotFound,
+					Messages.RLSStreamConnectionProvider_requirementsNotFound, SWT.NONE,
+					Messages.RLSStreamConnectionProvider_OpenPreferences, IDialogConstants.CANCEL_LABEL); // $NON-NLS-4$
+			if (dialogResponse == 0) {
+				PreferenceDialog preferenceDialog = PreferencesUtil.createPreferenceDialogOn(shell,
+						CorrosionPreferencePage.PAGE_ID, new String[] { CorrosionPreferencePage.PAGE_ID }, null);
+				preferenceDialog.setBlockOnOpen(true);
+				preferenceDialog.open();
+				setHasCancelledSetup(false);
+			}
+		});
 	}
 
 	private static synchronized void setHasCancelledSetup(Boolean newValue) {

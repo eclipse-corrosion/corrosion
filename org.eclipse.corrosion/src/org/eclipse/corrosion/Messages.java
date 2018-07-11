@@ -121,12 +121,14 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_invalidRlsPath;
 	public static String CorrosionPreferencePage_invalidRustup;
 	public static String CorrosionPreferencePage_invalidSysroot;
+	public static String CorrosionPreferencePage_invalidVersion;
 	public static String CorrosionPreferencePage_otherInstallation;
 	public static String CorrosionPreferencePage_rlsLocation;
 	public static String CorrosionPreferencePage_rlsNonExecutable;
 	public static String CorrosionPreferencePage_rlsPath;
 	public static String CorrosionPreferencePage_Rustup;
 	public static String CorrosionPreferencePage_rustupNonExecutable;
+	public static String CorrosionPreferencePage_rustupMissingRLS;
 	public static String CorrosionPreferencePage_sysrootPath;
 	public static String CorrosionPreferencePage_toolchain;
 	public static String CorrosionPreferencePage_useDefaultPathsRustupCargo;
