@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -42,6 +43,12 @@ import org.eclipse.ui.texteditor.ITextEditor;
 @SuppressWarnings("restriction")
 public class RustManager {
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
+	public static final String RLS_VERSION_FORMAT_REGEX = "^rls.*$"; //$NON-NLS-1$
+	public static final String CARGO_VERSION_FORMAT_REGEX = "^cargo .*$"; //$NON-NLS-1$
+	public static final String RUSTUP_VERSION_FORMAT_REGEX = "^rustup .*$"; //$NON-NLS-1$
+	public static final Pattern RLS_VERSION_FORMAT_PATTERN = Pattern.compile(RLS_VERSION_FORMAT_REGEX);
+	public static final Pattern CARGO_VERSION_FORMAT_PATTERN = Pattern.compile(CARGO_VERSION_FORMAT_REGEX);
+	public static final Pattern RUSTUP_VERSION_FORMAT_PATTERN = Pattern.compile(RUSTUP_VERSION_FORMAT_REGEX);
 
 	private RustManager() {
 		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
@@ -88,7 +95,7 @@ public class RustManager {
 
 	private static Job settingToolchainJob = null;
 
-	public static synchronized void setDefaultToolchain(String toolchainId) {
+	public static synchronized Job setDefaultToolchain(String toolchainId) {
 		if (settingToolchainJob != null) {
 			settingToolchainJob.cancel();
 		}
@@ -132,6 +139,7 @@ public class RustManager {
 			}
 		};
 		settingToolchainJob.schedule();
+		return settingToolchainJob;
 	}
 
 	private static void sendDidChangeConfigurationsMessage(Map<String, String> updatedSettings) {
@@ -265,22 +273,18 @@ public class RustManager {
 		int rustSourceIndex = CorrosionPreferencePage.RUST_SOURCE_OPTIONS
 				.indexOf(preferenceStore.getString(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE));
 
+		String rlsPath = ""; //$NON-NLS-1$
 		if (rustSourceIndex == 0) {
 			String rustup = preferenceStore.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
-			String toolchain = preferenceStore.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
-			if (!(rustup.isEmpty() || toolchain.isEmpty())) {
-				return rustup + " run " + toolchain + " rls"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			rlsPath = CorrosionPlugin.getOutputFromCommand(rustup + " which rls"); //$NON-NLS-1$
 		} else if (rustSourceIndex == 1) {
-			String rls = preferenceStore.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
-			if (!rls.isEmpty()) {
-				return rls;
-			}
+			rlsPath = preferenceStore.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
 		}
-
-		CorrosionPlugin.getDefault().getLog()
-				.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-						Messages.RLSStreamConnectionProvider_rlsNotFound));
-		return ""; //$NON-NLS-1$
+		if (rlsPath.isEmpty()) {
+			CorrosionPlugin.getDefault().getLog()
+					.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+							Messages.RLSStreamConnectionProvider_rlsNotFound));
+		}
+		return rlsPath;
 	}
 }
