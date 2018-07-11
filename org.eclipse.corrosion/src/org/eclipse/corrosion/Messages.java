@@ -41,6 +41,10 @@ public class Messages extends NLS {
 	public static String ImplementationsSearchQuery_implementations;
 	public static String ImplementationsSearchQuery_oneReference;
 	public static String ImplementationsSearchQuery_severalReferences;
+	public static String ImportPage_title;
+	public static String ImportPage_description;
+	public static String ImportPage_label_1;
+	public static String ImportPage_label_2;
 	public static String OptionSelector_title;
 	public static String OptionSelector_message;
 	public static String OptionSelector_arguments;

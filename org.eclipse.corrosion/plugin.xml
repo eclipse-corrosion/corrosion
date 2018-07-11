@@ -150,7 +150,20 @@
             name="%category.name">
       </category>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="org.eclipse.corrosion.rust"
+            name="%category.name">
+      </category>
+      <wizard
+            category="org.eclipse.corrosion.rust"
+            class="org.eclipse.corrosion.wizards.importexisting.ImportWizard"
+            icon="icons/rust.png"
+            id="org.eclipse.corrosion.wizards.importexisting"
+            name="%wizard.name.1">
+      </wizard>
+   </extension>
 <!-- LAUNCH CONFIGURATIONS -->
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
