@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
+ *  Holger Voormann - Set correct default locations on Windows (https://github.com/eclipse/corrosion/issues/86)
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -17,13 +18,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 public class CorrosionPreferenceInitializer extends AbstractPreferenceInitializer {
 
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
-	private static final String USER_HOME_PROPERTY = "user.home"; //$NON-NLS-1$
+	private static final String CARGO_DEFAULT_HOME = System.getProperty("user.home") + "/.cargo/bin/"; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final boolean IS_WINDOWS = Platform.getOS().startsWith("win"); //$NON-NLS-1$
 
 	public static final String RUST_SOURCE_PREFERENCE = "corrosion.rustSource"; //$NON-NLS-1$
 
@@ -52,7 +55,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	private String getRustupPathBestGuess() {
 		String command = findCommandPath("rustup"); //$NON-NLS-1$
 		if (command.isEmpty()) {
-			File possibleCommandFile = new File(System.getProperty(USER_HOME_PROPERTY) + "/.cargo/bin/rustup"); //$NON-NLS-1$ 
+			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("rustup"); //$NON-NLS-1$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
 				return possibleCommandFile.getAbsolutePath();
 			}
@@ -63,7 +66,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	private String getCargoPathBestGuess() {
 		String command = findCommandPath("cargo"); //$NON-NLS-1$
 		if (command.isEmpty()) {
-			File possibleCommandFile = new File(System.getProperty(USER_HOME_PROPERTY) + "/.cargo/bin/cargo"); //$NON-NLS-1$ 
+			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("cargo"); //$NON-NLS-1$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
 				return possibleCommandFile.getAbsolutePath();
 			}
@@ -73,7 +76,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 
 	private String findCommandPath(String command) {
 		try {
-			ProcessBuilder builder = new ProcessBuilder("which", command); //$NON-NLS-1$
+			ProcessBuilder builder = new ProcessBuilder(IS_WINDOWS ? "where" : "which", command); //$NON-NLS-1$ //$NON-NLS-2$
 			Process process = builder.start();
 
 			if (process.waitFor() == 0) {
@@ -118,7 +121,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	private String getRLSPathBestGuess() {
 		String command = findCommandPath("rls"); //$NON-NLS-1$
 		if (command.isEmpty()) {
-			File possibleCommandFile = new File(System.getProperty(USER_HOME_PROPERTY) + "/.cargo/bin/rls"); //$NON-NLS-1$ 
+			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("rls"); //$NON-NLS-1$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
 				return possibleCommandFile.getAbsolutePath();
 			}
@@ -129,12 +132,13 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	private String getSysrootPathBestGuess() {
 		File rustc = new File(findCommandPath("rustc")); //$NON-NLS-1$
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
-			rustc = new File(System.getProperty(USER_HOME_PROPERTY) + "/.cargo/bin/rustc"); //$NON-NLS-1$ 
+			rustc = getExectuableFileOfCargoDefaultHome("rustc"); //$NON-NLS-1$
 		}
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
 			return ""; //$NON-NLS-1$
 		}
-		String[] command = new String[] { rustc.getAbsolutePath(), Messages.CorrosionPreferenceInitializer_29, Messages.CorrosionPreferenceInitializer_30 };
+		String[] command = new String[] { rustc.getAbsolutePath(), Messages.CorrosionPreferenceInitializer_29,
+				Messages.CorrosionPreferenceInitializer_30 };
 		try {
 			Process process = Runtime.getRuntime().exec(command);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
@@ -144,4 +148,9 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 			return Messages.CorrosionPreferenceInitializer_31;
 		}
 	}
+
+	private static File getExectuableFileOfCargoDefaultHome(final String executable) {
+		return new File(CARGO_DEFAULT_HOME + executable + (IS_WINDOWS ? ".exe" : "")); //$NON-NLS-1$//$NON-NLS-2$
+	}
+
 }
