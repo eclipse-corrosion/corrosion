@@ -30,9 +30,8 @@ public class CargoTools {
 	}
 
 	public static List<CLIOption> getOptions(String subCommand) {
-		String[] command = new String[] { getCargoCommand(), subCommand, "--help" }; //$NON-NLS-1$
 		try {
-			Process process = Runtime.getRuntime().exec(command);
+			Process process = CorrosionPlugin.getProcessForCommand(getCargoCommand(), subCommand, "--help"); //$NON-NLS-1$
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 				String line = in.readLine();
 				while (line != null) {

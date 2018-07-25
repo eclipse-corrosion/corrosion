@@ -51,7 +51,7 @@ public class CommandJob extends Job {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, expectedWork);
 		try {
 			subMonitor.beginTask(progressMessage, expectedWork);
-			process = new ProcessBuilder(command).start();
+			process = CorrosionPlugin.getProcessForCommand(command);
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
 				CompletableFuture.runAsync(() -> {
 					reader.lines().forEachOrdered(line -> {

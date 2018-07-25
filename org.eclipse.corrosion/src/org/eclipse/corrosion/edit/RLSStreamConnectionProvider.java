@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferencePage;
 import org.eclipse.corrosion.Messages;
@@ -36,18 +35,15 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 	private static boolean hasCancelledSetup = false;
 	private Process process;
 
-	@Override public void start() throws IOException {
+	@Override
+	public void start() throws IOException {
 		String rls = RustManager.getRLS();
 		if ((rls.isEmpty() || !RustManager.setSystemProperties()
 				|| !CorrosionPlugin.validateCommandVersion(rls, RustManager.RLS_VERSION_FORMAT_PATTERN))) {
 			showSetupRustNotification();
 			return;
 		}
-		String[] command = new String[] { "/bin/bash", "-c", rls }; //$NON-NLS-1$ //$NON-NLS-2$
-		if (Platform.getOS().equals(Platform.OS_WIN32)) {
-			command = new String[] { "cmd", "/c", rls }; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		this.process = Runtime.getRuntime().exec(command);
+		this.process = CorrosionPlugin.getProcessForCommand(rls);
 	}
 
 	private void showSetupRustNotification() {
@@ -75,19 +71,24 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 		hasCancelledSetup = newValue;
 	}
 
-	@Override public InputStream getInputStream() {
-		return process.getInputStream();
+	@Override
+	public InputStream getInputStream() {
+		return process == null ? null : process.getInputStream();
 	}
 
-	@Override public OutputStream getOutputStream() {
-		return process.getOutputStream();
+	@Override
+	public OutputStream getOutputStream() {
+		return process == null ? null : process.getOutputStream();
 	}
 
-	@Override public void stop() {
-		process.destroy();
+	@Override
+	public void stop() {
+		if (process != null)
+			process.destroy();
 	}
 
-	@Override public InputStream getErrorStream() {
-		return process.getErrorStream();
+	@Override
+	public InputStream getErrorStream() {
+		return process == null ? null : process.getErrorStream();
 	}
 }

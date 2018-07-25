@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion.run;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +24,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.variables.IStringVariableManager;
-import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
@@ -39,10 +38,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
 public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
-
-	public static final String PROJECT_ATTRIBUTE = "PROJECT"; //$NON-NLS-1$
-	public static final String RUN_OPTIONS_ATTRIBUTE = "RUN_OPTIONS"; //$NON-NLS-1$
-	public static final String RUN_ARGUMENTS_ATTRIBUTE = "RUN_ARGUMENTS"; //$NON-NLS-1$
 
 	@Override
 	public void launch(ISelection selection, String mode) {
@@ -60,13 +55,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
-		List<String> cargoRunCommand = new ArrayList<>();
-		cargoRunCommand.add(CargoTools.getCargoCommand());
-		cargoRunCommand.add("run"); //$NON-NLS-1$
-		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
-		String options = configuration.getAttribute(RUN_OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
-		String arguments = configuration.getAttribute(RUN_ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
-
+		String projectName = configuration.getAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
 		IProject project = null;
 		if (!projectName.isEmpty()) {
 			project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
@@ -76,15 +65,28 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 					Messages.CargoRunDelegate_unableToFindProject);
 			return;
 		}
+		String options = configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+		String arguments = configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(new File(workingDirectoryString));
+		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
+			workingDirectory = project.getLocation().toFile();
+		}
+
 		IFile cargoManifest = project.getFile("Cargo.toml"); //$NON-NLS-1$
 		if (!cargoManifest.exists()) {
 			RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch,
 					Messages.CargoRunDelegate_unableToFindToml);
 			return;
 		}
-		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+
+		List<String> cargoRunCommand = new ArrayList<>();
+		cargoRunCommand.add(CargoTools.getCargoCommand());
+		cargoRunCommand.add("run"); //$NON-NLS-1$
 		if (!options.isEmpty()) {
-			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("\\s+"))); //$NON-NLS-1$
+			cargoRunCommand
+					.addAll(Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(options).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final String cargoPathString = cargoManifest.getLocation().toPortableString();
@@ -93,14 +95,16 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 
 		if (!arguments.isEmpty()) {
 			cargoRunCommand.add("--"); //$NON-NLS-1$
-			cargoRunCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
+			cargoRunCommand.addAll(
+					Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final List<String> finalRunCommand = cargoRunCommand;
+		final File finalWorkingDirectory = workingDirectory;
 		CompletableFuture.runAsync(() -> {
 			try {
 				String[] cmdLine = finalRunCommand.toArray(new String[finalRunCommand.size()]);
-				Process p = DebugPlugin.exec(cmdLine, null);
+				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory);
 				IProcess process = DebugPlugin.newProcess(launch, p, "cargo run"); //$NON-NLS-1$
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
@@ -114,7 +118,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 				"org.eclipse.corrosion.run.CargoRunDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
-			wc.setAttribute(PROJECT_ATTRIBUTE, resource.getProject().getName());
+			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
 		}
 		return launchConfiguration;
 	}

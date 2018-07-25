@@ -10,7 +10,7 @@
  * Contributors:
  *  Lucas Bullen   (Red Hat Inc.) - Initial implementation
  *******************************************************************************/
-package org.eclipse.corrosion.cargo.ui;
+package org.eclipse.corrosion.ui.cargo;
 
 import java.util.List;
 

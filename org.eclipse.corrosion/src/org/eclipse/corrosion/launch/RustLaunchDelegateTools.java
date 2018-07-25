@@ -12,13 +12,17 @@
  *******************************************************************************/
 package org.eclipse.corrosion.launch;
 
+import java.io.File;
 import java.util.Iterator;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -34,6 +38,11 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
 public class RustLaunchDelegateTools {
+
+	public static final String PROJECT_ATTRIBUTE = "PROJECT"; //$NON-NLS-1$
+	public static final String OPTIONS_ATTRIBUTE = "OPTIONS"; //$NON-NLS-1$
+	public static final String ARGUMENTS_ATTRIBUTE = "ARGUMENTS"; //$NON-NLS-1$
+	public static final String WORKING_DIRECTORY_ATTRIBUTE = "WORKING_DIRECTORY"; //$NON-NLS-1$
 
 	private RustLaunchDelegateTools() {
 		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
@@ -72,6 +81,12 @@ public class RustLaunchDelegateTools {
 		}
 		IEditorInput input = editor.getEditorInput();
 		return input.getAdapter(IResource.class);
+	}
+
+	public static File convertToAbsolutePath(File file) {
+		if (file.isAbsolute())
+			return file;
+		return ResourcesPlugin.getWorkspace().getRoot().getLocation().append(file.getPath()).toFile();
 	}
 
 	/**
@@ -118,6 +133,11 @@ public class RustLaunchDelegateTools {
 			CorrosionPlugin.logError(e);
 		}
 		return null;
+	}
+
+	public static String performVariableSubstitution(String string) throws CoreException {
+		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+		return manager.performStringSubstitution(string);
 	}
 
 	/**
