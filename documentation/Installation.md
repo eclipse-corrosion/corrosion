@@ -23,7 +23,7 @@ The p2 site: http://download.eclipse.org/corrosion/snapshots/
 
 ### Using Github
 ##### For contributors and testers, This will allow running the plugin within a child Eclipse to test and develop new features 
- - Download [Eclipse for Eclipse Contributors](https://www.eclipse.org/downloads/packages/eclipse-ide-eclipse-committers/oxygen2) or any version of Eclipse with the `Eclipse Plug-in Development Environment` package
+ - Download [Eclipse for Eclipse Contributors](https://www.eclipse.org/downloads/packages/) or any version of Eclipse with the `Eclipse Plug-in Development Environment` package
  - Clone the repo: https://github.com/eclipse/corrosion
  - In the root of the repository, run `mvn clean verify` (You will need [Maven](http://maven.apache.org/))
 

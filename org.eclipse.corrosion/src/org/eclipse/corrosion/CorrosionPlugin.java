@@ -13,6 +13,7 @@
 package org.eclipse.corrosion;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
@@ -81,15 +82,37 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 		return matchPattern.matcher(getOutputFromCommand(commandPath + " --version")).matches(); //$NON-NLS-1$
 	}
 
-	public static String getOutputFromCommand(String commandString) {
-		try {
-			String[] command = new String[] { "/bin/bash", "-c", commandString }; //$NON-NLS-1$ //$NON-NLS-2$
-			if (Platform.getOS().equals(Platform.OS_WIN32)) {
-				command = new String[] { "cmd", "/c", commandString }; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			ProcessBuilder builder = new ProcessBuilder(command);
-			Process process = builder.start();
+	public static Process getProcessForCommand(String... commandStrings) throws IOException {
+		String[] command = new String[3];
+		if (Platform.getOS().equals(Platform.OS_WIN32)) {
+			command[0] = "cmd"; //$NON-NLS-1$
+			command[1] = "/c"; //$NON-NLS-1$
+		} else {
+			command[0] = "/bin/bash"; //$NON-NLS-1$
+			command[1] = "-c"; //$NON-NLS-1$
+		}
+		command[2] = String.join(" ", commandStrings); //$NON-NLS-1$
+		ProcessBuilder builder = new ProcessBuilder(command);
+		builder.directory(getWorkingDirectoryFromPreferences());
+		return builder.start();
+	}
 
+	private static File getWorkingDirectoryFromPreferences() {
+		String wdString = getDefault().getPreferenceStore()
+				.getString(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE);
+		if (wdString == null) {
+			return null;
+		}
+		File wdFile = new File(wdString);
+		if (wdFile.exists() && wdFile.isDirectory()) {
+			return wdFile;
+		}
+		return null;
+	}
+
+	public static String getOutputFromCommand(String... commandStrings) {
+		try {
+			Process process = getProcessForCommand(commandStrings);
 			if (process.waitFor() == 0) {
 				try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 					return in.readLine();

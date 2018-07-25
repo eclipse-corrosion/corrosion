@@ -62,8 +62,7 @@ public class RustManager {
 		}
 
 		try {
-			ProcessBuilder builder = new ProcessBuilder(rustup, "show"); //$NON-NLS-1$
-			Process process = builder.start();
+			Process process = CorrosionPlugin.getProcessForCommand(rustup, "show"); //$NON-NLS-1$
 			if (process.waitFor() != 0) {
 				return emptyResult;
 			}
@@ -196,8 +195,7 @@ public class RustManager {
 			return toolchainsList;
 		}
 		try {
-			ProcessBuilder builder = new ProcessBuilder(rustup, "show"); //$NON-NLS-1$
-			Process process = builder.start();
+			Process process = CorrosionPlugin.getProcessForCommand(rustup, "show"); //$NON-NLS-1$
 
 			if (process.waitFor() != 0) {
 				return toolchainsList;
@@ -239,14 +237,7 @@ public class RustManager {
 			String toolchain = preferenceStore.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
 			if (!(rustup.isEmpty() || toolchain.isEmpty())) {
 				String[] command = new String[] { rustup, "run", toolchain, "rustc", "--print", "sysroot" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				try {
-					Process process = Runtime.getRuntime().exec(command);
-					try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-						sysrootPath = in.readLine();
-					}
-				} catch (IOException e) {
-					// Caught with final return
-				}
+				sysrootPath = CorrosionPlugin.getOutputFromCommand(command);
 			}
 		} else if (rustSourceIndex == 1) {
 			sysrootPath = preferenceStore.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE);

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion.test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,12 +24,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.variables.IStringVariableManager;
-import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
-import org.eclipse.corrosion.run.CargoRunDelegate;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -40,15 +38,12 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
 public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
-
-	public static final String PROJECT_ATTRIBUTE = CargoRunDelegate.PROJECT_ATTRIBUTE;
-	public static final String TEST_OPTIONS_ATTRIBUTE = CargoRunDelegate.RUN_OPTIONS_ATTRIBUTE;
-	public static final String TEST_ARGUMENTS_ATTRIBUTE = CargoRunDelegate.RUN_ARGUMENTS_ATTRIBUTE;
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 
 	@Override
 	public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.firstResourceFromSelection(selection));
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(
+				RustLaunchDelegateTools.firstResourceFromSelection(selection));
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
@@ -58,14 +53,19 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		RustLaunchDelegateTools.launch(launchConfig, mode);
 	}
 
-	@Override public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		List<String> cargoTestCommand = new ArrayList<>();
-		cargoTestCommand.add(CargoTools.getCargoCommand());
-		cargoTestCommand.add("test"); //$NON-NLS-1$
-		String projectName = configuration.getAttribute(PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
-		String options = configuration.getAttribute(TEST_OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+	@Override
+	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
+			throws CoreException {
+		String projectName = configuration.getAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
+		String options = configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
 		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, ""); //$NON-NLS-1$
-		String arguments = configuration.getAttribute(TEST_ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+		String arguments = configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(new File(workingDirectoryString));
+		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
+			workingDirectory = null;
+		}
 
 		IProject project = null;
 		if (!projectName.isEmpty()) {
@@ -82,9 +82,13 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 					Messages.CargoRunDelegate_unableToFindToml);
 			return;
 		}
-		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
+
+		List<String> cargoTestCommand = new ArrayList<>();
+		cargoTestCommand.add(CargoTools.getCargoCommand());
+		cargoTestCommand.add("test"); //$NON-NLS-1$
 		if (!options.isEmpty()) {
-			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(options).split("\\s+"))); //$NON-NLS-1$
+			cargoTestCommand
+					.addAll(Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(options).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final String cargoPathString = cargoManifest.getLocation().toPortableString();
@@ -97,14 +101,16 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 		if (!arguments.isEmpty()) {
 			cargoTestCommand.add("--"); //$NON-NLS-1$
-			cargoTestCommand.addAll(Arrays.asList(manager.performStringSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
+			cargoTestCommand.addAll(
+					Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final List<String> finalTestCommand = cargoTestCommand;
+		final File finalWorkingDirectory = workingDirectory;
 		CompletableFuture.runAsync(() -> {
 			try {
 				String[] cmdLine = finalTestCommand.toArray(new String[finalTestCommand.size()]);
-				Process p = DebugPlugin.exec(cmdLine, null);
+				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory);
 				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test"); //$NON-NLS-1$
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
@@ -118,7 +124,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 				"org.eclipse.corrosion.test.CargoTestDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
-			wc.setAttribute(PROJECT_ATTRIBUTE, resource.getProject().getName());
+			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
 		}
 		return launchConfiguration;
 	}
