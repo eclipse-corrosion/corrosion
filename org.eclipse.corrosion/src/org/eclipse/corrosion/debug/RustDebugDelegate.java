@@ -51,18 +51,16 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 	@Override
 	public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
-		String buildCommand = config.getAttribute(BUILD_COMMAND_ATTRIBUTE, ""); //$NON-NLS-1$
-		String projectName = config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+		ILaunchConfiguration configuration = launch.getLaunchConfiguration();
+		String buildCommand = configuration.getAttribute(BUILD_COMMAND_ATTRIBUTE, ""); //$NON-NLS-1$
+		String projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
-				config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
+				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(new File(workingDirectoryString));
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
 		}
-		String executableString = RustLaunchDelegateTools.performVariableSubstitution(
-				config.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").trim()); //$NON-NLS-1$
-		File executable = RustLaunchDelegateTools.convertToAbsolutePath(new File(executableString));
 
 		List<String> cmdLine = new ArrayList<>();
 		cmdLine.add(CargoTools.getCargoCommand());
@@ -102,26 +100,11 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		if (!(launch instanceof RustGDBLaunchWrapper)) {
 			launch = new RustGDBLaunchWrapper(launch);
 		}
-
-		ILaunchConfigurationWorkingCopy wc = config.getWorkingCopy();
-		String PROGRAM_NAME = wc.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
-		String ATTR_WORKING_DIRECTORY = wc.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
-		String ATTR_LOCATION = wc.getAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, ""); //$NON-NLS-1$
 		try {
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executable.getAbsolutePath());
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
-					workingDirectory.getAbsolutePath());
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, project.getLocation().toString());
-			wc.doSave();
-			super.launch(wc, mode, launch, monitor);
+			super.launch(configuration, mode, launch, monitor);
 		} catch (CoreException e) {
 			CorrosionPlugin.showError(Messages.RustDebugDelegate_unableToLaunch_title,
 					Messages.RustDebugDelegate_unableToLaunch_message, e);
-		} finally {
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, PROGRAM_NAME);
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ATTR_WORKING_DIRECTORY);
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, ATTR_LOCATION);
-			wc.doSave();
 		}
 	}
 
@@ -163,8 +146,24 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 	@Override
 	public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
 		setDefaultProcessFactory(configuration); // Reset process factory to what GdbLaunch expected
+		String projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
+		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(new File(workingDirectoryString));
+		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
+			workingDirectory = project.getLocation().toFile();
+		}
+		String executableString = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").trim()); //$NON-NLS-1$
+		File executable = RustLaunchDelegateTools.convertToAbsolutePath(new File(executableString));
 
-		ILaunch launch = super.getLaunch(configuration, mode);
+		ILaunchConfigurationWorkingCopy wc = configuration.copy(configuration.getName() + "[Variables Parsed]") //$NON-NLS-1$
+				.getWorkingCopy();
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executable.getAbsolutePath());
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, workingDirectory.getAbsolutePath());
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, project.getLocation().toString());
+		ILaunch launch = super.getLaunch(wc.doSave(), mode);
 		if (!(launch instanceof RustGDBLaunchWrapper)) {
 			launch = new RustGDBLaunchWrapper(launch);
 		}
