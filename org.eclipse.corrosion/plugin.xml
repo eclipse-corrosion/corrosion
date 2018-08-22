@@ -414,4 +414,11 @@
          </action>
       </editorContribution>
    </extension>
+   <extension
+         point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
+      <languageConfiguration
+            contentTypeId="org.eclipse.corrosion.rust"
+            path="language-configurations/language-configuration.json">
+      </languageConfiguration>
+   </extension>
 </plugin>

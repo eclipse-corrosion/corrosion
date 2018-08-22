@@ -12,7 +12,6 @@
 <repository location="http://download.eclipse.org/eclipse/updates/4.8/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="tm-feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.lsp4e" version="0.0.0"/>
 <unit id="org.eclipse.cdt.debug.core" version="0.0.0"/>
 <unit id="org.eclipse.cdt.core" version="0.0.0"/>
@@ -23,6 +22,10 @@
 <unit id="org.eclipse.launchbar.core" version="0.0.0"/>
 <unit id="org.eclipse.tm.terminal.control" version="0.0.0"/>
 <repository location="http://download.eclipse.org/releases/photon/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<repository location="http://download.eclipse.org/tm4e/snapshots/"/>
+<unit id="tm-feature.feature.group" version="0.0.0"/>
 </location>
 
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
