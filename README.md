@@ -20,6 +20,7 @@ The RLS supplies Corrosion with the majority of the edition abilities. More info
  - Documentation Hover
  - Diagnostics
  - Formatting
+
 ![RLS features](images/rls-features.gif)
 
 ### Debug
@@ -28,6 +29,7 @@ Using the rust-gdb, Corrosion enables users to debug their Rust programs with in
  - GDB Console
  - Breakpoints
  - Expression Execution
+
 ![Debug features](images/debug-features.gif)
 
 ### Cargo and Rustup Integration
@@ -37,6 +39,7 @@ Corrosion is built for all Rust developers, newcomers to experts, bringing a GUI
  - TOML file editing support
  - Export Crate Wizard
  - Rust Language Server Preferences
+
 ![Cargo and Rustup features](images/cargo-features.gif)
 
 ### Eclipse Integration
@@ -45,6 +48,7 @@ Corrosion fits right into the standard Eclipse workflow welcoming previous Eclip
  - Dark Theme
  - Problems View
  - Git integration (Only available in Corrosion Package)
+
 ![Eclipse features](images/eclipse-features.gif)
 
 ## Contributing
