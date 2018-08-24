@@ -297,9 +297,9 @@
 		<key>rust_raw_string</key>
 		<dict>
 			<key>begin</key>
-			<string>r"</string>
+			<string>r(#*)"</string>
 			<key>end</key>
-			<string>"</string>
+			<string>"(\1)</string>
 			<key>name</key>
 			<string>string.quoted.double.raw.source.rust</string>
 		</dict>
