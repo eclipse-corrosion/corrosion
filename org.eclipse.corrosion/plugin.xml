@@ -46,7 +46,7 @@
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
-            path="grammar/Rust.tmLanguage"
+            path="grammar/rust.tmLanguage.json"
             scopeName="source.rust">
       </grammar>
       <scopeNameContentTypeBinding
