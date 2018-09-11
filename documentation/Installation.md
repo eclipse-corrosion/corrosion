@@ -9,11 +9,12 @@ Download [Corrosion from the Eclipse Marketplace](https://marketplace.eclipse.or
 For further instructions on how to install using Eclipse Marketplace, see [their tutorial](https://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3835145)
 
 ### Using p2 repository to install Eclipse Corrosion in your Eclipse IDE
-The p2 site: http://download.eclipse.org/corrosion/snapshots/
+The p2 site: http://download.eclipse.org/releases/latest/
+(or, if you're an early-adopter http://download.eclipse.org/corrosion/snapshots/ )
 
  - Open Eclipse IDE
  - Open the Install New Software Wizard (Under the Help menu)
- - Enter http://download.eclipse.org/corrosion/snapshots/ in the site field
+ - Enter http://download.eclipse.org/releases/latest/ in the site field
  - Select Corrosion - Rust in Eclipse IDE and click Next
  - Wait for the dependencies to load
  - Press Next again
