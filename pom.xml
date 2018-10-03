@@ -61,7 +61,6 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
-				<version>${tycho-version}</version>
 				<configuration>
 					<sourceReferences>
 						<generate>true</generate>
@@ -78,7 +77,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.1</version>
+				<version>0.8.2</version>
 				<executions>
 					<execution>
 						<goals><goal>prepare-agent</goal></goals>
