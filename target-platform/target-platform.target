@@ -9,7 +9,7 @@
 <unit id="org.eclipse.ui.genericeditor" version="0.0.0"/>
 <unit id="org.eclipse.ui.tests.harness" version="0.0.0"/>
 <unit id="org.junit" version="0.0.0"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.8/"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.9/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.lsp4e" version="0.0.0"/>
@@ -21,7 +21,7 @@
 <unit id="org.eclipse.cdt.dsf" version="0.0.0"/>
 <unit id="org.eclipse.launchbar.core" version="0.0.0"/>
 <unit id="org.eclipse.tm.terminal.control" version="0.0.0"/>
-<repository location="http://download.eclipse.org/releases/photon/"/>
+<repository location="http://download.eclipse.org/releases/2018-09/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <repository location="http://download.eclipse.org/tm4e/snapshots/"/>
@@ -35,7 +35,7 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.apache.commons.io" version="0.0.0"/>
 <unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20180330011457/repository"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20180905201904/repository"/>
 </location>
 </locations>
 </target>
