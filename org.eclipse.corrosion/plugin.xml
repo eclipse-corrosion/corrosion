@@ -281,53 +281,7 @@
 
 <!-- INCREMENTAL BUILD PROCESS -->
    <extension
-         id="org.eclipse.corrosion.builder.IncrementalCargoBuilder"
-         name="%extension.name"
-         point="org.eclipse.core.resources.builders">
-      <builder>
-         <run class="org.eclipse.corrosion.builder.IncrementalCargoBuilder"/>
-      </builder>
-   </extension>
-   <extension
          point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
-         <command
-               commandId="org.eclipse.corrosion.builder.AddCargoBuilder"
-               style="push">
-            <visibleWhen checkEnabled="false">
-               <and>
-                  <count value="1"/>
-                  <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
-                  <iterate>
-                     <not>
-                        <test
-                              forcePluginActivation="true"
-                              property="org.eclipse.corrosion.builder.isCargoBuilderEnabled">
-                        </test>
-                     </not>
-                  </iterate>
-               </and>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="org.eclipse.corrosion.builder.RemoveCargoBuilder"
-               style="push">
-            <visibleWhen checkEnabled="true">
-               <and>
-                  <count value="1"/>
-                  <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
-                  <iterate>
-                     <test
-                           forcePluginActivation="true"
-                           property="org.eclipse.corrosion.builder.isCargoBuilderEnabled">
-                     </test>
-                  </iterate>
-               </and>
-            </visibleWhen>
-         </command>
-      </menuContribution>
       <menuContribution
             allPopups="true"
             locationURI="popup:#TextEditorContext?after=additions">
@@ -339,16 +293,6 @@
    </extension>
    <extension
           point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="org.eclipse.corrosion.builder.AddCargoBuilder"
-            name="%command.name"
-            id="org.eclipse.corrosion.builder.AddCargoBuilder">
-      </command>
-      <command
-            defaultHandler="org.eclipse.corrosion.builder.RemoveCargoBuilder"
-            id="org.eclipse.corrosion.builder.RemoveCargoBuilder"
-            name="%command.name.0">
-      </command>
       <command
             categoryId="org.eclipse.lsp4e.category"
             id="org.eclipse.corrosion.commands.Implementations"
@@ -371,16 +315,6 @@
             </and>
          </enabledWhen>
       </handler>
-   </extension>
-      <extension
-         point="org.eclipse.core.expressions.propertyTesters">
-      <propertyTester
-            class="org.eclipse.corrosion.builder.TestCargoBuilderEnabled"
-            id="org.eclipse.corrosion.builder.IncrementalCargoBuilderTester"
-            namespace="org.eclipse.corrosion.builder"
-            properties="isCargoBuilderEnabled"
-            type="java.lang.Object">
-      </propertyTester>
    </extension>
 
 <!-- PERSPECTIVE -->
