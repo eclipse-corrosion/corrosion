@@ -229,7 +229,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		return true;
 	}
 
-	private String varParse(String unparsedString) {
+	private static String varParse(String unparsedString) {
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
 		try {
 			return manager.performStringSubstitution(unparsedString);

@@ -239,7 +239,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		});
 	}
 
-	private File newFolderLocation() {
+	private static File newFolderLocation() {
 		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
 		int appendedNumber = 0;
 		File newFile = workspacePath.append("new_rust_project").toFile(); //$NON-NLS-1$
@@ -250,7 +250,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		return newFile;
 	}
 
-	private Set<IWorkingSet> getWorkingSets(IResource resource) {
+	private static Set<IWorkingSet> getWorkingSets(IResource resource) {
 		IWorkingSet[] allWorkingSets = PlatformUI.getWorkbench().getWorkingSetManager().getAllWorkingSets();
 		Set<IWorkingSet> fileWorkingSets = new HashSet<>();
 
@@ -264,7 +264,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		return fileWorkingSets;
 	}
 
-	private IResource toResource(Object o) {
+	private static IResource toResource(Object o) {
 		if (o instanceof IResource) {
 			return (IResource) o;
 		} else if (o instanceof IAdaptable) {
@@ -274,7 +274,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 		}
 	}
 
-	private File toFile(IResource r) {
+	private static File toFile(IResource r) {
 		IPath location = r.getLocation();
 		if (location != null && location.toFile().isFile()) {
 			File parent = location.toFile().getParentFile();

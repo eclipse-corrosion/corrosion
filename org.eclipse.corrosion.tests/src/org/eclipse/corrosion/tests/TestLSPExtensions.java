@@ -64,7 +64,7 @@ public class TestLSPExtensions {
 		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
 	}
 
-	private void waitUntilJobIsStarted(IJobManager jobManager, String jobType) {
+	private static void waitUntilJobIsStarted(IJobManager jobManager, String jobType) {
 		new DisplayHelper() {
 			@Override
 			protected boolean condition() {
@@ -73,7 +73,7 @@ public class TestLSPExtensions {
 		}.waitForCondition(Display.getCurrent(), 5000);
 	}
 
-	private void waitUntilJobIsDone(IJobManager jobManager, String jobType) {
+	private static void waitUntilJobIsDone(IJobManager jobManager, String jobType) {
 		new DisplayHelper() {
 			@Override
 			protected boolean condition() {
@@ -82,7 +82,7 @@ public class TestLSPExtensions {
 		}.waitForCondition(Display.getCurrent(), 5000);
 	}
 
-	private Job getRustDiagnosticsJob(IJobManager jobManager, String jobType) {
+	private static Job getRustDiagnosticsJob(IJobManager jobManager, String jobType) {
 		for (Job job : jobManager.find(null)) {
 			if (jobType.equals(job.getName())) {
 				return job;

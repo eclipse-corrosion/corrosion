@@ -119,7 +119,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		});
 	}
 
-	private ILaunchConfiguration getLaunchConfiguration(IResource resource) {
+	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				"org.eclipse.corrosion.test.CargoTestDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {

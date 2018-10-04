@@ -116,7 +116,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		fail();
 	}
 
-	private ILaunchConfigurationWorkingCopy createLaunchConfiguration(IProject project) throws CoreException {
+	private static ILaunchConfigurationWorkingCopy createLaunchConfiguration(IProject project) throws CoreException {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType configType = launchManager
 				.getLaunchConfigurationType("org.eclipse.corrosion.run.CargoRunDelegate");
@@ -125,7 +125,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		return wc;
 	}
 
-	private void confirmErrorPopup(ILaunchConfiguration configuration) throws CoreException {
+	private static void confirmErrorPopup(ILaunchConfiguration configuration) throws CoreException {
 		configuration.launch(ILaunchManager.RUN_MODE, new NullProgressMonitor());
 		new DisplayHelper() {
 			@Override
@@ -137,7 +137,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		assertTrue(errorPopupExists());
 	}
 
-	private boolean errorPopupExists() {
+	private static boolean errorPopupExists() {
 		for (Shell shell : Display.getDefault().getShells()) {
 			if (shell.getText().equals("Unable to Launch")) {
 				return true;
