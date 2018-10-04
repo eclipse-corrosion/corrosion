@@ -63,7 +63,7 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		dialog.close();
 	}
 
-	private void confirmPageState(IWizard wizard, String expectedProjectName, String expectedVCS,
+	private static void confirmPageState(IWizard wizard, String expectedProjectName, String expectedVCS,
 			Boolean expectedBinaryState) {
 		NewCargoProjectWizardPage page = (NewCargoProjectWizardPage) wizard.getPages()[0];
 		assertEquals(expectedProjectName, page.getProjectName());

@@ -53,7 +53,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		STORE.setDefault(WORKING_DIRECTORY_PREFERENCE, getWorkingDirectoryBestGuess());
 	}
 
-	private String getRustupPathBestGuess() {
+	private static String getRustupPathBestGuess() {
 		String command = findCommandPath("rustup"); //$NON-NLS-1$
 		if (command.isEmpty()) {
 			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("rustup"); //$NON-NLS-1$
@@ -64,7 +64,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		return command;
 	}
 
-	private String getCargoPathBestGuess() {
+	private static String getCargoPathBestGuess() {
 		String command = findCommandPath("cargo"); //$NON-NLS-1$
 		if (command.isEmpty()) {
 			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("cargo"); //$NON-NLS-1$
@@ -75,11 +75,11 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		return command;
 	}
 
-	private String findCommandPath(String command) {
+	private static String findCommandPath(String command) {
 		return CorrosionPlugin.getOutputFromCommand(IS_WINDOWS ? "where" : "which", command); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private void setToolchainBestGuesses() {
+	private static void setToolchainBestGuesses() {
 		String toolchain = RustManager.getDefaultToolchain();
 		if (toolchain == null || toolchain.isEmpty()) {
 			STORE.setDefault(TOOLCHAIN_ID_PREFERENCE, ""); //$NON-NLS-1$
@@ -106,7 +106,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		STORE.setDefault(TOOLCHAIN_TYPE_PREFERENCE, "Other"); //$NON-NLS-1$
 	}
 
-	private String getRLSPathBestGuess() {
+	private static String getRLSPathBestGuess() {
 		String command = findCommandPath("rls"); //$NON-NLS-1$
 		if (command.isEmpty()) {
 			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("rls"); //$NON-NLS-1$
@@ -117,7 +117,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		return command;
 	}
 
-	private String getSysrootPathBestGuess() {
+	private static String getSysrootPathBestGuess() {
 		File rustc = new File(findCommandPath("rustc")); //$NON-NLS-1$
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
 			rustc = getExectuableFileOfCargoDefaultHome("rustc"); //$NON-NLS-1$
@@ -133,7 +133,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		return new File(CARGO_DEFAULT_HOME + executable + (IS_WINDOWS ? ".exe" : "")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	private String getWorkingDirectoryBestGuess() {
+	private static String getWorkingDirectoryBestGuess() {
 		return CorrosionPlugin.getOutputFromCommand(IS_WINDOWS ? "cd" : "pwd"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

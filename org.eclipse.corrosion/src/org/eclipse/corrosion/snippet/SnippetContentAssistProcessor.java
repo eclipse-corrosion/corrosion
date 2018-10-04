@@ -54,7 +54,8 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 		JsonArray snippetArray = null;
 		JsonParser parser = new JsonParser();
 		try {
-			URL url = FileLocator.toFileURL(FileLocator.find(CorrosionPlugin.getDefault().getBundle(), Path.fromPortableString("snippets/rust.json"), Collections.emptyMap())); //$NON-NLS-1$
+			URL url = FileLocator.toFileURL(FileLocator.find(CorrosionPlugin.getDefault().getBundle(),
+					Path.fromPortableString("snippets/rust.json"), Collections.emptyMap())); //$NON-NLS-1$
 			StringBuilder snippetsBuilder = new StringBuilder();
 			Files.readAllLines(new File(url.getFile()).toPath()).forEach(line -> snippetsBuilder.append(line));
 			snippetArray = parser.parse(snippetsBuilder.toString()).getAsJsonArray();
@@ -84,7 +85,8 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 		snippets.add(snippet);
 	}
 
-	@Override public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
+	@Override
+	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 		IDocument document = viewer.getDocument();
 		String textToOffset = document.get().substring(0, offset);
 		if (isOffsetInComment(textToOffset)) {
@@ -96,7 +98,8 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 		String indent = matcher.group("indent"); //$NON-NLS-1$
 		String prefix = matcher.group("prefix"); //$NON-NLS-1$
 
-		Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document, capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
+		Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document,
+				capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
 
 		List<ICompletionProposal> proposals = new ArrayList<>();
 		for (Snippet snippet : snippets) {
@@ -107,29 +110,34 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 		return proposals.toArray(new ICompletionProposal[proposals.size()]);
 	}
 
-	private boolean isOffsetInComment(String textToOffset) {
+	private static boolean isOffsetInComment(String textToOffset) {
 		Matcher singleLineCommentMatcher = SINGLE_LINE_COMMENT_PATTERN.matcher(textToOffset);
 		Matcher multiLineCommentMatcher = MULTI_LINE_COMMENT_PATTERN.matcher(textToOffset);
 		return singleLineCommentMatcher.matches() || multiLineCommentMatcher.matches();
 	}
 
-	@Override public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
+	@Override
+	public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
 		return new IContextInformation[0];
 	}
 
-	@Override public char[] getCompletionProposalAutoActivationCharacters() {
+	@Override
+	public char[] getCompletionProposalAutoActivationCharacters() {
 		return new char[0];
 	}
 
-	@Override public char[] getContextInformationAutoActivationCharacters() {
+	@Override
+	public char[] getContextInformationAutoActivationCharacters() {
 		return new char[0];
 	}
 
-	@Override public String getErrorMessage() {
+	@Override
+	public String getErrorMessage() {
 		return null;
 	}
 
-	@Override public IContextInformationValidator getContextInformationValidator() {
+	@Override
+	public IContextInformationValidator getContextInformationValidator() {
 		return null;
 	}
 

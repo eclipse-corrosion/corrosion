@@ -20,7 +20,8 @@ import org.eclipse.core.runtime.IAdaptable;
 public class CargoProjectTester extends PropertyTester {
 	public static final String PROPERTY_NAME = "isCargoProject"; //$NON-NLS-1$
 
-	@Override public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
+	@Override
+	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		if (property.equals(PROPERTY_NAME)) {
 			IResource resource = toResource(receiver);
 			if (resource == null) {
@@ -32,7 +33,7 @@ public class CargoProjectTester extends PropertyTester {
 		return false;
 	}
 
-	private IResource toResource(Object o) {
+	private static IResource toResource(Object o) {
 		if (o instanceof IResource) {
 			return (IResource) o;
 		} else if (o instanceof IAdaptable) {

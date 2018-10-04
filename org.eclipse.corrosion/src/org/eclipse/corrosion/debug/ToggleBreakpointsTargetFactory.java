@@ -28,34 +28,40 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class ToggleBreakpointsTargetFactory implements IToggleBreakpointsTargetFactory {
 	public static final String FACTORY_ID = CorrosionPlugin.PLUGIN_ID + "BreakpointFactory"; //$NON-NLS-1$
 
-	@Override public Set<String> getToggleTargets(IWorkbenchPart part, ISelection selection) {
+	@Override
+	public Set<String> getToggleTargets(IWorkbenchPart part, ISelection selection) {
 		return isRustPart(part) ? Collections.singleton(FACTORY_ID) : Collections.emptySet();
 	}
 
-	@Override public String getDefaultToggleTarget(IWorkbenchPart part, ISelection selection) {
+	@Override
+	public String getDefaultToggleTarget(IWorkbenchPart part, ISelection selection) {
 		return isRustPart(part) ? FACTORY_ID : null;
 	}
 
-	private boolean isRustPart(IWorkbenchPart part) {
+	private static boolean isRustPart(IWorkbenchPart part) {
 		if (part instanceof ITextEditor) {
 			IEditorInput editorInput = ((ITextEditor) part).getEditorInput();
-			return editorInput instanceof FileEditorInput && "rs".equals(((FileEditorInput) editorInput).getPath().getFileExtension()); //$NON-NLS-1$
+			return editorInput instanceof FileEditorInput
+					&& "rs".equals(((FileEditorInput) editorInput).getPath().getFileExtension()); //$NON-NLS-1$
 		}
 		return false;
 	}
 
-	@Override public IToggleBreakpointsTarget createToggleTarget(String targetID) {
+	@Override
+	public IToggleBreakpointsTarget createToggleTarget(String targetID) {
 		if (FACTORY_ID.equals(targetID)) {
 			return new ToggleBreakpointAdapter();
 		}
 		return null;
 	}
 
-	@Override public String getToggleTargetName(String targetID) {
+	@Override
+	public String getToggleTargetName(String targetID) {
 		return Messages.ToggleBreakpointsTargetFactory_breakpoint;
 	}
 
-	@Override public String getToggleTargetDescription(String targetID) {
+	@Override
+	public String getToggleTargetDescription(String targetID) {
 		return Messages.ToggleBreakpointsTargetFactory_breakpointTarget;
 	}
 

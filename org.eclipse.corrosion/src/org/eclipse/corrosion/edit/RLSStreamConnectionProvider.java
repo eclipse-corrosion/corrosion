@@ -46,7 +46,7 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 		this.process = CorrosionPlugin.getProcessForCommand(rls);
 	}
 
-	private void showSetupRustNotification() {
+	private static void showSetupRustNotification() {
 		Display.getDefault().asyncExec(() -> {
 			if (hasCancelledSetup) {
 				return;

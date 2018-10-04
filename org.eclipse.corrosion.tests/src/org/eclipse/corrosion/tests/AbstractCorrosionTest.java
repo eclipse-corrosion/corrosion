@@ -76,9 +76,8 @@ public class AbstractCorrosionTest {
 			project.open(new NullProgressMonitor());
 			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 			return project;
-		} else {
-			return null;
-		}
+		} 			
+		return null;
 	}
 
 	@After

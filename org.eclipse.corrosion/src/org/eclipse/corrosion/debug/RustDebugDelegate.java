@@ -177,7 +177,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		return LaunchUtils.verifyProgramPath(config, null);
 	}
 
-	private ILaunchConfiguration getLaunchConfiguration(IResource resource) {
+	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				"org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
