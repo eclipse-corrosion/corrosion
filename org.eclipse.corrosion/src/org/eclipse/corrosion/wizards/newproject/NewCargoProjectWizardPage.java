@@ -25,6 +25,9 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.corrosion.Messages;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -32,9 +35,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.CorrosionPreferenceInitializer;
-import org.eclipse.corrosion.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -75,9 +75,8 @@ public class NewCargoProjectWizardPage extends WizardPage {
 	public File getDirectory() {
 		if (isDirectoryAndProjectLinked) {
 			return directory;
-		} else {
-			return new File(directory.toString(), projectName);
 		}
+		return new File(directory.toString(), projectName);
 	}
 
 	public String getProjectName() {
@@ -159,7 +158,8 @@ public class NewCargoProjectWizardPage extends WizardPage {
 					IProjectDescription desc = ResourcesPlugin.getWorkspace()
 							.loadProjectDescription(Path.fromOSString(cargoProject.getAbsolutePath()));
 					if (!desc.getName().equals(projectName)) {
-						projectNameError = Messages.NewCargoProjectWizardPage_projectNameDoesntMatchDotProject + desc.getName();
+						projectNameError = Messages.NewCargoProjectWizardPage_projectNameDoesntMatchDotProject
+								+ desc.getName();
 					}
 				} catch (CoreException e) {
 					projectNameError = Messages.NewCargoProjectWizardPage_InvalidDotProjectInDirectory;

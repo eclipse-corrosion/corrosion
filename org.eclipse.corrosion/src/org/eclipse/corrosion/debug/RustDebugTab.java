@@ -101,17 +101,15 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 	private String getDefaultExecutablePath() {
 		if (project == null) {
 			return ""; //$NON-NLS-1$
-		} else {
-			return project.getName() + "/target/debug/" + project.getName(); //$NON-NLS-1$
 		}
+		return project.getName() + "/target/debug/" + project.getName(); //$NON-NLS-1$
 	}
 
 	private String getDefaultWorkingDirectoryPath() {
 		if (project == null) {
 			return ""; //$NON-NLS-1$
-		} else {
-			return project.getName();
 		}
+		return project.getName();
 	}
 
 	@Override
