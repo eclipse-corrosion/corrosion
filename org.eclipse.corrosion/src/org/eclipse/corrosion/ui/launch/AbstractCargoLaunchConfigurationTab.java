@@ -128,9 +128,8 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 	private String getDefaultWorkingDirectoryPath() {
 		if (project == null) {
 			return ""; //$NON-NLS-1$
-		} else {
-			return project.getName();
 		}
+		return project.getName();
 	}
 
 	private void setProject(String projectName) {
