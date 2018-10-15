@@ -95,7 +95,7 @@ public class RustLaunchDelegateTools {
 		final File file = new File(path);
 		if (file.isAbsolute())
 			return file;
-		return ResourcesPlugin.getWorkspace().getRoot().findMember(file.getPath()).getRawLocation().toFile();
+		return ResourcesPlugin.getWorkspace().getRoot().findMember(path).getRawLocation().toFile();
 	}
 
 	/**
