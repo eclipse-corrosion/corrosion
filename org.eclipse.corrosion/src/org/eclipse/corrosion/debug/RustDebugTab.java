@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
 
+import static org.eclipse.corrosion.debug.DebugUtil.getDefaultExecutablePath;
+
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -74,7 +76,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		buildInput.createVariableSelection();
 
 		executableInput = new OptionalDefaultInputComponent(container, Messages.RustDebugTab_Executable, updateListener,
-				() -> getDefaultExecutablePath());
+				() -> getDefaultExecutablePath(project));
 		executableInput.createComponent();
 		executableInput.createResourceSelection(() -> project);
 
@@ -91,18 +93,11 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 			project = null;
 		}
 		if (executableInput.getSelection()) {
-			executableInput.setValue(getDefaultExecutablePath());
+			executableInput.setValue(getDefaultExecutablePath(project));
 		}
 		if (workingDirectoryInput.getSelection()) {
 			workingDirectoryInput.setValue(getDefaultWorkingDirectoryPath());
 		}
-	}
-
-	private String getDefaultExecutablePath() {
-		if (project == null) {
-			return ""; //$NON-NLS-1$
-		}
-		return project.getName() + "/target/debug/" + project.getName(); //$NON-NLS-1$
 	}
 
 	private String getDefaultWorkingDirectoryPath() {
@@ -139,7 +134,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		} catch (CoreException ce) {
 			executableInput.setValue(""); //$NON-NLS-1$
 		}
-		executableInput.updateSelection(executableInput.getValue().equals(getDefaultExecutablePath()));
+		executableInput.updateSelection(executableInput.getValue().equals(getDefaultExecutablePath(project)));
 		try {
 			workingDirectoryInput
 					.setValue(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "")); //$NON-NLS-1$

@@ -85,7 +85,9 @@ public class RustLaunchDelegateTools {
 
 	/**
 	 * Converts the given relative path to a workspace resource and converts it to a
-	 * {@code File} with the absolute path on the file system.
+	 * {@code File} with the absolute path on the file system. If file does not
+	 * exist in the workspace, the returned file will be based on the given relative
+	 * path.
 	 *
 	 * @param path to a workspace resource
 	 * @return File object of the given {@code path}, with an absolute path on the
@@ -93,9 +95,14 @@ public class RustLaunchDelegateTools {
 	 */
 	public static File convertToAbsolutePath(String path) {
 		final File file = new File(path);
-		if (file.isAbsolute())
+		if (file.isAbsolute()) {
 			return file;
-		return ResourcesPlugin.getWorkspace().getRoot().findMember(path).getRawLocation().toFile();
+		}
+		final IResource filePath = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+		if (filePath == null) {
+			return file;
+		}
+		return filePath.getRawLocation().toFile();
 	}
 
 	/**
