@@ -69,7 +69,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		String arguments = configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
 		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
 				configuration.getAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, "").trim()); //$NON-NLS-1$
-		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(new File(workingDirectoryString));
+		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
 		}
