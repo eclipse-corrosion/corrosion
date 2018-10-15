@@ -57,7 +57,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
 				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
-		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(new File(workingDirectoryString));
+		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
 		}
@@ -150,13 +150,13 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
 				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
-		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(new File(workingDirectoryString));
+		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
 		}
 		String executableString = RustLaunchDelegateTools.performVariableSubstitution(
 				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").trim()); //$NON-NLS-1$
-		File executable = RustLaunchDelegateTools.convertToAbsolutePath(new File(executableString));
+		File executable = RustLaunchDelegateTools.convertToAbsolutePath(executableString);
 
 		ILaunchConfigurationWorkingCopy wc = configuration.copy(configuration.getName() + "[Variables Parsed]") //$NON-NLS-1$
 				.getWorkingCopy();
