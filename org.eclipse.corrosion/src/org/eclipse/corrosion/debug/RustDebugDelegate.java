@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
 
+import static org.eclipse.corrosion.debug.DebugUtil.getDefaultExecutablePath;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -184,8 +186,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			final IProject project = resource.getProject();
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
-			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME,
-					project.getName() + "/target/debug/" + project.getName()); //$NON-NLS-1$
+			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, getDefaultExecutablePath(project)); // $NON-NLS-1$
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
 			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb"); //$NON-NLS-1$
 		}
