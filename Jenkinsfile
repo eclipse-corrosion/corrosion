@@ -50,7 +50,7 @@ pipeline {
 				sh 'rm -rf /home/data/httpd/download.eclipse.org/corrosion/snapshots'
 				sh 'mkdir -p /home/data/httpd/download.eclipse.org/corrosion/snapshots'
 				sh 'cp -r repository/target/repository/* /home/data/httpd/download.eclipse.org/corrosion/snapshots'
-				sh 'zip -R /home/data/httpd/download.eclipse.org/corrosion/snapshots/repository.zip repository/target/repository/*'
+				sh 'cp repository/target/repository-*-SNAPSHOT.zip /home/data/httpd/download.eclipse.org/corrosion/snapshots/repository.zip'
 			}
 		}
 	}
