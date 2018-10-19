@@ -62,7 +62,11 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	}
 
 	public static void logError(Throwable t) {
-		getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, t.getMessage(), t));
+		logError(new Status(IStatus.ERROR, PLUGIN_ID, t.getMessage(), t));
+	}
+
+	public static void logError(IStatus s) {
+		getDefault().getLog().log(s);
 	}
 
 	public static void showError(String title, String message, Exception exception) {
