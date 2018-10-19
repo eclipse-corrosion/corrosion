@@ -31,6 +31,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
@@ -105,6 +106,10 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		try {
 			super.launch(configuration, mode, launch, monitor);
 		} catch (CoreException e) {
+			IStatus status = e.getStatus();
+			if (status != null) {
+				CorrosionPlugin.logError(status);
+			}
 			CorrosionPlugin.showError(Messages.RustDebugDelegate_unableToLaunch_title,
 					Messages.RustDebugDelegate_unableToLaunch_message, e);
 		}
