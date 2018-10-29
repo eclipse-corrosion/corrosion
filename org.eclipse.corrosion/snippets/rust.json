@@ -4,7 +4,27 @@
         "completionItemKind": 15,
         "replacementLines": [
             "for $0 in $1 {",
-            "\t$2",
+            "    $2",
+            "}"
+        ]
+    },
+    {
+    	"display": "test function",
+        "completionItemKind": 15,
+        "replacementLines": [
+            "#[test]",
+            "fn ${1:name}() {",
+            "    ${2:unimplemented!();}",
+            "}"
+        ]
+    },
+    {
+    	"display": "test module",
+        "completionItemKind": 15,
+        "replacementLines": [
+            "#[cfg(test)]",
+            "mod ${1:tests} {",
+            "    $0",
             "}"
         ]
     },
@@ -34,9 +54,9 @@
         "completionItemKind": 15,
         "replacementLines": [
             "macro_rules! $1 {",
-            "\t($2) => {",
-            "\t\t$0",
-            "\t};",
+            "    ($2) => {",
+            "        $0",
+            "    };",
             "}"
         ]
     },
@@ -45,7 +65,7 @@
         "completionItemKind": 15,
         "replacementLines": [
             "if let Some(${1:foo}) = ${1:foo} {",
-            "\t${0:${1:foo}.}",
+            "    ${0:${1:foo}.}",
             "}"
         ]
     },
@@ -54,7 +74,7 @@
         "completionItemKind": 15,
         "replacementLines": [
             "thread::spawn(move || {",
-            "\t$0",
+            "    $0",
             "});"
         ]
     }
