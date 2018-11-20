@@ -31,11 +31,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.debug.core.DebugPlugin;
@@ -51,15 +50,12 @@ import org.eclipse.ui.IEditorPart;
 public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut {
 	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + "BUILD_COMMAND"; //$NON-NLS-1$
 
-	@Override
-	public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor)
-			throws CoreException {
+	@Override public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		ILaunchConfiguration configuration = launch.getLaunchConfiguration();
 		String buildCommand = configuration.getAttribute(BUILD_COMMAND_ATTRIBUTE, ""); //$NON-NLS-1$
 		String projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
-				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
@@ -103,34 +99,28 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		if (!(launch instanceof RustGDBLaunchWrapper)) {
 			launch = new RustGDBLaunchWrapper(launch);
 		}
+		super.launch(configuration, mode, launch, monitor);
+	}
+
+	@Override public void launch(ISelection selection, String mode) {
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.firstResourceFromSelection(selection));
 		try {
-			super.launch(configuration, mode, launch, monitor);
+			RustLaunchDelegateTools.launch(launchConfig, mode);
 		} catch (CoreException e) {
-			IStatus status = e.getStatus();
-			if (status != null) {
-				CorrosionPlugin.logError(status);
-			}
-			CorrosionPlugin.showError(Messages.RustDebugDelegate_unableToLaunch_title,
-					Messages.RustDebugDelegate_unableToLaunch_message, e);
+			CorrosionPlugin.logError(e);
 		}
 	}
 
-	@Override
-	public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(
-				RustLaunchDelegateTools.firstResourceFromSelection(selection));
-		RustLaunchDelegateTools.launch(launchConfig, mode);
-	}
-
-	@Override
-	public void launch(IEditorPart editor, String mode) {
+	@Override public void launch(IEditorPart editor, String mode) {
 		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.resourceFromEditor(editor));
-		RustLaunchDelegateTools.launch(launchConfig, mode);
+		try {
+			RustLaunchDelegateTools.launch(launchConfig, mode);
+		} catch (CoreException e) {
+			CorrosionPlugin.logError(e);
+		}
 	}
 
-	@Override
-	protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session)
-			throws CoreException {
+	@Override protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session) throws CoreException {
 		SourceLookupDirector locator = new SourceLookupDirector();
 		String memento = configuration.getAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_MEMENTO, (String) null);
 		if (memento == null) {
@@ -141,29 +131,29 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		return locator;
 	}
 
-	@Override
-	protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session)
-			throws CoreException {
+	@Override protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session) throws CoreException {
 		DsfSourceLookupDirector sourceLookupDirector = new DsfSourceLookupDirector(session);
-		sourceLookupDirector.setSourceContainers(
-				((SourceLookupDirector) getSourceLocator(configuration, session)).getSourceContainers());
+		sourceLookupDirector.setSourceContainers(((SourceLookupDirector) getSourceLocator(configuration, session)).getSourceContainers());
 		return sourceLookupDirector;
 	}
 
-	@Override
-	public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
+	@Override public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
 		setDefaultProcessFactory(configuration); // Reset process factory to what GdbLaunch expected
 		String projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
-				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
 		}
-		String executableString = RustLaunchDelegateTools.performVariableSubstitution(
-				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").trim()); //$NON-NLS-1$
+		String executableString = RustLaunchDelegateTools.performVariableSubstitution(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").trim()); //$NON-NLS-1$
 		File executable = RustLaunchDelegateTools.convertToAbsolutePath(executableString);
+		if (!executable.exists()) {
+			IPath executablePath = Path.fromPortableString(executableString);
+			if (project != null && executablePath.segment(0).equals(project.getName())) { // project relative path
+				executable = project.getFile(executablePath.removeFirstSegments(1)).getLocation().toFile().getAbsoluteFile();
+			}
+		}
 
 		ILaunchConfigurationWorkingCopy wc = configuration.copy(configuration.getName() + "[Variables Parsed]") //$NON-NLS-1$
 				.getWorkingCopy();
@@ -179,14 +169,12 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		return launch;
 	}
 
-	@Override
-	protected IPath checkBinaryDetails(ILaunchConfiguration config) throws CoreException {
+	@Override protected IPath checkBinaryDetails(ILaunchConfiguration config) throws CoreException {
 		return LaunchUtils.verifyProgramPath(config, null);
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
-		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
-				"org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource, "org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			final IProject project = resource.getProject();

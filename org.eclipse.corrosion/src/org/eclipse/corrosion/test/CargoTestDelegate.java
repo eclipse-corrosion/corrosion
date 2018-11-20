@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
@@ -40,28 +41,30 @@ import org.eclipse.ui.IEditorPart;
 public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 
-	@Override
-	public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(
-				RustLaunchDelegateTools.firstResourceFromSelection(selection));
-		RustLaunchDelegateTools.launch(launchConfig, mode);
+	@Override public void launch(ISelection selection, String mode) {
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.firstResourceFromSelection(selection));
+		try {
+			RustLaunchDelegateTools.launch(launchConfig, mode);
+		} catch (CoreException e) {
+			CorrosionPlugin.logError(e);
+		}
 	}
 
-	@Override
-	public void launch(IEditorPart editor, String mode) {
+	@Override public void launch(IEditorPart editor, String mode) {
 		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.resourceFromEditor(editor));
-		RustLaunchDelegateTools.launch(launchConfig, mode);
+		try {
+			RustLaunchDelegateTools.launch(launchConfig, mode);
+		} catch (CoreException e) {
+			CorrosionPlugin.logError(e);
+		}
 	}
 
-	@Override
-	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
-			throws CoreException {
+	@Override public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		String projectName = configuration.getAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
 		String options = configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
 		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, ""); //$NON-NLS-1$
 		String arguments = configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
-		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
-				configuration.getAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(configuration.getAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, "").trim()); //$NON-NLS-1$
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = null;
@@ -72,14 +75,12 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 			project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		}
 		if (project == null || !project.exists()) {
-			RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch,
-					Messages.CargoRunDelegate_unableToFindProject);
+			RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindProject);
 			return;
 		}
 		IFile cargoManifest = project.getFile("Cargo.toml"); //$NON-NLS-1$
 		if (!cargoManifest.exists()) {
-			RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch,
-					Messages.CargoRunDelegate_unableToFindToml);
+			RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch, Messages.CargoRunDelegate_unableToFindToml);
 			return;
 		}
 
@@ -87,8 +88,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		cargoTestCommand.add(CargoTools.getCargoCommand());
 		cargoTestCommand.add("test"); //$NON-NLS-1$
 		if (!options.isEmpty()) {
-			cargoTestCommand
-					.addAll(Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(options).split("\\s+"))); //$NON-NLS-1$
+			cargoTestCommand.addAll(Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(options).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final String cargoPathString = cargoManifest.getLocation().toPortableString();
@@ -101,8 +101,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 		if (!arguments.isEmpty()) {
 			cargoTestCommand.add("--"); //$NON-NLS-1$
-			cargoTestCommand.addAll(
-					Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
+			cargoTestCommand.addAll(Arrays.asList(RustLaunchDelegateTools.performVariableSubstitution(arguments).split("\\s+"))); //$NON-NLS-1$
 		}
 
 		final List<String> finalTestCommand = cargoTestCommand;
@@ -120,8 +119,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
-		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
-				"org.eclipse.corrosion.test.CargoTestDelegate"); //$NON-NLS-1$
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource, "org.eclipse.corrosion.test.CargoTestDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
