@@ -84,14 +84,12 @@ public class RustLaunchDelegateTools {
 	}
 
 	/**
-	 * Converts the given relative path to a workspace resource and converts it to a
-	 * {@code File} with the absolute path on the file system. If file does not
-	 * exist in the workspace, the returned file will be based on the given relative
-	 * path.
+	 * Converts the given relative path to a workspace resource and converts it to a {@code File} with the absolute path on the file system. If file does not exist in the workspace, the returned file will
+	 * be based on the given relative path.
 	 *
-	 * @param path to a workspace resource
-	 * @return File object of the given {@code path}, with an absolute path on the
-	 *         file system
+	 * @param path
+	 *            to a workspace resource
+	 * @return File object of the given {@code path}, with an absolute path on the file system
 	 */
 	public static File convertToAbsolutePath(String path) {
 		final File file = new File(path);
@@ -111,24 +109,18 @@ public class RustLaunchDelegateTools {
 	 * @param launchConfig
 	 * @param mode
 	 */
-	public static void launch(ILaunchConfiguration launchConfig, String mode) {
-		try {
-			if (launchConfig != null) {
-				launchConfig.launch(mode, new NullProgressMonitor());
-			}
-		} catch (CoreException e) {
-			CorrosionPlugin.logError(e);
+	public static void launch(ILaunchConfiguration launchConfig, String mode) throws CoreException {
+		if (launchConfig != null) {
+			launchConfig.launch(mode, new NullProgressMonitor());
 		}
 	}
 
 	/**
-	 * Finds or creates a new launch configuration that matches the given search
-	 * terms
+	 * Finds or creates a new launch configuration that matches the given search terms
 	 *
 	 * @param resource
 	 * @param launchConfigurationType
-	 * @return The matching launch configuration or a new launch configuration
-	 *         working copy or null if unable to make a new one
+	 * @return The matching launch configuration or a new launch configuration working copy or null if unable to make a new one
 	 */
 	public static ILaunchConfiguration getLaunchConfiguration(IResource resource, String launchConfigurationType) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -164,8 +156,7 @@ public class RustLaunchDelegateTools {
 	 */
 	public static void openError(String title, String message) {
 		Display.getDefault().asyncExec(() -> {
-			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
+			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
 			dialog.setBlockOnOpen(false);
 			dialog.open();
 		});
