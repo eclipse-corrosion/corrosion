@@ -13,7 +13,8 @@
 package org.eclipse.corrosion.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -35,9 +36,18 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
+import org.junit.After;
 import org.junit.Test;
 
 public class TestRunConfiguration extends AbstractCorrosionTest {
+
+	@After
+	public void testErrorPopup() {
+		Shell errorPopup = getErrorPopup();
+		if (errorPopup != null) {
+			errorPopup.close();
+		}
+	}
 
 	@Test
 	public void testBasicRun() throws IOException, CoreException, InterruptedException {
@@ -47,10 +57,10 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		new DisplayHelper() {
 			@Override
 			protected boolean condition() {
-				return DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0 || errorPopupExists();
+				return DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0 || getErrorPopup() != null;
 			}
 		}.waitForCondition(Display.getCurrent(), 15000);
-		assertFalse(errorPopupExists());
+		assertNull(getErrorPopup());
 		assertTrue(DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0);
 		for (IProcess process : DebugPlugin.getDefault().getLaunchManager().getProcesses()) {
 			if (process.getLabel().equals("cargo run")) {
@@ -130,19 +140,19 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		new DisplayHelper() {
 			@Override
 			protected boolean condition() {
-				return errorPopupExists();
+				return getErrorPopup() != null;
 			}
 		}.waitForCondition(Display.getDefault(), 15000);
 
-		assertTrue(errorPopupExists());
+		assertNotNull(getErrorPopup());
 	}
 
-	private static boolean errorPopupExists() {
+	private static Shell getErrorPopup() {
 		for (Shell shell : Display.getDefault().getShells()) {
 			if (shell.getText().equals("Unable to Launch")) {
-				return true;
+				return shell;
 			}
 		}
-		return false;
+		return null;
 	}
 }
