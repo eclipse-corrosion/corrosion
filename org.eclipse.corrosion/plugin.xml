@@ -5,13 +5,20 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
+            file-extensions="toml"
+            id="org.eclipse.corrosion.toml"
+            name="%toml.content-type.name"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
             file-extensions="rs"
             id="org.eclipse.corrosion.rust"
             name="%content-type.name"
             priority="normal">
       </content-type>
       <content-type
-            base-type="org.eclipse.core.runtime.text"
+            base-type="org.eclipse.corrosion.toml"
             file-names="Cargo.toml"
             id="org.eclipse.corrosion.manifest"
             name="%content-type.name.0"
@@ -25,7 +32,7 @@
         editorId="org.eclipse.ui.genericeditor.GenericEditor">
    		</editorContentTypeBinding>
      <editorContentTypeBinding
-        contentTypeId="org.eclipse.corrosion.manifest"
+        contentTypeId="org.eclipse.corrosion.toml"
         editorId="org.eclipse.ui.genericeditor.GenericEditor">
    		</editorContentTypeBinding>
    </extension>
@@ -58,7 +65,7 @@
             scopeName="source.toml">
       </grammar>
       <scopeNameContentTypeBinding
-            contentTypeId="org.eclipse.corrosion.manifest"
+            contentTypeId="org.eclipse.corrosion.toml"
             scopeName="source.toml">
       </scopeNameContentTypeBinding>
    </extension>
