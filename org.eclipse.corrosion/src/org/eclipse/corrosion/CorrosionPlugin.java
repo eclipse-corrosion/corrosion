@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017-2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -18,9 +18,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
@@ -40,14 +43,13 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 		plugin = newValue;
 	}
 
-	@Override
-	public void start(BundleContext context) throws Exception {
+	@Override public void start(BundleContext context) throws Exception {
 		super.start(context);
 		setSharedInstance(this);
+		Job.create("Import .cargo in workspace", (ICoreRunnable) (monitor -> CargoTools.ensureDotCargoImportedAsProject(monitor))).schedule(); //$NON-NLS-1$
 	}
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
+	@Override public void stop(BundleContext context) throws Exception {
 		setSharedInstance(null);
 		super.stop(context);
 	}
@@ -75,8 +77,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 
 	public static void showError(String title, String message) {
 		Display.getDefault().asyncExec(() -> {
-			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
+			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
 			dialog.setBlockOnOpen(false);
 			dialog.open();
 		});
@@ -102,8 +103,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	}
 
 	private static File getWorkingDirectoryFromPreferences() {
-		String wdString = getDefault().getPreferenceStore()
-				.getString(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE);
+		String wdString = getDefault().getPreferenceStore().getString(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE);
 		if (wdString == null) {
 			return null;
 		}
