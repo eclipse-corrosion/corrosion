@@ -35,6 +35,9 @@ pipeline {
 			}
 		}
 		stage('SonarQube analysis') {
+			when {
+			 branch 'master'
+			}
 			steps {
 				withSonarQubeEnv('Eclipse Sonar') {
 					sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.jdbc.url=$SONAR_JDBC_URL -Dsonar.jdbc.username=$SONAR_JDBC_USERNAME -Dsonar.jdbc.password=$SONAR_JDBC_PASSWORD'
