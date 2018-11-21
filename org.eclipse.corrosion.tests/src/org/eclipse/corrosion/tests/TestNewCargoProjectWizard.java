@@ -21,7 +21,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IProject;
@@ -73,6 +76,7 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
 	@Test
 	public void testCreateNewProject() {
+		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		wizard.init(getWorkbench(), new StructuredSelection());
@@ -88,13 +92,15 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 				return ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0;
 			}
 		}.waitForCondition(getShell().getDisplay(), 15000);
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		assertEquals(1, projects.length);
-		assertTrue(projects[0].getFile("Cargo.toml").exists());
+		Set<IProject> newProjects = new HashSet<>(Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));
+		newProjects.removeAll(initialProjects);
+		assertEquals(1, newProjects.size());
+		assertTrue(newProjects.iterator().next().getFile("Cargo.toml").exists());
 	}
 
 	@Test
 	public void testCreateNewProjectOutOfWorkspace() throws IOException {
+		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		wizard.init(getWorkbench(), new StructuredSelection());
@@ -121,11 +127,12 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 			}
 		}.waitForCondition(getShell().getDisplay(), 15000);
 		try {
-			IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-			assertEquals(1, projects.length);
-			IProject project = projects[0];
+			Set<IProject> newProjects = new HashSet<>(Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));
+			newProjects.removeAll(initialProjects);
+			assertEquals(1, newProjects.size());
+			IProject project = newProjects.iterator().next();
 			assertEquals(tempDir.toFile(), project.getLocation().toFile());
-			assertTrue(projects[0].getFile("Cargo.toml").exists());
+			assertTrue(project.getFile("Cargo.toml").exists());
 		} finally {
 			FileUtils.deleteDirectory(tempDir.toFile());
 		}

@@ -13,12 +13,21 @@
 package org.eclipse.corrosion.cargo.core;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -73,5 +82,35 @@ public class CargoTools {
 	public static String getCargoCommand() {
 		IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
 		return store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE);
+	}
+
+	public static void ensureDotCargoImportedAsProject(IProgressMonitor monitor) throws CoreException {
+		File cargoFolder = new File(System.getProperty("user.home") + "/.cargo"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!cargoFolder.exists()) {
+			return;
+		}
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		for (IProject project : workspace.getRoot().getProjects()) {
+			if (!project.isOpen() && project.getName().startsWith(".cargo")) { //$NON-NLS-1$
+				project.open(monitor);
+			}
+			IPath location = project.getLocation();
+			if (location != null) {
+				File projectFolder = location.toFile().getAbsoluteFile();
+				if (cargoFolder.getAbsolutePath().startsWith(projectFolder.getAbsolutePath())) {
+					return; // .cargo already imported
+				}
+			}
+		}
+		// No .cargo folder available in workspace
+		String projectName = ".cargo"; //$NON-NLS-1$
+		while (workspace.getRoot().getProject(projectName).exists()) {
+			projectName += '_';
+		}
+		IProjectDescription description = workspace.newProjectDescription(projectName);
+		description.setLocation(Path.fromPortableString(cargoFolder.getAbsolutePath()));
+		IProject cargoProject = workspace.getRoot().getProject(projectName);
+		cargoProject.create(description, monitor);
+		cargoProject.open(monitor);
 	}
 }
