@@ -108,7 +108,7 @@ public class CargoTools {
 			projectName += '_';
 		}
 		IProjectDescription description = workspace.newProjectDescription(projectName);
-		description.setLocation(Path.fromPortableString(cargoFolder.getAbsolutePath()));
+		description.setLocation(Path.fromOSString(cargoFolder.getAbsolutePath()));
 		IProject cargoProject = workspace.getRoot().getProject(projectName);
 		cargoProject.create(description, monitor);
 		cargoProject.open(monitor);
