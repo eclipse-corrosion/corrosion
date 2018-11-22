@@ -42,7 +42,7 @@ import org.junit.Test;
 public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
 	private static final String DEFAULT_PROJECT_NAME = "new_rust_project";
-	
+
 	@Test
 	public void testNewProjectPage() {
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
@@ -134,10 +134,12 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 	@Override
 	public void tearDown() throws CoreException {
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-			try {
-				project.delete(true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				fail(e.getMessage());
+			if (!project.getName().equals(".cargo")) {
+				try {
+					project.delete(true, new NullProgressMonitor());
+				} catch (CoreException e) {
+					fail(e.getMessage());
+				}
 			}
 		}
 		super.tearDown();
