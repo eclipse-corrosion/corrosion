@@ -16,6 +16,7 @@ pipeline {
 				git url: 'https://github.com/eclipse/corrosion.git'
 				cleanWs()
 				checkout scm
+				sh 'curl -sSf https://static.rust-lang.org/rustup.sh | sh'
 				sh 'echo $PATH'
 			}
 		}
