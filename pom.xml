@@ -91,6 +91,25 @@
 					</includes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<!-- Make sure we don't forget to bump version -->
+					<execution>
+						<id>compare-version-with-baseline</id>
+						<goals>
+							<goal>compare-version-with-baselines</goal>
+						</goals>
+						<configuration>
+							<baselines>
+								<url>http://download.eclipse.org/corrosion/releases/latest</url>
+							</baselines>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
