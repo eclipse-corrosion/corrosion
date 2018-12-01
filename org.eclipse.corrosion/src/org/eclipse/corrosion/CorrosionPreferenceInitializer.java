@@ -10,6 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *  Holger Voormann - Set correct default locations on Windows (https://github.com/eclipse/corrosion/issues/86)
+ *  Nicola Orru - Added support for external RLS startup configuration
  *******************************************************************************/
 package org.eclipse.corrosion;
 

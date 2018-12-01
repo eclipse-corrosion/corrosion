@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Mickael Istria (Red Hat Inc.) - Initial implementation
+ *  Nicola Orru - Added support for external RLS startup configuration
  *******************************************************************************/
 package org.eclipse.corrosion;
 
