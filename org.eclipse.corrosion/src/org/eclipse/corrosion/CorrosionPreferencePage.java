@@ -124,9 +124,10 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		cargoInput.setValue(store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		setDefaultPathsSelection(store.getBoolean(CorrosionPreferenceInitializer.DEFAULT_PATHS_PREFERENCE));
 		rlsInput.setValue(store.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE));
-		rlsConfigurationPathInput.setValue(store.getString(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE));
 		sysrootInput.setValue(store.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE));
 		workingDirectoryInput.setValue(store.getString(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE));
+		rlsConfigurationPathInput
+				.setValue(store.getString(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE));
 	}
 
 	@Override
@@ -317,6 +318,9 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		int source = getRadioSelection();
 		store.setValue(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE, RUST_SOURCE_OPTIONS.get(source));
 		store.setValue(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE, workingDirectoryInput.getValue());
+		store.setValue(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE,
+				rlsConfigurationPathInput.getValue());
+
 		if (source == 0) {
 			store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE, rustupToolchainCombo.getText());
 			store.setValue(CorrosionPreferenceInitializer.DEFAULT_PATHS_PREFERENCE,
@@ -331,8 +335,6 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			}
 		} else if (source == 1) {
 			store.setValue(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE, rlsInput.getValue());
-			store.setValue(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE,
-					rlsConfigurationPathInput.getValue());
 			store.setValue(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE, sysrootInput.getValue());
 		}
 		return true;
@@ -400,6 +402,13 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		workingDirectoryInput.setTextGridData(wdTextData);
 		workingDirectoryInput.createVariableSelection();
 		workingDirectoryInput.createFolderSelection();
+
+		rlsConfigurationPathInput = new InputComponent(parent, Messages.CorrosionPreferencePage_rlsConfigurationPath,
+				e -> setValid(isPageValid()));
+		rlsConfigurationPathInput.createComponent();
+		rlsConfigurationPathInput.createVariableSelection();
+		rlsConfigurationPathInput.createFileSelection();
+		rlsConfigurationPathInput.setTextGridData(wdTextData);
 	}
 
 	private boolean installInProgress = false;
@@ -548,14 +557,6 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		rlsInput.setLabelGridData(labelIndent);
 		rlsInput.setTextGridData(textIndent);
 
-		rlsConfigurationPathInput = new InputComponent(parent, Messages.CorrosionPreferencePage_rlsConfigurationPath,
-				e -> setValid(isPageValid()));
-		rlsConfigurationPathInput.createComponent();
-		rlsConfigurationPathInput.createVariableSelection();
-		rlsConfigurationPathInput.createFileSelection();
-		rlsConfigurationPathInput.setLabelGridData(labelIndent);
-		rlsConfigurationPathInput.setTextGridData(textIndent);
-
 		sysrootInput = new InputComponent(parent, Messages.CorrosionPreferencePage_sysrootPath,
 				e -> setValid(isPageValid()));
 		sysrootInput.createComponent();
@@ -567,7 +568,6 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 	private void setOtherEnabled(boolean enabled) {
 		rlsInput.setEnabled(enabled);
-		rlsConfigurationPathInput.setEnabled(enabled);
 		sysrootInput.setEnabled(enabled);
 	}
 }

@@ -89,13 +89,16 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 		Map<String, Object> settings = new HashMap<>();
 		final File settingsFile = new File(settingsPath);
 		final Gson gson = new Gson();
-		try {
-			JsonReader reader = new JsonReader(new FileReader(settingsFile));
+		try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
 			settings = gson.fromJson(reader, HashMap.class);
 		} catch (FileNotFoundException e) {
 			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.WARNING,
 					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound, settingsPath)));
+		} catch (Throwable e) {
+			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
+					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError, settingsPath, e)));
 		}
 		return settings;
 	}
