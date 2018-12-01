@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
+ *  Nicola Orru - Added support for external RLS startup configuration
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -256,6 +257,19 @@ public class RustManager {
 				.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 						Messages.RLSStreamConnectionProvider_unableToSet));
 		return false;
+	}
+
+	public static String getRlsConfigurationPath() {
+		CorrosionPlugin plugin = CorrosionPlugin.getDefault();
+		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+		String preferencePath = preferenceStore
+				.getString(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE);
+		if (preferencePath.isEmpty()) {
+			CorrosionPlugin.getDefault().getLog()
+					.log(new Status(IStatus.WARNING, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+							Messages.RLSStreamConnectionProvider_rlsConfigurationNotSet));
+		}
+		return preferencePath;
 	}
 
 	public static String getRLS() {

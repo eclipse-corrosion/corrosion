@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
+ *  Nicola Orru - Added support for external RLS startup configuration
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -126,6 +127,8 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		rlsInput.setValue(store.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE));
 		sysrootInput.setValue(store.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE));
 		workingDirectoryInput.setValue(store.getString(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE));
+		rlsConfigurationPathInput
+				.setValue(store.getString(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE));
 	}
 
 	@Override
@@ -316,6 +319,9 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		int source = getRadioSelection();
 		store.setValue(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE, RUST_SOURCE_OPTIONS.get(source));
 		store.setValue(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE, workingDirectoryInput.getValue());
+		store.setValue(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE,
+				rlsConfigurationPathInput.getValue());
+
 		if (source == 0) {
 			store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE, rustupToolchainCombo.getText());
 			store.setValue(CorrosionPreferenceInitializer.DEFAULT_PATHS_PREFERENCE,
@@ -397,6 +403,13 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		workingDirectoryInput.setTextGridData(wdTextData);
 		workingDirectoryInput.createVariableSelection();
 		workingDirectoryInput.createFolderSelection();
+
+		rlsConfigurationPathInput = new InputComponent(parent, Messages.CorrosionPreferencePage_rlsConfigurationPath,
+				e -> setValid(isPageValid()));
+		rlsConfigurationPathInput.createComponent();
+		rlsConfigurationPathInput.createVariableSelection();
+		rlsConfigurationPathInput.createFileSelection();
+		rlsConfigurationPathInput.setTextGridData(wdTextData);
 	}
 
 	private boolean installInProgress = false;
@@ -523,6 +536,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private InputComponent rlsInput;
+	private InputComponent rlsConfigurationPathInput;
 	private InputComponent sysrootInput;
 
 	private void createOtherPart(Composite container) {

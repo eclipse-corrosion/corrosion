@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Mickael Istria (Red Hat Inc.) - Initial implementation
+ *  Nicola Orru - Added support for external RLS startup configuration
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -57,6 +58,9 @@ public class Messages extends NLS {
 	public static String RLSStreamConnectionProvider_OpenPreferences;
 	public static String RLSStreamConnectionProvider_requirementsNotFound;
 	public static String RLSStreamConnectionProvider_rlsNotFound;
+	public static String RLSStreamConnectionProvider_rlsConfigurationNotFound;
+	public static String RLSStreamConnectionProvider_rlsConfigurationNotSet;
+	public static String RLSStreamConnectionProvider_rlsConfigurationError;
 	public static String RLSStreamConnectionProvider_rustSupportNotFound;
 	public static String RLSStreamConnectionProvider_unableToSet;
 	public static String RustDebugDelegate_unableToLaunch_title;
@@ -124,6 +128,7 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_rlsLocation;
 	public static String CorrosionPreferencePage_rlsNonExecutable;
 	public static String CorrosionPreferencePage_rlsPath;
+	public static String CorrosionPreferencePage_rlsConfigurationPath;
 	public static String CorrosionPreferencePage_Rustup;
 	public static String CorrosionPreferencePage_rustupNonExecutable;
 	public static String CorrosionPreferencePage_rustupMissingRLS;
