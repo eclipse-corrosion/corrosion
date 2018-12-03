@@ -10,6 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *  Holger Voormann - Set correct default locations on Windows (https://github.com/eclipse/corrosion/issues/86)
+ *  Nicola Orru - Added support for external RLS startup configuration
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -22,6 +23,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 public class CorrosionPreferenceInitializer extends AbstractPreferenceInitializer {
 
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
+	private static final String CARGO_DEFAULT_ROOT = System.getProperty("user.home") + "/.cargo/"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String CARGO_DEFAULT_HOME = System.getProperty("user.home") + "/.cargo/bin/"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final boolean IS_WINDOWS = Platform.getOS().equals(Platform.OS_WIN32);
 
@@ -34,6 +36,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	public static final String TOOLCHAIN_TYPE_PREFERENCE = "corrosion.rustup_toolchain_type"; //$NON-NLS-1$
 
 	public static final String RLS_PATH_PREFERENCE = "corrosion.rslPath"; //$NON-NLS-1$
+	public static final String RLS_CONFIGURATION_PATH_PREFERENCE = "corrosion.rls_configurationPath"; //$NON-NLS-1$
 	public static final String SYSROOT_PATH_PREFERENCE = "corrosion.sysrootPath"; //$NON-NLS-1$
 
 	public static final String WORKING_DIRECTORY_PREFERENCE = "corrosion.workingDirectory"; //$NON-NLS-1$
@@ -48,6 +51,8 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		setToolchainBestGuesses();
 
 		STORE.setDefault(RLS_PATH_PREFERENCE, getRLSPathBestGuess());
+		STORE.setDefault(RLS_CONFIGURATION_PATH_PREFERENCE, getRLSConfigurationPathBestGuess());
+
 		STORE.setDefault(SYSROOT_PATH_PREFERENCE, getSysrootPathBestGuess());
 
 		STORE.setDefault(WORKING_DIRECTORY_PREFERENCE, getWorkingDirectoryBestGuess());
@@ -115,6 +120,10 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 			}
 		}
 		return command;
+	}
+
+	private static String getRLSConfigurationPathBestGuess() {
+		return CARGO_DEFAULT_ROOT + "rls.conf"; //$NON-NLS-1$
 	}
 
 	private static String getSysrootPathBestGuess() {

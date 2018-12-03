@@ -12,10 +12,20 @@
  *******************************************************************************/
 package org.eclipse.corrosion.edit;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferencePage;
 import org.eclipse.corrosion.Messages;
@@ -29,6 +39,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
 public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 
@@ -69,6 +82,34 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 
 	private static synchronized void setHasCancelledSetup(Boolean newValue) {
 		hasCancelledSetup = newValue;
+	}
+
+	private static Map<String, Object> getDefaultInitializationOptions() {
+		final Map<String, Object> initializationSettings = new HashMap<>();
+		initializationSettings.put("clippy_preference", "on"); //$NON-NLS-1$//$NON-NLS-2$
+		// undocumented, transitional. Will be superseded by "racer_completion" which
+		// defaults to "true"
+		initializationSettings.put("goto_def_racer_fallback", true); //$NON-NLS-1$
+		return Collections.singletonMap("settings", Collections.singletonMap("rust", initializationSettings)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	@Override
+	public Object getInitializationOptions(URI rootUri) {
+		final String settingsPath = RustManager.getRlsConfigurationPath();
+		final File settingsFile = new File(settingsPath);
+		final Gson gson = new Gson();
+		try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
+			return gson.fromJson(reader, HashMap.class);
+		} catch (FileNotFoundException e) {
+			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.WARNING,
+					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound, settingsPath)));
+		} catch (Throwable e) {
+			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
+					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError, settingsPath, e)));
+		}
+		return getDefaultInitializationOptions();
 	}
 
 	@Override
