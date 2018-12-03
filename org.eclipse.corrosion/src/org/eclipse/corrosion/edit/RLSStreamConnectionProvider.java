@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,14 +84,22 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 		hasCancelledSetup = newValue;
 	}
 
+	private static Map<String, Object> getDefaultInitializationOptions() {
+		final Map<String, Object> initializationSettings = new HashMap<>();
+		initializationSettings.put("clippy_preference", "on"); //$NON-NLS-1$//$NON-NLS-2$
+		// undocumented, transitional. Will be superseded by "racer_completion" which
+		// defaults to "true"
+		initializationSettings.put("goto_def_racer_fallback", true); //$NON-NLS-1$
+		return Collections.singletonMap("settings", Collections.singletonMap("rust", initializationSettings)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	@Override
 	public Object getInitializationOptions(URI rootUri) {
 		final String settingsPath = RustManager.getRlsConfigurationPath();
-		Map<String, Object> settings = new HashMap<>();
 		final File settingsFile = new File(settingsPath);
 		final Gson gson = new Gson();
 		try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
-			settings = gson.fromJson(reader, HashMap.class);
+			return gson.fromJson(reader, HashMap.class);
 		} catch (FileNotFoundException e) {
 			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.WARNING,
 					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
@@ -100,7 +109,7 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError, settingsPath, e)));
 		}
-		return settings;
+		return getDefaultInitializationOptions();
 	}
 
 	@Override
