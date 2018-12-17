@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2018 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -80,8 +79,15 @@ public class TestLSPIntegration extends AbstractCorrosionTest {
 				}
 			}
 		}.waitForCondition(editor.getEditorSite().getShell().getDisplay(), 30000);
-		IMarker marker = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)[0];
-		assertTrue(marker.getType().contains("lsp4e"));
-		assertEquals(3, marker.getAttribute(IMarker.LINE_NUMBER, -1));
+		IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
+		boolean markerFound = false;
+		for (IMarker marker : markers) {
+			assertTrue(marker.getType().contains("lsp4e"));
+			int lineNumber = marker.getAttribute(IMarker.LINE_NUMBER, -1);
+			if (lineNumber == 3) {
+				markerFound = true;
+			}
+		}
+		assertTrue("No error marker found at line 3.", markerFound);
 	}
 }

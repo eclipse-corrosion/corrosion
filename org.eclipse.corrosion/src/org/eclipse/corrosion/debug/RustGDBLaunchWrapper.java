@@ -12,7 +12,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
 
-import java.util.Arrays;
+import java.io.File;
+import java.util.Map;
 
 import org.eclipse.cdt.dsf.gdb.launching.GdbLaunch;
 import org.eclipse.core.runtime.CoreException;
@@ -45,14 +46,26 @@ public class RustGDBLaunchWrapper extends GdbLaunch {
 		if (length > 0) {
 			for (int i = 0; i < length; i++) {
 				if (envVariables[i].startsWith("PATH=")) { //$NON-NLS-1$
-					envVariables[i] += ':' + getCargoBinLocation() + ':' + getGDBLocation();
+					envVariables[i] += File.pathSeparator + getCargoBinLocation() + File.pathSeparator
+							+ getGDBLocation();
 					return envVariables;
 				}
 			}
+		} else {
+			Map<String, String> env = System.getenv();
+			envVariables = new String[env.size()];
+
+			int i = 0;
+			for (Map.Entry<String, String> entry : env.entrySet()) {
+				envVariables[i] = entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$
+				if (envVariables[i].startsWith("PATH=")) { //$NON-NLS-1$
+					envVariables[i] += File.pathSeparator + getCargoBinLocation() + File.pathSeparator
+							+ getGDBLocation();
+				}
+				i++;
+			}
 		}
 
-		envVariables = Arrays.copyOf(envVariables, length + 1);
-		envVariables[length] = "PATH=:" + getCargoBinLocation() + ':' + getGDBLocation(); //$NON-NLS-1$
 		return envVariables;
 	}
 
