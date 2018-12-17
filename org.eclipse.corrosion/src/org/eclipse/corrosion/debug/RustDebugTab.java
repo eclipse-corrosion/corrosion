@@ -37,7 +37,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 	private InputComponent projectInput;
 	private InputComponent buildInput;
 	private OptionalDefaultInputComponent executableInput;
-	private OptionalDefaultInputComponent workingDirectoryInput;
 
 	private IProject project;
 
@@ -46,8 +45,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, buildInput.getValue());
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectInput.getValue());
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executableInput.getValue());
-		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY,
-				workingDirectoryInput.getValue());
 		setDirty(false);
 	}
 
@@ -79,11 +76,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 				() -> getDefaultExecutablePath(project));
 		executableInput.createComponent();
 		executableInput.createResourceSelection(() -> project);
-
-		workingDirectoryInput = new OptionalDefaultInputComponent(container, Messages.LaunchUI_workingDirectory,
-				updateListener, () -> getDefaultWorkingDirectoryPath());
-		workingDirectoryInput.createComponent();
-		workingDirectoryInput.createContainerSelection(() -> project);
 	}
 
 	private void setProject(String projectName) {
@@ -95,16 +87,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		if (executableInput.getSelection()) {
 			executableInput.setValue(getDefaultExecutablePath(project));
 		}
-		if (workingDirectoryInput.getSelection()) {
-			workingDirectoryInput.setValue(getDefaultWorkingDirectoryPath());
-		}
-	}
-
-	private String getDefaultWorkingDirectoryPath() {
-		if (project == null) {
-			return ""; //$NON-NLS-1$
-		}
-		return project.getName();
 	}
 
 	@Override
@@ -112,7 +94,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build"); //$NON-NLS-1$
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
-		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -135,14 +116,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 			executableInput.setValue(""); //$NON-NLS-1$
 		}
 		executableInput.updateSelection(executableInput.getValue().equals(getDefaultExecutablePath(project)));
-		try {
-			workingDirectoryInput
-					.setValue(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "")); //$NON-NLS-1$
-		} catch (CoreException ce) {
-			workingDirectoryInput.setValue(""); //$NON-NLS-1$
-		}
-		workingDirectoryInput
-				.updateSelection(workingDirectoryInput.getValue().equals(getDefaultWorkingDirectoryPath()));
 	}
 
 	@Override
@@ -165,10 +138,6 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 		}
 		if (executableInput.getValue().isEmpty()) {
 			setErrorMessage(Messages.RustDebugTab_InvalidProjectExecutablePath);
-			return false;
-		}
-		if (workingDirectoryInput.getValue().isEmpty()) {
-			setErrorMessage(Messages.LaunchUI_invalidWorkingDirectory);
 			return false;
 		}
 		setErrorMessage(null);

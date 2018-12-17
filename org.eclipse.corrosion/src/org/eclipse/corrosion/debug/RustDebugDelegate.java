@@ -48,7 +48,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
 public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut {
-	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + "BUILD_COMMAND"; //$NON-NLS-1$
+	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + ".BUILD_COMMAND"; //$NON-NLS-1$
 
 	@Override public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		ILaunchConfiguration configuration = launch.getLaunchConfiguration();
