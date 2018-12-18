@@ -80,8 +80,15 @@ public class TestLSPIntegration extends AbstractCorrosionTest {
 				}
 			}
 		}.waitForCondition(editor.getEditorSite().getShell().getDisplay(), 30000);
-		IMarker marker = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)[0];
-		assertTrue(marker.getType().contains("lsp4e"));
-		assertEquals(3, marker.getAttribute(IMarker.LINE_NUMBER, -1));
+		IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
+		boolean markerFound = false;
+		for (IMarker marker : markers) {
+			assertTrue(marker.getType().contains("lsp4e"));
+			int lineNumber = marker.getAttribute(IMarker.LINE_NUMBER, -1);
+			if (lineNumber == 3) {
+				markerFound = true;
+			}
+		}
+		assertTrue("No error marker found at line 3.", markerFound);
 	}
 }
