@@ -54,7 +54,7 @@
    <bundle id="org.eclipse.mylyn.wikitext.markdown" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
-   <bundle id="org.jsoup" version="1.7.2.v201411291515">
+   <bundle id="org.jsoup" version="1.8.3.v20181012-1713">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
    <category-def name="org.eclipse.corrosion.category" label="Corrosion: Rust edition in Eclipse IDE">
