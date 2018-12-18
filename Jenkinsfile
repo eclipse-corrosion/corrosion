@@ -7,7 +7,7 @@ pipeline {
 		PATH = "$HOME/.cargo/bin/:$PATH"
 	}
 	tools {
-        maven 'apache-maven-3.0.5'
+        maven 'apache-maven-latest'
         jdk 'jdk1.8.0-latest'
     }
 	stages {
