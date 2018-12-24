@@ -9,6 +9,19 @@ Issue reports and feature requests are always appreciated and are made in the [I
 
 Local build happens with a simple `mvn clean verify`. Main build output is a p2 repository that you can find in `repository/target/repository`. You can use it to install and test the built artifacts in a working Eclipse IDE.
 
+You may need to configure your Maven and JRE to access required resources via HTTPS
+- export cetificates using X.509 (.CER) with Base-64 encoding for
+  - eclipse.org
+  - jboss.org
+  - github.com
+- import exported key files to your keystore (all paths should be absolute)
+  - `/your/jre/bin/keytool.exe -import -alias eclipse.org -file eclipse.org.cer -keystore /your/keystore`
+  - `/your/jre/bin/keytool.exe -import -alias jboss.org -file jboss.org.cer -keystore /your/keystore`
+  - `/your/jre/bin/keytool.exe -import -alias github.com -file github.com.cer -keystore /your/keystore`
+- add options to maven run command
+
+  `mvn clean verify -Djavax.net.ssl.trustStore=/your/keystore/ -Djavax.net.ssl.trustStorePassword=storepassword`
+
 ### Modify Corrosion in the Eclipse IDE
 
 For running Corrosion in a child Eclipse instance:
