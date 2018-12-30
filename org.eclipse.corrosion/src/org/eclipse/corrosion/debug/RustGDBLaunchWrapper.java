@@ -45,7 +45,7 @@ public class RustGDBLaunchWrapper extends GdbLaunch {
 
 		if (length > 0) {
 			for (int i = 0; i < length; i++) {
-				if (envVariables[i].startsWith("PATH=")) { //$NON-NLS-1$
+				if (envVariables[i].toUpperCase().startsWith("PATH=")) { //$NON-NLS-1$
 					envVariables[i] += File.pathSeparator + getCargoBinLocation() + File.pathSeparator
 							+ getGDBLocation();
 					return envVariables;
@@ -58,7 +58,7 @@ public class RustGDBLaunchWrapper extends GdbLaunch {
 			int i = 0;
 			for (Map.Entry<String, String> entry : env.entrySet()) {
 				envVariables[i] = entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$
-				if (envVariables[i].startsWith("PATH=")) { //$NON-NLS-1$
+				if (envVariables[i].toUpperCase().startsWith("PATH=")) { //$NON-NLS-1$
 					envVariables[i] += File.pathSeparator + getCargoBinLocation() + File.pathSeparator
 							+ getGDBLocation();
 				}
@@ -78,7 +78,7 @@ public class RustGDBLaunchWrapper extends GdbLaunch {
 
 	private static String getGDBLocation() {
 		IPath location = Path.fromOSString(CorrosionPlugin
-				.getOutputFromCommand(Platform.getOS().equals(Platform.OS_WIN32) ? "where gdb" : "which gdb"));//$NON-NLS-1$ //$NON-NLS-2$
+				.getOutputFromCommand((Platform.getOS().equals(Platform.OS_WIN32) ? "where" : "which"), "gdb"));//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String parentDirectory = location.toFile().getParent();
 		return parentDirectory != null ? parentDirectory : ""; //$NON-NLS-1$
 	}

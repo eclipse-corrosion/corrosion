@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.corrosion.cargo.core.CargoTools;
@@ -83,21 +82,21 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 		});
 	}
 
+	public static boolean validateCommandVersion(String[] commandStrings, Pattern matchPattern) {
+		String[] command = new String[1 + commandStrings.length];
+		
+		System.arraycopy(commandStrings, 0, command, 0, commandStrings.length);
+		command[commandStrings.length] = "--version"; //$NON-NLS-1$
+		
+		return matchPattern.matcher(getOutputFromCommand(command)).matches();
+	}
+	
 	public static boolean validateCommandVersion(String commandPath, Pattern matchPattern) {
-		return matchPattern.matcher(getOutputFromCommand(commandPath + " --version")).matches(); //$NON-NLS-1$
+		return matchPattern.matcher(getOutputFromCommand(commandPath, "--version")).matches(); //$NON-NLS-1$
 	}
 
 	public static Process getProcessForCommand(String... commandStrings) throws IOException {
-		String[] command = new String[3];
-		if (Platform.getOS().equals(Platform.OS_WIN32)) {
-			command[0] = "cmd"; //$NON-NLS-1$
-			command[1] = "/c"; //$NON-NLS-1$
-		} else {
-			command[0] = "/bin/bash"; //$NON-NLS-1$
-			command[1] = "-c"; //$NON-NLS-1$
-		}
-		command[2] = String.join(" ", commandStrings); //$NON-NLS-1$
-		ProcessBuilder builder = new ProcessBuilder(command);
+		ProcessBuilder builder = new ProcessBuilder(commandStrings);
 		builder.directory(getWorkingDirectoryFromPreferences());
 		return builder.start();
 	}

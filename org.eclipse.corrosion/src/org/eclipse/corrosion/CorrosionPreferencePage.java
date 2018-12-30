@@ -192,7 +192,8 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			setErrorMessage(Messages.CorrosionPreferencePage_emptyToolchain);
 			return false;
 		}
-		String rlsPath = varParse(rustupInput.getValue()) + " run " + getToolchainId() + " rls"; //$NON-NLS-1$ //$NON-NLS-2$
+		String[] rlsPath = new String[] { varParse(rustupInput.getValue()), "run", getToolchainId(), "rls" }; //$NON-NLS-1$ //$NON-NLS-2$
+		
 		if (!CorrosionPlugin.validateCommandVersion(rlsPath, RustManager.RLS_VERSION_FORMAT_PATTERN)) {
 			setErrorMessage(Messages.CorrosionPreferencePage_rustupMissingRLS);
 			setInstallRequired(true);
