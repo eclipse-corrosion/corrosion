@@ -57,12 +57,20 @@
    <bundle id="org.jsoup" version="1.8.3.v20181012-1713">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
+   <bundle id="org.eclipse.corrosion.source" version="0.0.0">
+      <category name="org.eclipse.corrosion.dev.category"/>
+   </bundle>
    <category-def name="org.eclipse.corrosion.category" label="Corrosion: Rust edition in Eclipse IDE">
       <description>
          Corrosion enables Rust application development in the Eclipse IDE.
       </description>
    </category-def>
-   <category-def name="org.eclipse.corrosion.dependecies.category" label="Dependencies">
+   <category-def name="org.eclipse.corrosion.dependencies.category" label="Dependencies">
+      <description>
+         The dependencies for Corrosion.
+      </description>
+   </category-def>
+   <category-def name="org.eclipse.corrosion.dev.category" label="Developer Resources">
       <description>
          The dependencies for Corrosion.
       </description>
