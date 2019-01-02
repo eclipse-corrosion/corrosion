@@ -281,7 +281,7 @@ public class RustManager {
 		String rlsPath = ""; //$NON-NLS-1$
 		if (rustSourceIndex == 0) {
 			String rustup = preferenceStore.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
-			rlsPath = CorrosionPlugin.getOutputFromCommand(rustup + " which rls"); //$NON-NLS-1$
+			rlsPath = CorrosionPlugin.getOutputFromCommand(rustup, "which", "rls"); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (rustSourceIndex == 1) {
 			rlsPath = preferenceStore.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
 		}

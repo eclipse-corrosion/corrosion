@@ -15,6 +15,7 @@
 package org.eclipse.corrosion;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
@@ -143,6 +144,6 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	}
 
 	private static String getWorkingDirectoryBestGuess() {
-		return CorrosionPlugin.getOutputFromCommand(IS_WINDOWS ? "cd" : "pwd"); //$NON-NLS-1$ //$NON-NLS-2$
+		return Paths.get("").toAbsolutePath().toString(); //$NON-NLS-1$
 	}
 }
