@@ -155,8 +155,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			}
 		}
 
-		ILaunchConfigurationWorkingCopy wc = configuration.copy(configuration.getName() + "[Variables Parsed]") //$NON-NLS-1$
-				.getWorkingCopy();
+		ILaunchConfigurationWorkingCopy wc = configuration.copy(configuration.getName());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executable.getAbsolutePath());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, workingDirectory.getAbsolutePath());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, project.getLocation().toString());
