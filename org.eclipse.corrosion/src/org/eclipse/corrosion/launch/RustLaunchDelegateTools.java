@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2019 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -84,12 +84,14 @@ public class RustLaunchDelegateTools {
 	}
 
 	/**
-	 * Converts the given relative path to a workspace resource and converts it to a {@code File} with the absolute path on the file system. If file does not exist in the workspace, the returned file will
-	 * be based on the given relative path.
+	 * Converts the given relative path to a workspace resource and converts it to a
+	 * {@code File} with the absolute path on the file system. If file does not
+	 * exist in the workspace, the returned file will be based on the given relative
+	 * path.
 	 *
-	 * @param path
-	 *            to a workspace resource
-	 * @return File object of the given {@code path}, with an absolute path on the file system
+	 * @param path to a workspace resource
+	 * @return File object of the given {@code path}, with an absolute path on the
+	 *         file system
 	 */
 	public static File convertToAbsolutePath(String path) {
 		final File file = new File(path);
@@ -116,11 +118,13 @@ public class RustLaunchDelegateTools {
 	}
 
 	/**
-	 * Finds or creates a new launch configuration that matches the given search terms
+	 * Finds or creates a new launch configuration that matches the given search
+	 * terms
 	 *
 	 * @param resource
 	 * @param launchConfigurationType
-	 * @return The matching launch configuration or a new launch configuration working copy or null if unable to make a new one
+	 * @return The matching launch configuration or a new launch configuration
+	 *         working copy or null if unable to make a new one
 	 */
 	public static ILaunchConfiguration getLaunchConfiguration(IResource resource, String launchConfigurationType) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -128,9 +132,14 @@ public class RustLaunchDelegateTools {
 		try {
 			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
 			final String projectName = resource.getProject().getName();
-
+			String launchConfigProjectAttribute;
+			if (launchConfigurationType.equals("org.eclipse.corrosion.debug.RustDebugDelegate")) { //$NON-NLS-1$
+				launchConfigProjectAttribute = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+			} else {
+				launchConfigProjectAttribute = RustLaunchDelegateTools.PROJECT_ATTRIBUTE;
+			}
 			for (ILaunchConfiguration iLaunchConfiguration : launchConfigurations) {
-				if (iLaunchConfiguration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, "") //$NON-NLS-1$
+				if (iLaunchConfiguration.getAttribute(launchConfigProjectAttribute, "") //$NON-NLS-1$
 						.equals(projectName)) {
 					return iLaunchConfiguration;
 				}
@@ -156,7 +165,8 @@ public class RustLaunchDelegateTools {
 	 */
 	public static void openError(String title, String message) {
 		Display.getDefault().asyncExec(() -> {
-			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
+			MessageDialog dialog = new MessageDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					title, null, message, MessageDialog.ERROR, 0, IDialogConstants.OK_LABEL);
 			dialog.setBlockOnOpen(false);
 			dialog.open();
 		});
