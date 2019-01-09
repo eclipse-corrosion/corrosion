@@ -165,4 +165,6 @@ public class Messages extends NLS {
 	public static String RustManager_unableToInstallToolchain;
 	public static String RustManager_unableToSetDefaultToolchain;
 	public static String RustManager_toolchainDoesntIncludeRLS;
+	public static String CargoRunTab_Title;
+	public static String CargoTestTab_Title;
 }
