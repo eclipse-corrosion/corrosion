@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2018 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2019 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,6 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -31,7 +30,6 @@ import org.eclipse.corrosion.Messages;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
@@ -47,8 +45,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetGroup;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 public class NewCargoProjectWizardPage extends WizardPage {
 
@@ -62,10 +58,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		setTitle(Messages.NewCargoProjectWizardPage_title);
 		setDescription(Messages.NewCargoProjectWizardPage_description);
 
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = bundle.getEntry("images/cargo.png"); //$NON-NLS-1$
-		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
-		setImageDescriptor(imageDescriptor);
+		setImageDescriptor(CorrosionPlugin.getDefault().getImageRegistry().getDescriptor("images/cargo.png")); //$NON-NLS-1$
 	}
 
 	public void setDirectory(File directory) {
