@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2018 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2019 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,6 @@ package org.eclipse.corrosion.wizards.export;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.File;
-import java.net.URL;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -28,7 +27,6 @@ import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -42,8 +40,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 public class CargoExportWizardPage extends WizardPage {
 	private IProject project;
@@ -83,18 +79,17 @@ public class CargoExportWizardPage extends WizardPage {
 		super(CargoExportWizardPage.class.getName());
 		setTitle(Messages.CargoExportWizardPage_title);
 		setDescription(Messages.CargoExportWizardPage_description);
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = bundle.getEntry("images/cargo.png"); //$NON-NLS-1$
-		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
-		setImageDescriptor(imageDescriptor);
+		setImageDescriptor(CorrosionPlugin.getDefault().getImageRegistry().getDescriptor("images/cargo.png")); //$NON-NLS-1$
 
 		if (project != null) {
 			this.project = project;
 		}
 	}
 
-	@Override public void createControl(Composite parent) {
-		Image errorImage = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
+	@Override
+	public void createControl(Composite parent) {
+		Image errorImage = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR)
+				.getImage();
 
 		Composite container = new Composite(parent, SWT.BORDER);
 		setControl(container);
@@ -125,7 +120,9 @@ public class CargoExportWizardPage extends WizardPage {
 		browseButton.setText(Messages.CargoExportWizardPage_browse);
 		browseButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		browseButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			ListSelectionDialog dialog = new ListSelectionDialog(browseButton.getShell(), ResourcesPlugin.getWorkspace().getRoot(), new BaseWorkbenchContentProvider(), new WorkbenchLabelProvider(), Messages.CargoExportWizardPage_selectProject);
+			ListSelectionDialog dialog = new ListSelectionDialog(browseButton.getShell(),
+					ResourcesPlugin.getWorkspace().getRoot(), new BaseWorkbenchContentProvider(),
+					new WorkbenchLabelProvider(), Messages.CargoExportWizardPage_selectProject);
 			dialog.setTitle(Messages.CargoExportWizardPage_projectSelection);
 			int returnCode = dialog.open();
 			Object[] results = dialog.getResult();
@@ -174,13 +171,15 @@ public class CargoExportWizardPage extends WizardPage {
 	private IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
 	private static CargoProjectTester tester = new CargoProjectTester();
 
-	@Override public boolean isPageComplete() {
+	@Override
+	public boolean isPageComplete() {
 		File cargo = new File(store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		if (!(cargo.exists() && cargo.isFile() && cargo.canExecute())) {
 			setErrorMessage(Messages.CargoExportWizardPage_cargoCommandNotFound);
 			return false;
 		}
-		if (!(project != null && project.exists() && tester.test(project, CargoProjectTester.PROPERTY_NAME, null, null))) {
+		if (!(project != null && project.exists()
+				&& tester.test(project, CargoProjectTester.PROPERTY_NAME, null, null))) {
 			setErrorMessage(Messages.CargoExportWizardPage_invalidCargoProject);
 			outputLocationLabel.setText(""); //$NON-NLS-1$
 			projectControlDecoration.show();
