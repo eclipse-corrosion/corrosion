@@ -12,17 +12,23 @@
  *******************************************************************************/
 package org.eclipse.corrosion.test;
 
+import java.net.URL;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.ui.launch.AbstractCargoLaunchConfigurationTab;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 public class CargoTestTab extends AbstractCargoLaunchConfigurationTab {
 	private Text testnameText;
@@ -80,5 +86,18 @@ public class CargoTestTab extends AbstractCargoLaunchConfigurationTab {
 		} catch (CoreException ce) {
 			testnameText.setText(""); //$NON-NLS-1$
 		}
+	}
+
+	@Override
+	public Image getImage() {
+		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+		URL url = bundle.getEntry("images/cargo16.png"); //$NON-NLS-1$
+		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
+		return imageDescriptor.createImage();
+	}
+
+	@Override
+	public String getName() {
+		return Messages.CargoTestTab_Title;
 	}
 }
