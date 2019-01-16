@@ -29,8 +29,10 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.wizards.newresource.BasicNewFileResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewFolderResourceWizard;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class TestPerspective {
 
 	@Before

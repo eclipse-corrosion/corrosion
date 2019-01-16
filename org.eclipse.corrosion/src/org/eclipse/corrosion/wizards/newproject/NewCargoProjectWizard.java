@@ -34,6 +34,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -51,14 +53,22 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
-public class NewCargoProjectWizard extends Wizard implements INewWizard {
+public class NewCargoProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
 	private NewCargoProjectWizardPage wizardPage;
+	private IConfigurationElement configuration;
 	public static final String ID = "org.eclipse.corrosion.wizards.newCargo"; //$NON-NLS-1$
 
 	public NewCargoProjectWizard() {
 		super();
 		setNeedsProgressMonitor(true);
+	}
+
+	@Override
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
+			throws CoreException {
+		this.configuration = config;
 	}
 
 	@Override
@@ -152,6 +162,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 							mainFileName = "lib.rs"; //$NON-NLS-1$
 						}
 						createProject(projectName, location, mainFileName, monitor);
+						switchPerspective();
 					} else {
 						StringBuilder errorOutput = new StringBuilder();
 						try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
@@ -203,6 +214,10 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 			return false;
 		}
 		return true;
+	}
+
+	private void switchPerspective() {
+		BasicNewProjectResourceWizard.updatePerspective(configuration);
 	}
 
 	private void createProject(String name, File directory, String mainFileName, IProgressMonitor monitor) {
