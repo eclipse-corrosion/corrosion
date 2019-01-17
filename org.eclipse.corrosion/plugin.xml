@@ -133,7 +133,6 @@
       <wizard
             category="org.eclipse.corrosion.rust"
             class="org.eclipse.corrosion.wizards.newproject.NewCargoProjectWizard"
-            finalPerspective="org.eclipse.ui.resourcePerspective"
             icon="icons/cargo.png"
             id="org.eclipse.corrosion.wizards.newCargo"
             name="%wizard.name"

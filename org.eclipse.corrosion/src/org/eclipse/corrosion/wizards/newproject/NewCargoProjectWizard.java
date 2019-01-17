@@ -162,7 +162,7 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard, IExecut
 							mainFileName = "lib.rs"; //$NON-NLS-1$
 						}
 						createProject(projectName, location, mainFileName, monitor);
-						switchPerspective();
+						BasicNewProjectResourceWizard.updatePerspective(configuration);
 					} else {
 						StringBuilder errorOutput = new StringBuilder();
 						try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
@@ -214,10 +214,6 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard, IExecut
 			return false;
 		}
 		return true;
-	}
-
-	private void switchPerspective() {
-		BasicNewProjectResourceWizard.updatePerspective(configuration);
 	}
 
 	private void createProject(String name, File directory, String mainFileName, IProgressMonitor monitor) {
