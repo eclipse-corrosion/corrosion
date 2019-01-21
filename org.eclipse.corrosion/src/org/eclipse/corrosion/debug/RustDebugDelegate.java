@@ -159,6 +159,12 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executable.getAbsolutePath());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, workingDirectory.getAbsolutePath());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, project.getLocation().toString());
+		
+		String stopInMainSymbol = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN_SYMBOL, ""); //$NON-NLS-1$
+		if (stopInMainSymbol.equals("main")) { //$NON-NLS-1$
+			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN_SYMBOL, projectName + "::main"); //$NON-NLS-1$
+		}
+		
 		ILaunch launch = super.getLaunch(wc.doSave(), mode);
 		if (!(launch instanceof RustGDBLaunchWrapper)) {
 			launch = new RustGDBLaunchWrapper(launch);
