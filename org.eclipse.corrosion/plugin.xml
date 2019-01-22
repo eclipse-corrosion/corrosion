@@ -49,6 +49,10 @@
             contentType="org.eclipse.corrosion.rust"
             id="org.eclipse.corrosion.rls">
       </contentTypeMapping>
+      <contentTypeMapping
+            contentType="org.eclipse.corrosion.manifest"
+            id="org.eclipse.corrosion.rls">
+      </contentTypeMapping>
    </extension>
    <extension
          point="org.eclipse.tm4e.registry.grammars">
@@ -361,5 +365,14 @@
             contentTypeId="org.eclipse.corrosion.rust"
             path="language-configurations/language-configuration.json">
       </languageConfiguration>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            contextId="org.eclipse.ui.textEditorScope"
+            commandId="org.eclipse.tm4e.languageconfiguration.togglelinecommentcommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+/">
+      </key>
    </extension>
 </plugin>
