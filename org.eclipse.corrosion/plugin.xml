@@ -328,16 +328,6 @@
       </handler>
    </extension>
 
-<!-- PERSPECTIVE -->
-   <extension
-        point="org.eclipse.ui.perspectives">
-        <perspective
-            id="org.eclipse.corrosion.rustPerspective"
-            name="%perspective.name"
-            class="org.eclipse.corrosion.RustPerspective"
-            icon="icons/rust.png">
-        </perspective> 
-    </extension>
 <!-- BREAKPOINTS -->
 	<extension point="org.eclipse.debug.ui.toggleBreakpointsTargetFactories">
       <toggleTargetFactory

@@ -25,7 +25,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestRunConfiguration.class,
 	TestDebugConfiguration.class,
 	TestExportCargoProjectWizard.class,
-	TestPerspective.class,
 	TestLSPExtensions.class,
 	TestSnippetContentAssistProcessor.class
 })
