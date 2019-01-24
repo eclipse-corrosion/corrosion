@@ -339,7 +339,7 @@
    <extension point="org.eclipse.ui.editorActions">
       <editorContribution
          targetID="org.eclipse.ui.genericeditor.GenericEditor"
-         id="com.github.rustdt.ide.debug.ui.EditorBreakpointRulerActions">
+         id="org.eclipse.corrosion.debug.EditorBreakpointRulerActions">
 
          <action
                actionID="RulerDoubleClick"
@@ -364,5 +364,17 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+/">
       </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <actionSet
+               id="org.eclipse.debug.ui.launchActionSet">
+         </actionSet>
+         <actionSet
+               id="org.eclipse.debug.ui.breakpointActionSet">
+         </actionSet>
+      </perspectiveExtension>
    </extension>
 </plugin>
