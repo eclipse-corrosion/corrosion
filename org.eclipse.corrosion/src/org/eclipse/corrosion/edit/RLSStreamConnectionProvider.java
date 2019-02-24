@@ -87,9 +87,6 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 	private static Map<String, Object> getDefaultInitializationOptions() {
 		final Map<String, Object> initializationSettings = new HashMap<>();
 		initializationSettings.put("clippy_preference", "on"); //$NON-NLS-1$//$NON-NLS-2$
-		// undocumented, transitional. Will be superseded by "racer_completion" which
-		// defaults to "true"
-		initializationSettings.put("goto_def_racer_fallback", true); //$NON-NLS-1$
 		return Collections.singletonMap("settings", Collections.singletonMap("rust", initializationSettings)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -101,7 +98,7 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 		try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
 			return gson.fromJson(reader, HashMap.class);
 		} catch (FileNotFoundException e) {
-			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.WARNING,
+			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.INFO,
 					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound, settingsPath)));
 		} catch (Throwable e) {
