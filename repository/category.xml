@@ -6,10 +6,10 @@
    <feature id="tm-feature" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </feature>
-   <bundle id="com.google.gson" version="2.7.0.v20170129-0911">
+   <bundle id="com.google.gson" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
-   <bundle id="org.apache.commons.lang" version="2.6.0.v201404270220">
+   <bundle id="org.apache.commons.lang" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
    <bundle id="org.eclipse.lsp4e" version="0.0.0">
@@ -24,10 +24,10 @@
    <bundle id="org.eclipse.xtext.xbase.lib" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
-   <bundle id="org.jcodings" version="1.0.18.v20170306-1742">
+   <bundle id="org.jcodings" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
-   <bundle id="org.joni" version="2.1.11.v20170306-1742">
+   <bundle id="org.joni" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
    <bundle id="org.eclipse.mylyn.commons.core" version="0.0.0">
@@ -54,7 +54,7 @@
    <bundle id="org.eclipse.mylyn.wikitext.markdown" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
-   <bundle id="org.jsoup" version="1.8.3.v20181012-1713">
+   <bundle id="org.jsoup" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
    <bundle id="org.eclipse.corrosion.source" version="0.0.0">
