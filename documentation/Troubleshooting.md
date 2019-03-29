@@ -16,7 +16,7 @@ The Eclipse IDE for Rust Developer functionality is provided by cooperation of a
 
 #### The **Eclipse IDE** platform
 
-Latest releases available at https://www.eclipse.org/downloads/packages/. Multiple flavours available for all your programming needs. In general, Rust plugin development targets recent builds, so if you're having problem of sorts, make sure you have a decently up-to-date platform. Eclipse can be configured to update itself via repositories. In general, the automatic update works as expected. If the IDE fails after an updated, for any reason, there are two workarounds to try:
+Latest releases available at https://www.eclipse.org/downloads/packages/. Multiple flavours available for all your programming needs. In general, Rust plugin development targets recent builds, so if you're having problem of sorts, make sure you have a decently up-to-date platform. Eclipse can be configured to update itself via repositories. In general, the automatic update works as expected. If the IDE fails after an update, for any reason, there are two workarounds to try:
 
 - start Eclipse from a new workspace
 - start Eclipse from a new install.
@@ -27,7 +27,7 @@ Multiple workspaces and versions of Eclipse can be easily installed side by side
 
 Support for Rust is provided by the Corrosion plugin. There are two ways to get this quickly up-and-running:
 
-1. You can get the all-in-one Eclipse IDE for Rust developer packages from here. This is a self-contained solution which quickly enables Rust development out-of-the box at https://www.eclipse.org/downloads/packages/release/2018-09/r/eclipse-ide-rust-developers-includes-incubating-components
+1. You can get the all-in-one Eclipse IDE for Rust developer packages from here. This is a self-contained solution which quickly enables Rust development out-of-the box at https://www.eclipse.org/downloads/packages/release/2019-03/r/eclipse-ide-rust-developers-includes-incubating-components
 2. Install any flavour of Eclipse from the link above and then add the Corrosion plugin with **Help** -> **Install new software** -> **Add**, then choose one of the repositories:
     - Corrosion Releases - http://download.eclipse.org/corrosion/releases/
     - Corrosion Snapshots - http://download.eclipse.org/corrosion/snapshots/
@@ -61,10 +61,13 @@ RLS runs in the background as a separate process and provides most of the IDE fu
 rustup update
 rustup component add rls-preview rust-analysis rust-src
 ```
-
 For those who don't mind to skim throught detail: GitHub project: https://github.com/rust-lang/rls
 
 As the RLS is started as a child process of Eclipse, all the OS shenanigans of environment variable and working directories inheritance do apply.
+
+##### Note on `rustup` vs Distro packages
+
+The recommended way to install `rls` is to use `rustup`. Some users find the `| sh` method of installing `rustup` questionable, which is sometimes understandable. As an alternative, some Linux distribution provide a `rust stable` package which is usually not terribly up to date. While this is a good option in many cases, it does not play well with Corrosion, which, being still in active development, often requires very up-to-date versions of `rust` and `rls` as they may well contain critical bug fixes.
 
 #### The **Language Server Protocol for Eclipse** (LSP4E)
 
@@ -98,13 +101,12 @@ As Corrosion uses TextMate, the **Editors** section for **Colors and Fonts** has
 
 Functionality to read `.rls.conf` from the RLS directly has been long removed. Eclipse provides an alternative for this configuration file. The `$HOME/.cargo/rls.conf` file contains the startup settings for the `rls` and it is optional. In this file you should be able to specify any of the valid RLS settings, as listed in https://github.com/rust-lang/rls#configuration.
 
-If this file exists, the plugin attempts to load and parse it as as a Json object, then forwards its whole content to the initialize RLS method as the payload of the `initializationOptions` field. If you don't have one, Corrosion will ignore it and guess some sensible defaults, namely: 
+If this file exists, the plugin attempts to load and parse it as as a Json object, then forwards its whole content to the initialize RLS method as the payload of the `initializationOptions` field. If you don't have one, Corrosion kindly let you know that *RLS settings for Corrosion path not found at $HOME/.cargo/rls.conf* and make up for it by guessing a sensible default, literally: 
 
 ```
 {
 	"settings": {
 		"rust": {
-			"goto_def_racer_fallback": true,
 			"clippy_preference": "on"
 		}
 	}
@@ -123,11 +125,12 @@ There is one **exception** of how **tab indents** are handled. The following set
 
 **General** -> **Text editors** -> **Insert spaces for tabs** 
 
-By default, the setting above will be **unticked** so `Ctrl+Shift+S` will use **tabs** for indent, while `cargo fmt` will use **4 spaces**.
+By default, the setting above will be **unticked** so `Ctrl+Shift+F` will use **tabs** for indent, while `cargo fmt` will use **4 spaces**.
 
-In order to restore consistency between the twos, there are two options:
+In order to restore consistency between the two, there are two options:
 
 ##### indent with tabs
+
 To make sure both Corrosion and `cargo fmt` use tabs, **untick** the setting above and add the following settings to `.rustfmt.toml` in the root of your Rust project:
 
 ```
@@ -246,32 +249,6 @@ Manually import the `.cargo` folder as a project in your Rust IDE workspace by:
 3. **Import source** `/your/home/path/.cargo` should be selected
 4. Click on **Finish**
 
-#### Missing field 'codeActionKind'.
-
-> org.eclipse.lsp4j.jsonrpc.ResponseErrorException: missing field 'codeActionKind'.
-
-This was caused by a bug in the Language Server Protocol handler in Eclipse, fixed in:
-
-https://bugs.eclipse.org/bugs/show_bug.cgi?id=541851
-https://git.eclipse.org/c/lsp4e/lsp4e.git/commit/?id=6cc786f0d9bc1c12b818f7677796e2b4efdefbef
-https://github.com/rust-lang/rls/issues/1161
-
-##### Fix
-
-Installing/upgrading to an up-to-date version of Eclipse IDE for Rust Developers such as 2018-09 or 2018-12, or manually updating from the Snapshot update sites, will resolve it.
-
-#### Annoying autoclosing
-
-The implementation of closing bracket or quote sometimes inserts more than desired when typing quickly. This is currently (2018/12) being addressed in https://github.com/eclipse/tm4e/issues/192.
-
-##### Workaround
-
-In the meantime, if you find autoclosing too annoying, you can disable it altogether:
-
-1. **Preferences** -> **TextMate** -> **Language Configurations** -> **org.eclipse.corrosion.rust** -> **Auto Closing Pairs**
-2. (disable) Enable auto closing brackets` as a workaround.
-
-
 #### Error compiling dependent crate (or RLS is being nasty)
 
 Sometimes RLS just stops working with not much of a diagnosis:
@@ -295,13 +272,43 @@ from the root of your crate and at least see if there is a workaround for that s
 
 ----
 
+## Old common issues
+
+#### Missing field 'codeActionKind'.
+
+> org.eclipse.lsp4j.jsonrpc.ResponseErrorException: missing field 'codeActionKind'.
+
+This was caused by a bug in the Language Server Protocol handler in Eclipse, fixed in:
+
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=541851
+https://git.eclipse.org/c/lsp4e/lsp4e.git/commit/?id=6cc786f0d9bc1c12b818f7677796e2b4efdefbef
+https://github.com/rust-lang/rls/issues/1161
+
+##### Fix
+
+Installing/upgrading to 2018-09 or newer version of Eclipse IDE for Rust Developers, or manually updating from the Snapshot update sites, will resolve it.
+
+#### Annoying autoclosing
+
+The implementation of closing bracket or quote sometimes inserts more than desired when typing quickly. This was addressed in https://github.com/eclipse/tm4e/issues/192.
+
+##### Workaround
+
+In the meantime, if you find autoclosing too annoying, you can disable it altogether:
+
+1. **Preferences** -> **TextMate** -> **Language Configurations** -> **org.eclipse.corrosion.rust** -> **Auto Closing Pairs**
+2. (disable) Enable auto closing brackets` as a workaround.
+
+----
+
 ## Living on the bleeding edge
 
-When everything else fails there is still the last resort of starting over and upgrading to the latest version of *everything*
+When everything else fails, there is still the last resort of starting over and upgrading to the latest version of *everything*
 
-1. make sure you have a recent/working toolchain with RLS (tested with nightly 2018-12-13)
-2. download and install Eclipse IDE For Rust Developer from https://www.eclipse.org/downloads/packages/release/2018-09/r/eclipse-ide-rust-developers-includes-incubating-components
-3. start the installed Eclipse. This will not work out of the box and will exhibit the problem you reported with `codeActionKind`. Ignore it for now.
+1. make sure you have a recent/working toolchain with RLS (`nightly-2018-12-13` or newer)
+2. download and install Eclipse IDE For Rust Developer from https://www.eclipse.org/downloads/packages/release/2019-03/r/eclipse-ide-rust-developers-includes-incubating-components
+3. start the installed Eclipse.
+
 1. **Help** -> **Install new software** .Do not press `Next >`. Instead, add the following three sites via `Add...` or `Manage...`
   * Corrosion Snapshots - http://download.eclipse.org/corrosion/snapshots/
   * TM4E Snapshots - http://download.eclipse.org/tm4e/snapshots/
