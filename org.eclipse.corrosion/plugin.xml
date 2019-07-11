@@ -406,5 +406,16 @@
             contentTypeId="org.eclipse.corrosion.rust">
       </contentTypeBinding>
    </extension>
+   <extension
+         point="org.eclipse.ui.console.consolePatternMatchListeners">
+       <consolePatternMatchListener
+            class="org.eclipse.corrosion.ErrorLineMatcher"
+            id="org.eclipse.corrosion.ErrorLineMatcher"
+            regex="(-->).*:\d+:\d+">
+         <enablement>
+            <test property="org.eclipse.ui.console.consoleTypeTest" value="org.eclipse.debug.ui.ProcessConsoleType"/>
+         </enablement>
+      </consolePatternMatchListener>
+   </extension>
 
 </plugin>
