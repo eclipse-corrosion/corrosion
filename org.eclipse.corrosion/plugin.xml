@@ -411,7 +411,7 @@
        <consolePatternMatchListener
             class="org.eclipse.corrosion.ErrorLineMatcher"
             id="org.eclipse.corrosion.ErrorLineMatcher"
-            regex="(-->).*:\d+:\d+">
+            regex="(?&lt;=-->\s).*:\d+:\d+">
          <enablement>
             <test property="org.eclipse.ui.console.consoleTypeTest" value="org.eclipse.debug.ui.ProcessConsoleType"/>
          </enablement>
