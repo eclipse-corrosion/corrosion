@@ -61,11 +61,11 @@ public class ErrorLineMatcher implements IPatternMatchListenerDelegate {
 						.getAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
 				IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 				IProject myProject = myWorkspaceRoot.getProject(projectName);
-				String errorString = console.getDocument().get(event.getOffset() + 4, event.getLength() - 4);
+				String errorString = console.getDocument().get(event.getOffset(), event.getLength());
 				String[] coordinates = errorString.split(":"); //$NON-NLS-1$
 				IHyperlink link = makeHyperlink(myProject.getFile(coordinates[0]), Integer.parseInt(coordinates[1]),
 						Integer.parseInt(coordinates[2]));
-				console.addHyperlink(link, offset + 4, length - 4);
+				console.addHyperlink(link, offset, length);
 			}
 		} catch (BadLocationException | CoreException e) {
 			// ignore
