@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2019 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -58,7 +58,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 
 	@Override
 	public void createControl(Composite parent) {
-		Composite container = new Group(parent, SWT.BORDER);
+		Composite container = new Composite(parent, SWT.NONE);
 		setControl(container);
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(container);
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
