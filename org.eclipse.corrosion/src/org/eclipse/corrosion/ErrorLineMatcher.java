@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion;
 
+import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -57,8 +58,16 @@ public class ErrorLineMatcher implements IPatternMatchListenerDelegate {
 			IProcess process = (IProcess) console.getAttribute(IDebugUIConstants.ATTR_CONSOLE_PROCESS);
 			if (process != null) {
 				ILaunch launch = process.getLaunch();
-				String projectName = launch.getLaunchConfiguration()
-						.getAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
+				String projectAttribute = RustLaunchDelegateTools.PROJECT_ATTRIBUTE;
+				String launchConfigurationType = launch.getLaunchConfiguration().getType().getIdentifier();
+				if (launchConfigurationType.equals("org.eclipse.corrosion.debug.RustDebugDelegate")) { //$NON-NLS-1$
+					// support debug launch configs
+					projectAttribute = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+				}
+				String projectName = launch.getLaunchConfiguration().getAttribute(projectAttribute, ""); //$NON-NLS-1$
+				if (projectName.trim().isEmpty()) {
+					return; // can't determine project so prevent error down
+				}
 				IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 				IProject myProject = myWorkspaceRoot.getProject(projectName);
 				String errorString = console.getDocument().get(event.getOffset(), event.getLength());
