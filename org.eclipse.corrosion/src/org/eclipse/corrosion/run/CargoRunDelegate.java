@@ -115,10 +115,11 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 
 		final List<String> finalRunCommand = cargoRunCommand;
 		final File finalWorkingDirectory = workingDirectory;
+		final String[] envArgs = DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration);
 		CompletableFuture.runAsync(() -> {
 			try {
 				String[] cmdLine = finalRunCommand.toArray(new String[finalRunCommand.size()]);
-				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory);
+				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory, envArgs);
 				IProcess process = DebugPlugin.newProcess(launch, p, "cargo run"); //$NON-NLS-1$
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
