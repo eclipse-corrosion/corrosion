@@ -417,5 +417,12 @@
          </enablement>
       </consolePatternMatchListener>
    </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.icons">
+      <icon
+            contentTypeId="org.eclipse.corrosion.rust"
+            icon="icons/rustEditorIcon.png">
+      </icon>
+   </extension>
 
 </plugin>
