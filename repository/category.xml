@@ -3,7 +3,7 @@
    <feature id="org.eclipse.corrosion.feature" version="0.0.0">
       <category name="org.eclipse.corrosion.category"/>
    </feature>
-   <feature id="tm-feature" version="0.0.0">
+   <feature id="org.eclipse.tm4e.feature" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </feature>
    <bundle id="com.google.gson" version="0.0.0">
