@@ -4,8 +4,8 @@
 	<parent>
 		<groupId>org.eclipse.corrosion</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.4.1-SNAPSHOT</version>
+		<version>0.4.3-SNAPSHOT</version>
 	</parent>
 	<packaging>eclipse-feature</packaging>
-	<version>0.4.2-SNAPSHOT</version>
+	<version>0.4.3-SNAPSHOT</version>
 </project>

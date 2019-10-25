@@ -16,6 +16,9 @@ pipeline {
 				git url: 'https://github.com/eclipse/corrosion.git'
 				cleanWs()
 				checkout scm
+				sh 'rustup install stable-x86_64-unknown-linux-gnu'
+				sh 'rustup default stable-x86_64-unknown-linux-gnu'
+				sh 'rustup component add rls'
 				sh 'echo $PATH'
 			}
 		}
