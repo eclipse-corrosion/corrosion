@@ -10,6 +10,7 @@
  * Contributors:
  *  Mickael Istria (Red Hat Inc.) - Source Reference
  *  Lucas Bullen   (Red Hat Inc.) - Initial implementation
+ *  Max Bureck (Fraunhofer FOKUS) - Give RLS more time to generate error
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
@@ -35,6 +36,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageServer;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
@@ -68,17 +70,15 @@ public class TestLSPIntegration extends AbstractCorrosionTest {
 		IEditorPart editor = null;
 		IFile file = project.getFolder("src").getFile("main.rs");
 		editor = IDE.openEditor(activePage, file);
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				try {
-					return file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)[0]
-							.getAttribute(IMarker.LINE_NUMBER, -1) == 3;
-				} catch (Exception e) {
-					return false;
-				}
+		Display display = editor.getEditorSite().getShell().getDisplay();
+		DisplayHelper.waitForCondition(display, 50000, () -> {
+			try {
+				return file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)[0]
+						.getAttribute(IMarker.LINE_NUMBER, -1) == 3;
+			} catch (Exception e) {
+				return false;
 			}
-		}.waitForCondition(editor.getEditorSite().getShell().getDisplay(), 30000);
+		});
 		IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
 		boolean markerFound = false;
 		for (IMarker marker : markers) {

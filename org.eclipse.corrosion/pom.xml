@@ -23,7 +23,7 @@
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>https://raw.githubusercontent.com/rust-lang-nursery/rustup.rs/d93c1c83994ae6046a3d9fc0b8f88aed99bacab9/rustup-init.sh</url>
+							<url>https://raw.githubusercontent.com/rust-lang/rustup.rs/1.20.2/rustup-init.sh</url>
 							<outputDirectory>${project.basedir}/scripts</outputDirectory>
 							<skipCache>true</skipCache>
 							<overwrite>true</overwrite>

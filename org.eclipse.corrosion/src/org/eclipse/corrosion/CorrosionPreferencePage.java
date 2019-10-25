@@ -10,6 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *  Nicola Orru - Added support for external RLS startup configuration
+ *  Max Bureck (Fraunhofer FOKUS) - Install rls when installing rustup
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -193,7 +194,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			return false;
 		}
 		String[] rlsPath = new String[] { varParse(rustupInput.getValue()), "run", getToolchainId(), "rls" }; //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		if (!CorrosionPlugin.validateCommandVersion(rlsPath, RustManager.RLS_VERSION_FORMAT_PATTERN)) {
 			setErrorMessage(Messages.CorrosionPreferencePage_rustupMissingRLS);
 			setInstallRequired(true);
@@ -429,7 +430,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 						Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details);
 				return;
 			}
-			command = new String[] { file.getAbsolutePath() + " -y" }; //$NON-NLS-1$
+			command = new String[] { file.getAbsolutePath(), "-y", "-c", "rls" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} catch (IOException | URISyntaxException e) {
 			CorrosionPlugin.showError(Messages.CorrosionPreferencePage_cannotInstallRustupCargo,
 					Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details, e);
