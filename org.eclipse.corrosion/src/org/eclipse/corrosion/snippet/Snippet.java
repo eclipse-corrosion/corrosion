@@ -9,11 +9,14 @@
  *
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
+ *  Max Bureck (Fraunhofer FOKUS) - Working around depricated LSP4E API
  *******************************************************************************/
 package org.eclipse.corrosion.snippet;
 
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
+import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.lsp4e.LanguageServiceAccessor.LSPDocumentInfo;
@@ -24,6 +27,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 @SuppressWarnings("restriction")
 public class Snippet {
@@ -41,7 +45,8 @@ public class Snippet {
 		this.kind = kind;
 	}
 
-	public ICompletionProposal convertToCompletionProposal(int offset, LSPDocumentInfo info, String prefix, String lineIndentation) {
+	public ICompletionProposal convertToCompletionProposal(int offset, LSPDocumentInfo info, String prefix,
+			String lineIndentation) {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(display);
 		item.setKind(kind);
@@ -59,7 +64,16 @@ public class Snippet {
 			return null;
 		}
 		item.setTextEdit(new TextEdit(r, createReplacement(lineIndentation)));
-		return new LSCompletionProposal(info.getDocument(), offset, item, info.getLanguageClient());
+		return new LSCompletionProposal(info.getDocument(), offset, item, getLanguageClient(info));
+	}
+
+	private static LanguageServer getLanguageClient(LSPDocumentInfo info) {
+		try {
+			return info.getInitializedLanguageClient().get();
+		} catch (InterruptedException | ExecutionException e) {
+			CorrosionPlugin.logError(e);
+			return null;
+		}
 	}
 
 	public boolean matchesPrefix(String prefix) {
