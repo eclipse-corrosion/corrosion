@@ -68,10 +68,17 @@ public class TestLSPIntegration extends AbstractCorrosionTest {
 		IProject project = getProject(BASIC_ERRORS_PROJECT_NAME);
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
+		// This is a workaround, since the test is failing occasionally.
+		// The RLS may not be fully initialized without this timeout.
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		IFile file = project.getFolder("src").getFile("main.rs");
 		editor = IDE.openEditor(activePage, file);
 		Display display = editor.getEditorSite().getShell().getDisplay();
-		DisplayHelper.waitForCondition(display, 50000, () -> {
+		DisplayHelper.waitForCondition(display, 30000, () -> {
 			try {
 				return file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)[0]
 						.getAttribute(IMarker.LINE_NUMBER, -1) == 3;
