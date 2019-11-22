@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
+ *  Max Bureck (Fraunhofer FOKUS) - Moved default GDB definition to re-usable constant
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
 
@@ -50,12 +51,15 @@ import org.eclipse.ui.IEditorPart;
 public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut {
 	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + ".BUILD_COMMAND"; //$NON-NLS-1$
 
-	@Override public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+	@Override
+	public void launch(ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor)
+			throws CoreException {
 		ILaunchConfiguration configuration = launch.getLaunchConfiguration();
 		String buildCommand = configuration.getAttribute(BUILD_COMMAND_ATTRIBUTE, ""); //$NON-NLS-1$
 		String projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
@@ -102,8 +106,10 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		super.launch(configuration, mode, launch, monitor);
 	}
 
-	@Override public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.firstResourceFromSelection(selection));
+	@Override
+	public void launch(ISelection selection, String mode) {
+		ILaunchConfiguration launchConfig = getLaunchConfiguration(
+				RustLaunchDelegateTools.firstResourceFromSelection(selection));
 		try {
 			RustLaunchDelegateTools.launch(launchConfig, mode);
 		} catch (CoreException e) {
@@ -111,7 +117,8 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		}
 	}
 
-	@Override public void launch(IEditorPart editor, String mode) {
+	@Override
+	public void launch(IEditorPart editor, String mode) {
 		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.resourceFromEditor(editor));
 		try {
 			RustLaunchDelegateTools.launch(launchConfig, mode);
@@ -120,7 +127,9 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		}
 	}
 
-	@Override protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session) throws CoreException {
+	@Override
+	protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session)
+			throws CoreException {
 		SourceLookupDirector locator = new SourceLookupDirector();
 		String memento = configuration.getAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_MEMENTO, (String) null);
 		if (memento == null) {
@@ -131,27 +140,34 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		return locator;
 	}
 
-	@Override protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session) throws CoreException {
+	@Override
+	protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session)
+			throws CoreException {
 		DsfSourceLookupDirector sourceLookupDirector = new DsfSourceLookupDirector(session);
-		sourceLookupDirector.setSourceContainers(((SourceLookupDirector) getSourceLocator(configuration, session)).getSourceContainers());
+		sourceLookupDirector.setSourceContainers(
+				((SourceLookupDirector) getSourceLocator(configuration, session)).getSourceContainers());
 		return sourceLookupDirector;
 	}
 
-	@Override public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
+	@Override
+	public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
 		setDefaultProcessFactory(configuration); // Reset process factory to what GdbLaunch expected
 		String projectName = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
 		}
-		String executableString = RustLaunchDelegateTools.performVariableSubstitution(configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").trim()); //$NON-NLS-1$
+		String executableString = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, "").trim()); //$NON-NLS-1$
 		File executable = RustLaunchDelegateTools.convertToAbsolutePath(executableString);
 		if (!executable.exists()) {
 			IPath executablePath = Path.fromPortableString(executableString);
 			if (project != null && executablePath.segment(0).equals(project.getName())) { // project relative path
-				executable = project.getFile(executablePath.removeFirstSegments(1)).getLocation().toFile().getAbsoluteFile();
+				executable = project.getFile(executablePath.removeFirstSegments(1)).getLocation().toFile()
+						.getAbsoluteFile();
 			}
 		}
 
@@ -159,12 +175,13 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executable.getAbsolutePath());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, workingDirectory.getAbsolutePath());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_LOCATION, project.getLocation().toString());
-		
-		String stopInMainSymbol = configuration.getAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN_SYMBOL, ""); //$NON-NLS-1$
+
+		String stopInMainSymbol = configuration
+				.getAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN_SYMBOL, ""); //$NON-NLS-1$
 		if (stopInMainSymbol.equals("main")) { //$NON-NLS-1$
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN_SYMBOL, projectName + "::main"); //$NON-NLS-1$
 		}
-		
+
 		ILaunch launch = super.getLaunch(wc.doSave(), mode);
 		if (!(launch instanceof RustGDBLaunchWrapper)) {
 			launch = new RustGDBLaunchWrapper(launch);
@@ -174,19 +191,21 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		return launch;
 	}
 
-	@Override protected IPath checkBinaryDetails(ILaunchConfiguration config) throws CoreException {
+	@Override
+	protected IPath checkBinaryDetails(ILaunchConfiguration config) throws CoreException {
 		return LaunchUtils.verifyProgramPath(config, null);
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
-		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource, "org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
+				"org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			final IProject project = resource.getProject();
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, getDefaultExecutablePath(project)); // $NON-NLS-1$
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
-			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, "rust-gdb"); //$NON-NLS-1$
+			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, DebugUtil.DEFAULT_DEBUGGER);
 		}
 		return launchConfiguration;
 	}

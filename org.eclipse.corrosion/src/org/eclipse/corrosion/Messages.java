@@ -10,6 +10,7 @@
  * Contributors:
  *  Mickael Istria (Red Hat Inc.) - Initial implementation
  *  Nicola Orru - Added support for external RLS startup configuration
+ *  Max Bureck (Fraunhofer FOKUS) - Added message for GDB failure
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -167,4 +168,5 @@ public class Messages extends NLS {
 	public static String RustManager_toolchainDoesntIncludeRLS;
 	public static String CargoRunTab_Title;
 	public static String CargoTestTab_Title;
+	public static String RustDebugTabGroup_gdbErrorMsg;
 }

@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
+ *  Max Bureck (Fraunhofer FOKUS) - Added icon
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
 
@@ -18,6 +19,7 @@ import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.cargo.core.CargoProjectTester;
 import org.eclipse.corrosion.ui.InputComponent;
@@ -28,6 +30,7 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -147,5 +150,10 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 	@Override
 	public String getName() {
 		return Messages.LaunchUI_main;
+	}
+
+	@Override
+	public Image getImage() {
+		return CorrosionPlugin.getDefault().getImageRegistry().get("icons/rustEditorIcon.png"); //$NON-NLS-1$
 	}
 }

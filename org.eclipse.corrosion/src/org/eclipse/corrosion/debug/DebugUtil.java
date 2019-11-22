@@ -21,19 +21,26 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.corrosion.CorrosionPlugin;
 
 /**
- * This class contains static helper methods and fields to be used for the Debuging functionality in Eclipse Corrosion
+ * This class contains static helper methods and fields to be used for the
+ * Debuging functionality in Eclipse Corrosion
  */
 class DebugUtil {
 
+	/**
+	 * Default debugger executable to use for Rust
+	 */
+	/* package */ static final String DEFAULT_DEBUGGER = "rust-gdb"; //$NON-NLS-1$
 	private static final boolean IS_WINDOWS = Platform.getOS().equals(Platform.OS_WIN32);
 
 	/**
-	 * Returns the default workspace path to the executable produced for the given project. This location is a guess based on the default rust/cargo project layout and the operating system running
-	 * eclipse.
+	 * Returns the default workspace path to the executable produced for the given
+	 * project. This location is a guess based on the default rust/cargo project
+	 * layout and the operating system running eclipse.
 	 *
-	 * @param project
-	 *            Rust project for which the executable workspace path is computed.
-	 * @return default workspace path to the executable created for the given Rust {@code project}.
+	 * @param project Rust project for which the executable workspace path is
+	 *                computed.
+	 * @return default workspace path to the executable created for the given Rust
+	 *         {@code project}.
 	 */
 	static String getDefaultExecutablePath(IProject project) {
 		if (project == null) {
