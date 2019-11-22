@@ -9,6 +9,7 @@
  *
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
+ *  Max Bureck (Fraunhofer FOKUS) - Registering additional image for debug launcher
  *******************************************************************************/
 package org.eclipse.corrosion;
 
@@ -97,6 +98,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 		super.initializeImageRegistry(reg);
 		declareRegistryImage(reg, "images/cargo.png"); //$NON-NLS-1$
 		declareRegistryImage(reg, "images/cargo16.png"); //$NON-NLS-1$
+		declareRegistryImage(reg, "icons/rustEditorIcon.png"); //$NON-NLS-1$
 	}
 
 	private final static void declareRegistryImage(ImageRegistry reg, String image) {
