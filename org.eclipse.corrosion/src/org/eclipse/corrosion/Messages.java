@@ -169,4 +169,9 @@ public class Messages extends NLS {
 	public static String CargoRunTab_Title;
 	public static String CargoTestTab_Title;
 	public static String RustDebugTabGroup_gdbErrorMsg;
+	public static String LaunchHandler_unableToLaunch;
+	public static String LaunchHandler_launchingFromCargoRegistryUnsupported;
+	public static String LaunchHandler_unsupportedProjectLocation;
+	public static String LaunchHandler_unableToLaunchCommand;
+
 }

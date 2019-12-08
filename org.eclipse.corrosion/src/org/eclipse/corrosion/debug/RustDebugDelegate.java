@@ -198,7 +198,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
-				"org.eclipse.corrosion.debug.RustDebugDelegate"); //$NON-NLS-1$
+				RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			final IProject project = resource.getProject();

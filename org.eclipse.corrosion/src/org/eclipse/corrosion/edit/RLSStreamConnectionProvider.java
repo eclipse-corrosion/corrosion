@@ -34,6 +34,8 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.lsp4e.server.StreamConnectionProvider;
+import org.eclipse.lsp4j.jsonrpc.messages.Message;
+import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -84,10 +86,18 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 		hasCancelledSetup = newValue;
 	}
 
+	@Override
+	public void handleMessage(Message message, LanguageServer languageServer, URI rootURI) {
+		// System.out.println(message);
+	}
+
 	private static Map<String, Object> getDefaultInitializationOptions() {
-		final Map<String, Object> initializationSettings = new HashMap<>();
-		initializationSettings.put("clippy_preference", "on"); //$NON-NLS-1$//$NON-NLS-2$
-		return Collections.singletonMap("settings", Collections.singletonMap("rust", initializationSettings)); //$NON-NLS-1$ //$NON-NLS-2$
+		final Map<String, Object> initializationOptions = new HashMap<>();
+		final Map<String, Object> rustInitializationSettings = new HashMap<>();
+		rustInitializationSettings.put("clippy_preference", "on"); //$NON-NLS-1$//$NON-NLS-2$
+		initializationOptions.put("settings", Collections.singletonMap("rust", rustInitializationSettings)); //$NON-NLS-1$ //$NON-NLS-2$
+		initializationOptions.put("cmdRun", true); //$NON-NLS-1$
+		return initializationOptions;
 	}
 
 	@Override

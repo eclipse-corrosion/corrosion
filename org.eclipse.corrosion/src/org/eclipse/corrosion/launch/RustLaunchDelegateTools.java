@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class RustLaunchDelegateTools {
 
+	public static final String CORROSION_DEBUG_LAUNCH_CONFIG_TYPE = "org.eclipse.corrosion.debug.RustDebugDelegate"; //$NON-NLS-1$
 	public static final String PROJECT_ATTRIBUTE = "PROJECT"; //$NON-NLS-1$
 	public static final String OPTIONS_ATTRIBUTE = "OPTIONS"; //$NON-NLS-1$
 	public static final String ARGUMENTS_ATTRIBUTE = "ARGUMENTS"; //$NON-NLS-1$
@@ -133,7 +134,7 @@ public class RustLaunchDelegateTools {
 			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
 			final String projectName = resource.getProject().getName();
 			String launchConfigProjectAttribute;
-			if (launchConfigurationType.equals("org.eclipse.corrosion.debug.RustDebugDelegate")) { //$NON-NLS-1$
+			if (launchConfigurationType.equals(CORROSION_DEBUG_LAUNCH_CONFIG_TYPE)) {
 				launchConfigProjectAttribute = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 			} else {
 				launchConfigProjectAttribute = RustLaunchDelegateTools.PROJECT_ATTRIBUTE;

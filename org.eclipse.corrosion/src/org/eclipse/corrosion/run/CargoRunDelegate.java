@@ -40,6 +40,8 @@ import org.eclipse.ui.IEditorPart;
 
 public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 
+	public static final String CARGO_RUN_LAUNCH_CONFIG_TYPE = "org.eclipse.corrosion.run.CargoRunDelegate"; //$NON-NLS-1$
+
 	@Override
 	public void launch(ISelection selection, String mode) {
 		ILaunchConfiguration launchConfig = getLaunchConfiguration(
@@ -133,7 +135,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
-				"org.eclipse.corrosion.run.CargoRunDelegate"); //$NON-NLS-1$
+				CARGO_RUN_LAUNCH_CONFIG_TYPE);
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());

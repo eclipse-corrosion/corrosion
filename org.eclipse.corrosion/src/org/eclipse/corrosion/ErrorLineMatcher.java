@@ -60,7 +60,7 @@ public class ErrorLineMatcher implements IPatternMatchListenerDelegate {
 				ILaunch launch = process.getLaunch();
 				String projectAttribute = RustLaunchDelegateTools.PROJECT_ATTRIBUTE;
 				String launchConfigurationType = launch.getLaunchConfiguration().getType().getIdentifier();
-				if (launchConfigurationType.equals("org.eclipse.corrosion.debug.RustDebugDelegate")) { //$NON-NLS-1$
+				if (launchConfigurationType.equals(RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE)) {
 					// support debug launch configs
 					projectAttribute = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 				}
