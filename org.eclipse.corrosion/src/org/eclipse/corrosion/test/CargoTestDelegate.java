@@ -39,6 +39,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
 public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
+	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 
 	@Override
@@ -120,10 +121,11 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 		final List<String> finalTestCommand = cargoTestCommand;
 		final File finalWorkingDirectory = workingDirectory;
+		final String[] envArgs = DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration);
 		CompletableFuture.runAsync(() -> {
 			try {
 				String[] cmdLine = finalTestCommand.toArray(new String[finalTestCommand.size()]);
-				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory);
+				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory, envArgs);
 				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test"); //$NON-NLS-1$
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
@@ -137,7 +139,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
-				"org.eclipse.corrosion.test.CargoTestDelegate"); //$NON-NLS-1$
+				CARGO_TEST_LAUNCH_CONFIG_TYPE_ID);
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());

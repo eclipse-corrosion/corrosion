@@ -424,5 +424,12 @@
             icon="icons/rustEditorIcon.png">
       </icon>
    </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.eclipse.corrosion.launch.LaunchHandler"
+            commandId="rls.run">
+      </handler>
+   </extension>
 
 </plugin>

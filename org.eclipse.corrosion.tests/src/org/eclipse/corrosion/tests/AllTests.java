@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
+import org.eclipse.corrosion.launch.CargoArgsTest;
+import org.eclipse.corrosion.launch.RLSRunCommandTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -26,7 +28,10 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestDebugConfiguration.class,
 	TestExportCargoProjectWizard.class,
 	TestLSPExtensions.class,
-	TestSnippetContentAssistProcessor.class
+	TestSnippetContentAssistProcessor.class,
+	CargoArgsTest.class,
+	RLSRunCommandTest.class,
+	RLSRunCommandTest.MissingField.class
 })
 public class AllTests {
 
