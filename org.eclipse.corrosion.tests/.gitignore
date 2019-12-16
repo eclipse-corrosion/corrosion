@@ -1,2 +1,4 @@
 /bin/
 /target/
+*.polyglot..META-INF_MANIFEST.MF
+*.META-INF_MANIFEST.MF

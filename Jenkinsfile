@@ -7,7 +7,6 @@ pipeline {
 		PATH = "$HOME/.cargo/bin/:$PATH"
 	}
 	tools {
-        maven 'apache-maven-latest'
         jdk 'jdk1.8.0-latest'
     }
 	stages {
@@ -27,7 +26,7 @@ pipeline {
 				sh 'cargo --version'
 				sh 'rustup show'
 				wrap([$class: 'Xvnc', useXauthority: true]) {
-					sh 'mvn -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -PpackAndSign'
+					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -PpackAndSign'
 				}
 			}
 			post {

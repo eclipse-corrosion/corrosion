@@ -7,7 +7,9 @@ Issue reports and feature requests are always appreciated and are made in the [I
 
 ### Building locally
 
-Local build happens with a simple `mvn clean verify`. Main build output is a p2 repository that you can find in `repository/target/repository`. You can use it to install and test the built artifacts in a working Eclipse IDE.
+Local build happens with a simple `mvnw clean verify`. Main build output is a p2 repository that you can find in `repository/target/repository`. You can use it to install and test the built artifacts in a working Eclipse IDE. 
+
+Note that on windows the command cannot be invoked from PowerShell, but only from CMD.
 
 ### Modify Corrosion in the Eclipse IDE
 
