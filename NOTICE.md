@@ -55,6 +55,9 @@ Rustup (Workswith)
 Rust and Cargo logos
 * License: [CC-BY-4.0](https://www.rust-lang.org/en-US/legal.html)
 
+[Maven Wrapper (Build Time)](https://github.com/takari/maven-wrapper/tree/maven-wrapper-0.5.6)
+* License: [Apache-2.0](https://github.com/takari/maven-wrapper/blob/maven-wrapper-0.5.6/LICENSE.txt)
+
 ## Cryptography
 
 Content may contain encryption software. The country in which you are currently

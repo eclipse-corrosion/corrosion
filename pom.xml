@@ -6,10 +6,10 @@
 	<packaging>pom</packaging>
 	
 	<prerequisites>
-		<maven>3.3.9</maven>
+		<maven>3.6.3</maven>
 	</prerequisites>
 	<properties>
-		<tycho-version>1.4.0</tycho-version>
+		<tycho-version>1.5.1</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,6 +23,23 @@
 		<module>repository</module>
 	</modules>
 	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- Needed for test plug-in -->
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<useUIThread>true</useUIThread>
+						<useUIHarness>true</useUIHarness>
+						<!-- Note, only working as long as there is one test project -->
+						<testSuite>org.eclipse.corrosion.tests</testSuite>
+						<testClass>org.eclipse.corrosion.tests.AllTests</testClass>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -43,6 +60,16 @@
 							<version>0.4.3-SNAPSHOT</version>
 						</artifact>
 					</target>
+					<!-- Needed for test plug-in -->
+					<dependency-resolution>
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>javax.annotation</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -72,6 +99,8 @@
 						.settings/
 						.project
 						.classpath
+						.META-INF_MANIFEST.MF
+						.polyglot..META-INF_MANIFEST.MF
 					</jgit.ignore>
 				</configuration>
 				<dependencies>
