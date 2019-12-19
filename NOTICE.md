@@ -35,16 +35,16 @@ gson (2.8.2)
 * License: Apache-2.0
 
 Cargo (Workswith)
-* License: Apache-2.0
+* License: [Apache-2.0 OR MIT](https://github.com/rust-lang/cargo#license)
 
 Rustup (Workswith)
-* License: Apache-2.0
+* License: [Apache-2.0 OR MIT](https://github.com/rust-lang/rustup/tree/1.20.1#license)
 
-[rustup-init.sh](https://github.com/rust-lang-nursery/rustup.rs/blob/d93c1c83994ae6046a3d9fc0b8f88aed99bacab9/rustup-init.sh)
-* License: Apache-2.0
+[rustup-init.sh](https://raw.githubusercontent.com/rust-lang/rustup.rs/1.20.2/rustup-init.sh)
+* License: Apache-2.0 OR MIT
 
-[Rust.tmLanguage](https://github.com/defuz/sublimate/blob/5c782e6fcd7942e05716143296ae0e928182456e/packages/Rust/Rust.tmLanguage)
-* License: Apache-2.0
+[Rust.tmLanguage](https://github.com/Microsoft/vscode/blob/8fdf170a0850c1cc027382f31650aaf300d3ae2a/extensions/rust/syntaxes/rust.tmLanguage.json)
+* License: MIT
 
 [TOML.tmLanguage](https://github.com/LucasBullen/corrosion/commit/c2b13af2e08622c177df4b12e48c47a61de01e69)
 * License: [Custom](https://github.com/textmate/toml.tmbundle/blob/37c532ae892d2af2da76e05918af673efc1111a6/README.mdown)
