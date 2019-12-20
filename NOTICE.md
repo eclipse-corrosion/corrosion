@@ -43,7 +43,10 @@ Rustup (Workswith)
 [rustup-init.sh](https://raw.githubusercontent.com/rust-lang/rustup.rs/1.20.2/rustup-init.sh)
 * License: Apache-2.0 OR MIT
 
-[Rust.tmLanguage](https://github.com/Microsoft/vscode/blob/8fdf170a0850c1cc027382f31650aaf300d3ae2a/extensions/rust/syntaxes/rust.tmLanguage.json)
+[Rust.tmLanguage](https://github.com/microsoft/vscode/blob/1.41.1/extensions/rust/syntaxes/rust.tmLanguage.json)
+* Note: This file is taken from the VS Code project, which itself gets the file from the atom-language-rust project
+  please contribute to [this](https://github.com/zargony/atom-language-rust/blob/master/grammars/rust.cson) file, if
+  you want to contribute changes. The change will eventually end up in this project when picked up by VS Code.
 * License: MIT
 
 [TOML.tmLanguage](https://github.com/LucasBullen/corrosion/commit/c2b13af2e08622c177df4b12e48c47a61de01e69)

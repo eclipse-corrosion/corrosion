@@ -1,9 +1,10 @@
 {
 	"information_for_contributors": [
-		"File is taken from VSCode https://github.com/Microsoft/vscode/blob/8fdf170a0850c1cc027382f31650aaf300d3ae2a/extensions/rust/syntaxes/rust.tmLanguage.json as a translation of https://github.com/zargony/atom-language-rust/blob/master/grammars/rust.cson .",
-		"Please contribute to those 2 files and then request Corrosion project to fetch latest version"
+		"This file has been converted from https://github.com/zargony/atom-language-rust/blob/master/grammars/rust.cson",
+		"If you want to provide a fix or improvement, please create a pull request against the original repository.",
+		"Once accepted there, we are happy to receive an update request."
 	],
-	"version": "https://github.com/zargony/atom-language-rust/commit/179f449a69182cae4fcdf644d59d842b7e445f89",
+	"version": "https://github.com/zargony/atom-language-rust/commit/7d59e2ad79fbe5925bd2fd3bd3857bf9f421ff6f",
 	"name": "Rust",
 	"scopeName": "source.rust",
 	"patterns": [
@@ -28,6 +29,9 @@
 				},
 				{
 					"include": "#mut"
+				},
+				{
+					"include": "#dyn"
 				},
 				{
 					"include": "#ref_lifetime"
@@ -156,7 +160,7 @@
 		{
 			"comment": "Control keyword",
 			"name": "keyword.control.rust",
-			"match": "\\b(break|continue|else|if|in|for|loop|match|return|while)\\b"
+			"match": "\\b(async|await|break|continue|else|if|in|for|loop|match|return|try|while)\\b"
 		},
 		{
 			"comment": "Keyword",
@@ -179,6 +183,12 @@
 		},
 		{
 			"include": "#mut"
+		},
+		{
+			"include": "#dyn"
+		},
+		{
+			"include": "#impl"
 		},
 		{
 			"include": "#box"
@@ -323,6 +333,12 @@
 					"include": "#mut"
 				},
 				{
+					"include": "#dyn"
+				},
+				{
+					"include": "#impl"
+				},
+				{
 					"include": "#ref_lifetime"
 				},
 				{
@@ -422,6 +438,12 @@
 				},
 				{
 					"include": "#mut"
+				},
+				{
+					"include": "#dyn"
+				},
+				{
+					"include": "#impl"
 				},
 				{
 					"include": "#lifetime"
@@ -527,6 +549,16 @@
 			"name": "storage.modifier.mut.rust",
 			"match": "\\bmut\\b"
 		},
+		"dyn": {
+			"comment": "Dynamic modifier",
+			"name": "storage.modifier.dyn.rust",
+			"match": "\\bdyn\\b"
+		},
+		"impl": {
+			"comment": "Existential type modifier",
+			"name": "storage.modifier.impl.rust",
+			"match": "\\bimpl\\b"
+		},
 		"box": {
 			"comment": "Box storage modifier",
 			"name": "storage.modifier.box.rust",
@@ -626,6 +658,12 @@
 				},
 				{
 					"include": "#mut"
+				},
+				{
+					"include": "#dyn"
+				},
+				{
+					"include": "#impl"
 				},
 				{
 					"include": "#lifetime"
