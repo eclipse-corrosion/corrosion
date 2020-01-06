@@ -74,8 +74,15 @@
         "completionItemKind": 15,
         "replacementLines": [
             "thread::spawn(move || {",
-            "    $0",
+            "    ${0:$TM_SELECTED_TEXT}",
             "});"
+        ]
+    },
+    {
+    	"display": "dbg!",
+        "completionItemKind": 15,
+        "replacementLines": [
+            "dbg!(${0:$TM_SELECTED_TEXT})"
         ]
     }
 ]

@@ -17,14 +17,13 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.lsp4e.LanguageServiceAccessor.LSPDocumentInfo;
 import org.eclipse.lsp4e.operations.completion.LSCompletionProposal;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -46,25 +45,17 @@ public class Snippet {
 	}
 
 	public ICompletionProposal convertToCompletionProposal(int offset, LSPDocumentInfo info, String prefix,
-			String lineIndentation) {
+			String lineIndentation, Range textRange) {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(display);
 		item.setKind(kind);
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
 
-		Range r = null;
-		try {
-			int line = info.getDocument().getLineOfOffset(offset);
-			int lineOffset = offset - info.getDocument().getLineOffset(line);
-			r = new Range(new Position(line, lineOffset - prefix.length()), new Position(line, lineOffset));
-		} catch (BadLocationException e) {
-			// Caught by null return
-		}
-		if (r == null) {
-			return null;
-		}
-		item.setTextEdit(new TextEdit(r, createReplacement(lineIndentation)));
-		return new LSCompletionProposal(info.getDocument(), offset, item, getLanguageClient(info));
+		IDocument document = info.getDocument();
+		// if there is a text selection, take it, since snippets with $TM_SELECTED_TEXT
+		// will want to wrap the selection.
+		item.setTextEdit(new TextEdit(textRange, createReplacement(lineIndentation)));
+		return new LSCompletionProposal(document, offset, item, getLanguageClient(info));
 	}
 
 	private static LanguageServer getLanguageClient(LSPDocumentInfo info) {
