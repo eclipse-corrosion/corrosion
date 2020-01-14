@@ -200,6 +200,51 @@ If this happens, it is very handy if a `jstack` dump is attached to the bug/prob
 
 ## Common issues
 
+#### Debugging on Windows
+
+When using Windows, the Rust `*-windows-gnu` toolchain has to be installed. Example:
+
+```
+rustup toolchain install stable-x86_64-pc-windows-gnu
+rustup default stable-x86_64-pc-windows-gnu
+```
+
+Additionally GDB has to be installed. The MSYS2 GCC toolchain is known to work with Corrosion on Windows.
+In the past the GCC version shipped via the scoop package manager was known to have problems.
+
+The next issue is that rust ships a wrapper script called `rust-gdb` as part of the 
+toolchain for Linux and MacOS, but not for Windows. This wrapper script calls gcc and loads the 
+rust "pretty printers". Until the Rust team takes care of [this issue](https://github.com/rust-lang/rust/issues/29658),
+the recommended way on Windows is to add the following `rust-gdb.cmd` file in your
+`%userprofile%\.cargo\bin` directory:
+
+```
+@echo off
+
+REM  Find out where the pretty printer Python module is
+
+for /f %%s in ('rustc --print=sysroot') do SET RUSTC_SYSROOT=%%s
+REM appearently %errorlevel% does not get set in code above, so let's check for RUSTC_SYSROOT
+if not defined RUSTC_SYSROOT (  exit /b 1 )
+SET GDB_PYTHON_MODULE_DIRECTORY=%RUSTC_SYSROOT%\lib\rustlib\etc
+
+REM  Run GDB with the additional arguments that load the pretty printers
+REM  Set the environment variable `RUST_GDB` to overwrite the call to a
+REM  different/specific command (defaults to `gdb`).
+if not defined RUST_GDB ( SET RUST_GDB=gdb )
+
+if not defined PYTHONPATH ( 
+	SET PYTHONPATH=%GDB_PYTHON_MODULE_DIRECTORY%
+) else (
+	SET PYTHONPATH=%PYTHONPATH%;%GDB_PYTHON_MODULE_DIRECTORY%
+)
+
+%RUST_GDB% --directory="%GDB_PYTHON_MODULE_DIRECTORY%" -iex "add-auto-load-safe-path %GDB_PYTHON_MODULE_DIRECTORY%" %*
+```
+
+In Corrosion Rust debug launch configurations you can then simply set `rust-gdb.cmd` instead of the default
+`rust-gdb` as the debugger.
+
 #### Multiple duplicate highlight icons in perspective toolbar
 
 Occasionally, the toolbar spawns an extra highlight icon. After some time you can end up with a crowded toolbar, like this:  

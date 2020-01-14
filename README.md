@@ -8,6 +8,8 @@ Corrosion is a Rust development plugin for the Eclipse IDE, providing a rich edi
 
 ## Download/Install
 
+### Corrosion
+
 Download [The Eclipse IDE for Rust Developers Package](https://www.eclipse.org/downloads/packages/release/photon/r/eclipse-ide-rust-developers-includes-incubating-components). With installation of plugins required, it is the easiest way to start developing Rust projects. _Java must be installed to run this IDE_
 
 *OR*
@@ -17,6 +19,17 @@ From a working Eclipse IDE, find [Eclipse Corrosion](https://marketplace.eclipse
 *OR*
 
 From a working Eclipse IDE, install from p2 repository [http://download.eclipse.org/releases/latest/](http://download.eclipse.org/releases/latest/) (or [http://download.eclipse.org/corrosion/snapshots/](http://download.eclipse.org/corrosion/snapshots/) for development builds).
+
+### Rust Toolchain
+
+To install the Rust toolchain, consider visiting <https://rustup.rs/> and install Rustup.  
+On Linux and MacOS, the toolchain can also be installed via Corrosion in the `Rust` preference page (`Window > Preferences`).
+
+When installing Rustup yourself, call the following command before using Corrosion:
+
+```bash
+rustup component add rls
+```
 
 ## Features
 
