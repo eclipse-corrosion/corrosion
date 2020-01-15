@@ -10,10 +10,9 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *  Max Bureck (Fraunhofer FOKUS) - Check for valid GDB executable/script
+ *                                - Getting default GDB from properties
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
-
-import static org.eclipse.corrosion.debug.DebugUtil.DEFAULT_DEBUGGER;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
@@ -21,8 +20,7 @@ import org.eclipse.cdt.dsf.gdb.internal.ui.launching.LocalApplicationCDebuggerTa
 import org.eclipse.cdt.dsf.gdb.launching.LaunchUtils;
 import org.eclipse.cdt.launch.ui.CArgumentsTab;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.corrosion.Messages;
+import org.eclipse.corrosion.RustManager;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
@@ -31,7 +29,6 @@ import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
-import org.eclipse.osgi.util.NLS;
 
 @SuppressWarnings("restriction")
 public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
@@ -48,7 +45,7 @@ public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
 		public void setDefaults(ILaunchConfigurationWorkingCopy config) {
 			super.setDefaults(config);
 			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
-			config.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, DEFAULT_DEBUGGER);
+			config.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, RustManager.getDefaultDebugger());
 		}
 
 		@Override
@@ -61,23 +58,11 @@ public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
 			try {
 				LaunchUtils.getGDBVersion(gdbCommand, new String[] {});
 			} catch (CoreException e) {
-				final String msg = getMessageFromException(e);
+				final String msg = DebugUtil.getMessageFromGdbExecutionException(e);
 				setErrorMessage(msg);
 				return false;
 			}
 			return true;
-		}
-
-		private String getMessageFromException(CoreException e) {
-			final IStatus status = e.getStatus();
-			final String statusMessage = status.getMessage();
-			final Throwable statusException = status.getException();
-			if (statusException != null) {
-				String exceptionMessage = statusException.getLocalizedMessage();
-				return NLS.bind(Messages.RustDebugTabGroup_gdbErrorMsg, statusMessage, exceptionMessage);
-			}
-			// else
-			return statusMessage;
 		}
 
 		/**
@@ -85,11 +70,12 @@ public class RustDebugTabGroup extends AbstractLaunchConfigurationTabGroup {
 		 * {@code config}.
 		 */
 		private String getGdbCommand(ILaunchConfiguration config) {
+			String defaultDebugger = RustManager.getDefaultDebugger();
 			try {
-				return config.getAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, DEFAULT_DEBUGGER);
+				return config.getAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, defaultDebugger);
 			} catch (CoreException e) {
 				// we were not able to find command
-				return DEFAULT_DEBUGGER;
+				return defaultDebugger;
 			}
 		}
 	}

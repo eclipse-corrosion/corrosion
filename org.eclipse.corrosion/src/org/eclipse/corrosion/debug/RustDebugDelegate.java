@@ -10,6 +10,7 @@
  * Contributors:
  *  Lucas Bullen (Red Hat Inc.) - Initial implementation
  *  Max Bureck (Fraunhofer FOKUS) - Moved default GDB definition to re-usable constant
+ *                                - Moved default GDB to properties
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
 
@@ -36,6 +37,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.RustManager;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.debug.core.DebugPlugin;
@@ -205,7 +207,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, getDefaultExecutablePath(project)); // $NON-NLS-1$
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
-			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, DebugUtil.DEFAULT_DEBUGGER);
+			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, RustManager.getDefaultDebugger());
 		}
 		return launchConfiguration;
 	}

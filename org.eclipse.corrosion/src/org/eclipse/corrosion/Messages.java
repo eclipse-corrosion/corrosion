@@ -45,6 +45,7 @@ public class Messages extends NLS {
 	public static String LaunchUI_projectSelection;
 	public static String LaunchUI_selectProject;
 	public static String DebugPreferencePage_seeGDBPage;
+	public static String DebugPreferencePage_defaultGDB;
 	public static String ImplementationsSearchQuery_implementations;
 	public static String ImplementationsSearchQuery_oneReference;
 	public static String ImplementationsSearchQuery_severalReferences;

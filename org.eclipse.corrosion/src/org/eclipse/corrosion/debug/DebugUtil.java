@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Fraunhofer FOKUS and others.
+ * Copyright (c) 2018, 2020 Fraunhofer FOKUS and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,8 +17,12 @@ import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.Messages;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * This class contains static helper methods and fields to be used for the
@@ -26,10 +30,6 @@ import org.eclipse.corrosion.CorrosionPlugin;
  */
 class DebugUtil {
 
-	/**
-	 * Default debugger executable to use for Rust
-	 */
-	/* package */ static final String DEFAULT_DEBUGGER = "rust-gdb"; //$NON-NLS-1$
 	private static final boolean IS_WINDOWS = Platform.getOS().equals(Platform.OS_WIN32);
 
 	/**
@@ -69,4 +69,22 @@ class DebugUtil {
 		return builder.toString();
 	}
 
+	/**
+	 * Extracts an error message that can be presented to the user from an exception
+	 * when trying to execute GDB via CDT tooling.
+	 *
+	 * @param e exception thrown when trying to exceute GDB
+	 * @return error message that can be presented to user
+	 */
+	/* package */ static String getMessageFromGdbExecutionException(CoreException e) {
+		final IStatus status = e.getStatus();
+		final String statusMessage = status.getMessage();
+		final Throwable statusException = status.getException();
+		if (statusException != null) {
+			String exceptionMessage = statusException.getLocalizedMessage();
+			return NLS.bind(Messages.RustDebugTabGroup_gdbErrorMsg, statusMessage, exceptionMessage);
+		}
+		// else
+		return statusMessage;
+	}
 }
