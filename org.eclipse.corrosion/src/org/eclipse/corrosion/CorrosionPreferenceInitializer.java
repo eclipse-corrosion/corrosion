@@ -26,6 +26,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
 	private static final String CARGO_DEFAULT_ROOT = System.getProperty("user.home") + "/.cargo/"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String CARGO_DEFAULT_HOME = System.getProperty("user.home") + "/.cargo/bin/"; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DEFAULT_DEBUGGER = "rust-gdb"; //$NON-NLS-1$
 	private static final boolean IS_WINDOWS = Platform.getOS().equals(Platform.OS_WIN32);
 
 	public static final String RUST_SOURCE_PREFERENCE = "corrosion.rustSource"; //$NON-NLS-1$
@@ -42,6 +43,11 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 
 	public static final String WORKING_DIRECTORY_PREFERENCE = "corrosion.workingDirectory"; //$NON-NLS-1$
 
+	/**
+	 * Preferences key for default debugger executable to use for Rust
+	 */
+	public static final String DEFAULT_GDB_PREFERENCE = "corrosion.defaultGdb"; //$NON-NLS-1$
+
 	@Override
 	public void initializeDefaultPreferences() {
 		STORE.setDefault(RUST_SOURCE_PREFERENCE, "rustup"); //$NON-NLS-1$
@@ -57,6 +63,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		STORE.setDefault(SYSROOT_PATH_PREFERENCE, getSysrootPathBestGuess());
 
 		STORE.setDefault(WORKING_DIRECTORY_PREFERENCE, getWorkingDirectoryBestGuess());
+		STORE.setDefault(DEFAULT_GDB_PREFERENCE, DEFAULT_DEBUGGER);
 	}
 
 	private static String getRustupPathBestGuess() {

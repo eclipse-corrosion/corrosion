@@ -55,6 +55,16 @@ public class RustManager {
 		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Returns the default GDB location set in the preferences. This is most
+	 * interesting for debug launch configurations to set the default debugger.
+	 *
+	 * @return GDB location from preferences
+	 */
+	public static String getDefaultDebugger() {
+		return STORE.getString(CorrosionPreferenceInitializer.DEFAULT_GDB_PREFERENCE);
+	}
+
 	public static String getDefaultToolchain() {
 		String rustup = STORE.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
 		final String emptyResult = ""; //$NON-NLS-1$
