@@ -30,6 +30,9 @@ For running Corrosion in a child Eclipse instance:
 
 ## Making Pull Requests
 
+Before committing your change, consider adding an entry to the [documentation/Changelog.md](documentation/Changelog.md) file
+if your change is a non-trivial user facing change.
+
 To keep the commit history clean and navigable, PR are limited to a single commit. If your PR has multiple commits that all work together, they should be squashed into a single commit. If you believe that the different commits are too unrelated to be squashed together, then they should be put into multiple PRs to allow single feature PRs.
 
 Corrosion is an Eclipse project and all contributors must do the following before having a pull request merged:

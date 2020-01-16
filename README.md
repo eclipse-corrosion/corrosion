@@ -72,6 +72,10 @@ Corrosion fits right into the standard Eclipse workflow welcoming previous Eclip
 
 ![Eclipse features](images/eclipse-features.gif)
 
+## Version History
+
+Please have a look at the [Changelog page](documentation/Changelog.md)
+
 ## Contributing
 Corrosion is always open to new features and pull requests. If you have a feature or bug you wish to work on, [file an issue](https://github.com/eclipse/corrosion/issues) and other Corrosion developers will be able to help you get started.
 
