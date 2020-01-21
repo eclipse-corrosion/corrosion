@@ -9,7 +9,7 @@
 		<maven>3.6.3</maven>
 	</prerequisites>
 	<properties>
-		<tycho-version>1.5.1</tycho-version>
+		<tycho-version>1.6.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -128,6 +128,7 @@
 					</baselineRepositories>
 				</configuration>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
