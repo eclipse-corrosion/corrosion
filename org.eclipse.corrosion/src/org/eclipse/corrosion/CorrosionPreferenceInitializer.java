@@ -58,7 +58,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		setToolchainBestGuesses();
 
 		STORE.setDefault(RLS_PATH_PREFERENCE, getRLSPathBestGuess());
-		STORE.setDefault(RLS_CONFIGURATION_PATH_PREFERENCE, getRLSConfigurationPathBestGuess());
+		STORE.setDefault(RLS_CONFIGURATION_PATH_PREFERENCE, ""); //$NON-NLS-1$
 
 		STORE.setDefault(SYSROOT_PATH_PREFERENCE, getSysrootPathBestGuess());
 
@@ -128,10 +128,6 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 			}
 		}
 		return command;
-	}
-
-	private static String getRLSConfigurationPathBestGuess() {
-		return CARGO_DEFAULT_ROOT + "rls.conf"; //$NON-NLS-1$
 	}
 
 	private static String getSysrootPathBestGuess() {
