@@ -103,18 +103,22 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 	@Override
 	public Object getInitializationOptions(URI rootUri) {
 		final String settingsPath = RustManager.getRlsConfigurationPath();
-		final File settingsFile = new File(settingsPath);
-		final Gson gson = new Gson();
-		try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
-			return gson.fromJson(reader, HashMap.class);
-		} catch (FileNotFoundException e) {
-			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.INFO,
-					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound, settingsPath)));
-		} catch (Throwable e) {
-			CorrosionPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
-					CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-					MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError, settingsPath, e)));
+		if (settingsPath != null && !settingsPath.isEmpty()) {
+			final File settingsFile = new File(settingsPath);
+			final Gson gson = new Gson();
+			try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
+				return gson.fromJson(reader, HashMap.class);
+			} catch (FileNotFoundException e) {
+				CorrosionPlugin.getDefault().getLog()
+						.log(new Status(IStatus.INFO, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+								MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound,
+										settingsPath)));
+			} catch (Throwable e) {
+				CorrosionPlugin.getDefault().getLog()
+						.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
+								MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError,
+										settingsPath, e)));
+			}
 		}
 		return getDefaultInitializationOptions();
 	}
