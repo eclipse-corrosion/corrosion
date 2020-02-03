@@ -115,7 +115,7 @@
   </stream>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
-      href="index:/org.eclipse.setup#//@projectCatalogs[name='com.github']"/>
+      href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
   <description>
     Corrosion is a Rust development plugin for the Eclipse IDE, 
     providing a rich edition experience through integration with 
