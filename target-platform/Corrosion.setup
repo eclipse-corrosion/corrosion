@@ -108,7 +108,7 @@
     <setupTask
         xsi:type="setup:EclipseIniTask"
         option="-Doomph.redirection.corrosion.git"
-        value="=https://raw.githubusercontent.com/eclipse/corrosion.git/master/target-platform/Corrosion.setup->${git.clone.corrosion.git.location|uri}/target-platform/Corrosion.setup"
+        value="=https://raw.githubusercontent.com/eclipse/corrosion/master/target-platform/Corrosion.setup->${git.clone.corrosion.git.location|uri}/target-platform/Corrosion.setup"
         vm="true">
       <description>Set an Oomph redirection system property to redirect the logical location of this setup to its physical location in the Git clone.</description>
     </setupTask>
