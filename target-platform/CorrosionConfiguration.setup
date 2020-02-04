@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup:Configuration
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
+    label="Corrosion">
+  <installation
+      name="corrosion.installation"
+      label="Corrosion Installation">
+    <productVersion
+        href="index:/org.eclipse.setup#//@productCatalogs[name='org.eclipse.products']/@products[name='epp.package.committers']/@versions[name='latest.released']"/>
+    <description>The Corrosion Development IDE</description>
+  </installation>
+  <workspace
+      name="corrosion.workspace"
+      label="Corrosion Workspace">
+    <description>Workspace for working on the Corrosion projects.</description>
+    <setupTask
+        xsi:type="setup:VariableTask"
+        name="eclipse.target.platform"
+        value="${eclipse.target.platform.latest}"/>
+    <stream
+        href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']/@projects[name='corrosion']/@streams[name='master']"/>
+  </workspace>
+  <description>
+    Corrosion is a Rust development plugin for the Eclipse IDE, 
+    providing a rich edition experience through integration with 
+    the Rust Language Server and Cargo.
+  </description>
+</setup:Configuration>
