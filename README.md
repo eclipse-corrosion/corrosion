@@ -1,4 +1,4 @@
-<img alt="logo" src="https://raw.githubusercontent.com/eclipse/corrosion/master/images/corrosionLogo.png" width="200px"/>
+<img alt="logo" src="./images/corrosionLogo.svg" width="200px"/>
 
 # Eclipse Corrosion
 ### Rust edition and debug in Eclipse IDE
