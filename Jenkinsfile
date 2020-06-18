@@ -7,7 +7,7 @@ pipeline {
 		PATH = "$HOME/.cargo/bin/:$PATH"
 	}
 	tools {
-        jdk 'jdk1.8.0-latest'
+        jdk 'openjdk-latest'
     }
 	stages {
 		stage('Prepare') {
