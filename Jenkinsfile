@@ -29,7 +29,7 @@ pipeline {
 				sh 'cargo --version'
 				sh 'rustup show'
 				wrap([$class: 'Xvnc', useXauthority: true]) {
-					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -PpackAndSign'
+					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -PpackAndSign'
 				}
 			}
 			post {
