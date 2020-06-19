@@ -44,7 +44,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 @SuppressWarnings("restriction")
 public class RustManager {
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
-	public static final String RLS_VERSION_FORMAT_REGEX = "^rls.*$"; //$NON-NLS-1$
+	public static final String RLS_VERSION_FORMAT_REGEX = "^(rls|rust-analyzer).*$"; //$NON-NLS-1$
 	public static final String CARGO_VERSION_FORMAT_REGEX = "^cargo .*$"; //$NON-NLS-1$
 	public static final String RUSTUP_VERSION_FORMAT_REGEX = "^rustup .*$"; //$NON-NLS-1$
 	public static final Pattern RLS_VERSION_FORMAT_PATTERN = Pattern.compile(RLS_VERSION_FORMAT_REGEX);
