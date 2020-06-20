@@ -8,6 +8,7 @@ pipeline {
 	}
 	environment {
 		PATH = "$HOME/.cargo/bin/:$PATH"
+		USER = "jenkins"
 	}
 	tools {
         jdk 'openjdk-jdk11-latest'
@@ -30,7 +31,7 @@ pipeline {
 				sh 'cargo --version'
 				sh 'rustup show'
 				wrap([$class: 'Xvnc', useXauthority: true]) {
-					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -PpackAndSign'
+					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -PpackAndSign -Dsurefire.timeout=1800'
 				}
 			}
 			post {
