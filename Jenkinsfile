@@ -48,10 +48,13 @@ pipeline {
 			}
 			steps {
 				// TODO compute the target URL (snapshots) according to branch name (0.5-snapshots...)
-				sh 'rm -rf /home/data/httpd/download.eclipse.org/corrosion/snapshots'
-				sh 'mkdir -p /home/data/httpd/download.eclipse.org/corrosion/snapshots'
-				sh 'cp -r repository/target/repository/* /home/data/httpd/download.eclipse.org/corrosion/snapshots'
-				sh 'cp repository/target/repository-*-SNAPSHOT.zip /home/data/httpd/download.eclipse.org/corrosion/snapshots/repository.zip'
+				sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
+					sh '''
+						ssh genie.corrosion@projects-storage.eclipse.org rm -rf /home/data/httpd/download.eclipse.org/corrosion/snapshots
+						ssh genie.corrosion@projects-storage.eclipse.org mkdir -p /home/data/httpd/download.eclipse.org/corrosion/snapshots
+						scp -r repository/target/repository/* genie.releng@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/corrosion/snapshots
+					'''
+				}
 			}
 		}
 	}
