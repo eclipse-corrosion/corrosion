@@ -10,7 +10,6 @@
 	</prerequisites>
 	<properties>
 		<tycho-version>1.7.0</tycho-version>
-		<tycho-extras-version>${tycho-version}</tycho-extras-version>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -107,12 +106,12 @@
 					<dependency>
 						<groupId>org.eclipse.tycho.extras</groupId>
 						<artifactId>tycho-buildtimestamp-jgit</artifactId>
-						<version>${tycho-extras-version}</version>
+						<version>${tycho-version}</version>
 					</dependency>
 					<dependency>
 						<groupId>org.eclipse.tycho.extras</groupId>
 						<artifactId>tycho-sourceref-jgit</artifactId>
-						<version>${tycho-extras-version}</version>
+						<version>${tycho-version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
