@@ -52,7 +52,7 @@ pipeline {
 					sh '''
 						ssh genie.corrosion@projects-storage.eclipse.org rm -rf /home/data/httpd/download.eclipse.org/corrosion/snapshots
 						ssh genie.corrosion@projects-storage.eclipse.org mkdir -p /home/data/httpd/download.eclipse.org/corrosion/snapshots
-						scp -r repository/target/repository/* genie.releng@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/corrosion/snapshots
+						scp -r repository/target/repository/* genie.corrosion@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/corrosion/snapshots
 					'''
 				}
 			}
