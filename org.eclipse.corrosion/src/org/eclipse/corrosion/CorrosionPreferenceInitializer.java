@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2020 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -24,7 +24,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 public class CorrosionPreferenceInitializer extends AbstractPreferenceInitializer {
 
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
-	private static final String CARGO_DEFAULT_ROOT = System.getProperty("user.home") + "/.cargo/"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String CARGO_DEFAULT_HOME = System.getProperty("user.home") + "/.cargo/bin/"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String DEFAULT_DEBUGGER = "rust-gdb"; //$NON-NLS-1$
 	private static final boolean IS_WINDOWS = Platform.getOS().equals(Platform.OS_WIN32);
