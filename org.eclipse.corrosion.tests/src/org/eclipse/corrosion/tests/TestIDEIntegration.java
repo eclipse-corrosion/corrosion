@@ -21,8 +21,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.genericeditor.ExtensionBasedTextEditor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestIDEIntegration extends AbstractCorrosionTest {
 
@@ -31,7 +31,7 @@ public class TestIDEIntegration extends AbstractCorrosionTest {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
 		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFolder("src").getFile("main.rs"));
-		Assert.assertTrue(editor instanceof ExtensionBasedTextEditor);
+		Assertions.assertTrue(editor instanceof ExtensionBasedTextEditor);
 	}
 
 	@Test
@@ -39,7 +39,7 @@ public class TestIDEIntegration extends AbstractCorrosionTest {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
 		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFile("Cargo.toml"));
-		Assert.assertTrue(editor instanceof ExtensionBasedTextEditor);
+		Assertions.assertTrue(editor instanceof ExtensionBasedTextEditor);
 	}
 
 }

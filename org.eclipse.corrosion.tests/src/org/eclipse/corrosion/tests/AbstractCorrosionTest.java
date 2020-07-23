@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +34,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Takes care of creating a temporary project and resource before test and to
@@ -48,17 +48,16 @@ public class AbstractCorrosionTest {
 
 	private Map<String, IProject> provisionedProjects;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.provisionedProjects = new HashMap<>();
 	}
 
 	/**
 	 *
-	 * @param projectName
-	 *            the name that will be used as prefix for the project, and that
-	 *            will be used to find the content of the project from the plugin
-	 *            "projects" folder
+	 * @param projectName the name that will be used as prefix for the project, and
+	 *                    that will be used to find the content of the project from
+	 *                    the plugin "projects" folder
 	 * @throws IOException
 	 * @throws CoreException
 	 */
@@ -76,11 +75,11 @@ public class AbstractCorrosionTest {
 			project.open(new NullProgressMonitor());
 			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 			return project;
-		} 			
+		}
 		return null;
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws CoreException {
 		for (String projectName : this.provisionedProjects.keySet()) {
 			try {
@@ -93,9 +92,8 @@ public class AbstractCorrosionTest {
 	}
 
 	/**
-	 * @param projectPrefix
-	 *            the prefix of the project, as it can be found in plugin's
-	 *            "projects" folder
+	 * @param projectPrefix the prefix of the project, as it can be found in
+	 *                      plugin's "projects" folder
 	 * @return a project with the content from the specified projectPrefix
 	 * @throws CoreException
 	 * @throws IOException

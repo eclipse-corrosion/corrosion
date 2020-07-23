@@ -1,5 +1,4 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -12,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,7 +39,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
@@ -92,7 +91,8 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 				return ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0;
 			}
 		}.waitForCondition(getShell().getDisplay(), 15000);
-		Set<IProject> newProjects = new HashSet<>(Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));
+		Set<IProject> newProjects = new HashSet<>(
+				Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));
 		newProjects.removeAll(initialProjects);
 		assertEquals(1, newProjects.size());
 		assertTrue(newProjects.iterator().next().getFile("Cargo.toml").exists());
@@ -107,10 +107,8 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		dialog.create();
 		confirmPageState(wizard, DEFAULT_PROJECT_NAME, "none", true);
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
-		Optional<Text> locationText = Arrays.stream(composite.getChildren())
-				.filter(Text.class::isInstance)
-				.map(Text.class::cast)
-				.findFirst();
+		Optional<Text> locationText = Arrays.stream(composite.getChildren()).filter(Text.class::isInstance)
+				.map(Text.class::cast).findFirst();
 		Path tempDir = Files.createTempDirectory("corrosion-test");
 		locationText.get().setText(tempDir.toString());
 		Path fileName = tempDir.getFileName();
@@ -127,7 +125,8 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 			}
 		}.waitForCondition(getShell().getDisplay(), 15000);
 		try {
-			Set<IProject> newProjects = new HashSet<>(Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));
+			Set<IProject> newProjects = new HashSet<>(
+					Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));
 			newProjects.removeAll(initialProjects);
 			assertEquals(1, newProjects.size());
 			IProject project = newProjects.iterator().next();

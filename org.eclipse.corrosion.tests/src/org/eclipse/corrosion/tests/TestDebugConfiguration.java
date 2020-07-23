@@ -12,10 +12,11 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,12 +44,12 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestDebugConfiguration extends AbstractCorrosionTest {
 
@@ -59,23 +60,23 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 		}
 	};
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpListener() {
 		CorrosionPlugin.getDefault().getLog().addLogListener(listener);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void removeListener() {
 		CorrosionPlugin.getDefault().getLog().removeLogListener(listener);
 	}
 
-	@Before
+	@BeforeEach
 	public void clearErrors() {
 		errors.clear();
 	}
 
-	@After
-	@Before
+	@AfterEach
+	@BeforeEach
 	public void stopLaunchesAndCloseConsoles() throws DebugException {
 		for (ILaunch launch : DebugPlugin.getDefault().getLaunchManager().getLaunches()) {
 			launch.terminate();
@@ -98,12 +99,19 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 		RustDebugDelegate delegate = new RustDebugDelegate();
 		delegate.launch(new StructuredSelection(project), "debug");
 		assertEquals(Collections.emptyList(), errors);
-		Assume.assumeTrue("rust-gdb not found, skipping test continuation", Runtime.getRuntime().exec("rust-gdb --version").waitFor() == 0);
+		Assumptions.assumeTrue(() -> {
+			try {
+				return Runtime.getRuntime().exec("rust-gdb --version").waitFor() == 0;
+			} catch (InterruptedException | IOException e) {
+				return false;
+			}
+		}, "rust-gdb not found, skipping test continuation");
 		new DisplayHelper() {
 			@Override
 			protected boolean condition() {
 				IConsole console = getApplicationConsole("basic");
-				return (console != null && console.getDocument().get().contains("5 is positive")) || getErrorPopupMessage() != null;
+				return (console != null && console.getDocument().get().contains("5 is positive"))
+						|| getErrorPopupMessage() != null;
 			}
 		}.waitForCondition(Display.getCurrent(), 15000);
 		assertNull(getErrorPopupMessage());
@@ -129,8 +137,8 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 
 	static IConsole getApplicationConsole(String binaryName) {
 		for (org.eclipse.ui.console.IConsole console : ConsolePlugin.getDefault().getConsoleManager().getConsoles()) {
-			if (console instanceof IConsole && ((IConsole)console).getProcess().getLabel().endsWith(binaryName)) {
-				return (IConsole)console;
+			if (console instanceof IConsole && ((IConsole) console).getProcess().getLabel().endsWith(binaryName)) {
+				return (IConsole) console;
 			}
 		}
 		return null;
@@ -138,10 +146,10 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 
 	static String findLabel(Composite composite) {
 		for (Control control : composite.getChildren()) {
-			if (control instanceof Label && ((Label)control).getText().length() > 0) {
-				return ((Label)control).getText();
+			if (control instanceof Label && ((Label) control).getText().length() > 0) {
+				return ((Label) control).getText();
 			} else if (control instanceof Composite) {
-				return findLabel((Composite)control);
+				return findLabel((Composite) control);
 			}
 		}
 		return null;

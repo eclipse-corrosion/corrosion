@@ -12,11 +12,11 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 
@@ -36,12 +36,12 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class TestRunConfiguration extends AbstractCorrosionTest {
 
-	@After
+	@AfterEach
 	public void testErrorPopup() {
 		Shell errorPopup = getErrorPopup();
 		if (errorPopup != null) {
@@ -57,7 +57,8 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 		new DisplayHelper() {
 			@Override
 			protected boolean condition() {
-				return DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0 || getErrorPopup() != null;
+				return DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0
+						|| getErrorPopup() != null;
 			}
 		}.waitForCondition(Display.getCurrent(), 15000);
 		assertNull(getErrorPopup());
