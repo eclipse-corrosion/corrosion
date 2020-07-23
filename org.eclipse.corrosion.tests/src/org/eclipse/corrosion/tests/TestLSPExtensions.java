@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobManager;
@@ -22,7 +22,7 @@ import org.eclipse.corrosion.edit.RLSClientImplementation;
 import org.eclipse.corrosion.extensions.ProgressParams;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestLSPExtensions {
 

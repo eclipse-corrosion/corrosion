@@ -9,7 +9,7 @@
 		<maven>3.6.3</maven>
 	</prerequisites>
 	<properties>
-		<tycho-version>1.7.0</tycho-version>
+		<tycho-version>2.0.0-SNAPSHOT</tycho-version>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -32,9 +32,6 @@
 					<configuration>
 						<useUIThread>true</useUIThread>
 						<useUIHarness>true</useUIHarness>
-						<!-- Note, only working as long as there is one test project -->
-						<testSuite>org.eclipse.corrosion.tests</testSuite>
-						<testClass>org.eclipse.corrosion.tests.AllTests</testClass>
 					</configuration>
 				</plugin>
 			</plugins>
@@ -257,18 +254,15 @@
 			<snapshots><enabled>true</enabled></snapshots>
 		</pluginRepository>
 		<pluginRepository>
-			<id>jboss</id>
-			<url>https://repository.jboss.org/</url>
-			<snapshots><enabled>true</enabled></snapshots>
+			<id>tycho-snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>jboss-snapshots-repository</id>
-			<name>JBoss Snapshots Repository</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
-			<uniqueVersion>false</uniqueVersion>
-		</snapshotRepository>
-	</distributionManagement>
 </project>

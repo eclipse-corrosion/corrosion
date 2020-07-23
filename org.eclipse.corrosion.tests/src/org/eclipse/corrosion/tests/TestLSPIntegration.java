@@ -14,7 +14,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,8 +43,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestLSPIntegration extends AbstractCorrosionTest {
 
@@ -60,7 +60,7 @@ public class TestLSPIntegration extends AbstractCorrosionTest {
 				.getTextDocumentService()
 				.completion(new CompletionParams(new TextDocumentIdentifier(uri), new Position(1, 4)))
 				.get(1, TimeUnit.MINUTES);
-		Assert.assertNotNull(completionItems);
+		assertNotNull(completionItems);
 	}
 
 	@Test
@@ -95,6 +95,6 @@ public class TestLSPIntegration extends AbstractCorrosionTest {
 				markerFound = true;
 			}
 		}
-		assertTrue("No error marker found at line 3.", markerFound);
+		assertTrue(markerFound, "No error marker found at line 3.");
 	}
 }

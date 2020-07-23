@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
@@ -23,8 +25,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestSyntaxHighlighting extends AbstractCorrosionTest {
 
@@ -41,7 +42,7 @@ public class TestSyntaxHighlighting extends AbstractCorrosionTest {
 				return editorTextWidget.getStyleRanges().length > 1;
 			}
 		}.waitForCondition(editorTextWidget.getDisplay(), 4000);
-		Assert.assertTrue("There should be multiple styles in editor", editorTextWidget.getStyleRanges().length > 1);
+		assertTrue(editorTextWidget.getStyleRanges().length > 1, "There should be multiple styles in editor");
 	}
 
 	@Test
@@ -57,7 +58,7 @@ public class TestSyntaxHighlighting extends AbstractCorrosionTest {
 				return editorTextWidget.getStyleRanges().length > 1;
 			}
 		}.waitForCondition(editorTextWidget.getDisplay(), 4000);
-		Assert.assertTrue("There should be multiple styles in editor", editorTextWidget.getStyleRanges().length > 1);
+		assertTrue(editorTextWidget.getStyleRanges().length > 1, "There should be multiple styles in editor");
 	}
 
 }

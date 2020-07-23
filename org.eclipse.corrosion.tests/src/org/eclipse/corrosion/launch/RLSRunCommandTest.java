@@ -12,23 +12,23 @@
  *******************************************************************************/
 package org.eclipse.corrosion.launch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.eclipse.lsp4j.Command;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class RLSRunCommandTest {
 
@@ -37,43 +37,26 @@ public class RLSRunCommandTest {
 
 	// Test data
 	private static final String VALID_BINARY = "cargo";
-	private static final List<String> VALID_ARGS = Arrays.asList("--release");
+	private static final List<String> VALID_ARGS = List.of("--release");
 	private static final List<String> EMPTY_ARGS = Collections.emptyList();
 	private static final Map<String, String> VALID_ENV = Collections.singletonMap("RUST_BACKTRACE", "short");
 	private static final Map<String, String> EMPTY_ENV = Collections.emptyMap();
 
-	@RunWith(Parameterized.class)
-	public static class MissingField {
-		private String binary;
-		private List<String> arguments;
-		private Map<String, String> environment;
+	static Stream<Arguments> parameters() {
+		return Stream.of(Arguments.arguments(createArgument(VALID_BINARY, null, null)),
+				Arguments.arguments(createArgument(null, VALID_ARGS, null)),
+				Arguments.arguments(createArgument(null, null, VALID_ENV)),
+				Arguments.arguments(createArgument(VALID_BINARY, VALID_ARGS, null)),
+				Arguments.arguments(createArgument(null, VALID_ARGS, VALID_ENV)),
+				Arguments.arguments(createArgument(VALID_BINARY, null, VALID_ENV)));
+	}
 
-		public MissingField(String binary, List<String> arguments, Map<String, String> environment) {
-			super();
-			this.binary = binary;
-			this.arguments = arguments;
-			this.environment = environment;
-		}
-
-		@Parameters
-		public static Collection<Object[]> parameters() {
-			return Arrays.asList(new Object[][] { 
-				{ VALID_BINARY, null, null }, 
-				{ null, VALID_ARGS, null },
-				{ null, null, VALID_ENV }, 
-				{ VALID_BINARY, VALID_ARGS, null }, 
-				{ null, VALID_ARGS, VALID_ENV },
-				{ VALID_BINARY, null, VALID_ENV }, 
-			});
-		}
-
-		@Test
-		public void testMapEntryArgument() {
-			Map<String, Object> argument = createArgument(binary, arguments, environment);
-			Command command = new Command(TITLE, COMMAND_ID, Arrays.asList(argument));
-			Optional<RLSRunCommand> lspCommand = RLSRunCommand.fromLSPCommand(command);
-			assertFalse(lspCommand.isPresent());
-		}
+	@ParameterizedTest
+	@MethodSource("parameters")
+	public void testMapEntryArgument(Map<String, Object> argument) {
+		Command command = new Command(TITLE, COMMAND_ID, Arrays.asList(argument));
+		Optional<RLSRunCommand> lspCommand = RLSRunCommand.fromLSPCommand(command);
+		assertFalse(lspCommand.isPresent());
 	}
 
 	@Test
