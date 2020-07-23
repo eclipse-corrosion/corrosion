@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.corrosion.tests;singleton:=true
-Bundle-Version: 0.4.3.qualifier
+Bundle-Version: 0.5.0.qualifier
 Bundle-Vendor: %Bundle-Vendor
 Fragment-Host: org.eclipse.corrosion
 Eclipse-BundleShape: dir
@@ -26,5 +26,5 @@ Require-Bundle: org.junit;bundle-version="4.11.0",
  org.eclipse.debug.ui;bundle-version="3.13.0",
  org.eclipse.jface.text;bundle-version="3.13.0",
  org.eclipse.cdt.dsf.gdb;bundle-version="5.5.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
