@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2020 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -25,29 +25,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class TestSyntaxHighlighting extends AbstractCorrosionTest {
 
-	@Test
-	public void testRustSyntaxHighlighting() throws CoreException, IOException {
-		IFile rustFile = getProject(BASIC_PROJECT_NAME).getFolder("src").getFile("main.rs");
-		TextEditor editor = (TextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), rustFile,
-				"org.eclipse.ui.genericeditor.GenericEditor");
-		StyledText editorTextWidget = (StyledText) editor.getAdapter(Control.class);
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return editorTextWidget.getStyleRanges().length > 1;
-			}
-		}.waitForCondition(editorTextWidget.getDisplay(), 4000);
-		assertTrue(editorTextWidget.getStyleRanges().length > 1, "There should be multiple styles in editor");
-	}
-
-	@Test
-	public void testManifestSyntaxHighlighting() throws CoreException, IOException {
-		IFile rustFile = getProject(BASIC_PROJECT_NAME).getFile("Cargo.toml");
+	@ParameterizedTest
+	@ValueSource(strings = { "Cargo.toml", "src/main.rs" })
+	public void testSyntaxHighlighting(String fileName) throws CoreException, IOException {
+		IFile rustFile = getProject(BASIC_PROJECT_NAME).getFile(fileName);
 		TextEditor editor = (TextEditor) IDE.openEditor(
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), rustFile,
 				"org.eclipse.ui.genericeditor.GenericEditor");

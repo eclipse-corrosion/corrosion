@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2020 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -22,23 +22,18 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.genericeditor.ExtensionBasedTextEditor;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class TestIDEIntegration extends AbstractCorrosionTest {
 
-	@Test
-	public void testRustEditorAssociation() throws IOException, CoreException {
+	@SuppressWarnings("restriction")
+	@ParameterizedTest
+	@ValueSource(strings = { "Cargo.toml", "src/main.rs" })
+	public void testEditorAssociation(String fileName) throws IOException, CoreException {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
-		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFolder("src").getFile("main.rs"));
-		Assertions.assertTrue(editor instanceof ExtensionBasedTextEditor);
-	}
-
-	@Test
-	public void testManifestEditorAssociation() throws IOException, CoreException {
-		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IEditorPart editor = null;
-		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFile("Cargo.toml"));
+		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFile(fileName));
 		Assertions.assertTrue(editor instanceof ExtensionBasedTextEditor);
 	}
 
