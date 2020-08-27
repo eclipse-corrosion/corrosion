@@ -96,7 +96,7 @@
 						.project
 						.classpath
 						.META-INF_MANIFEST.MF
-						.polyglot..META-INF_MANIFEST.MF
+						.polyglot.*
 					</jgit.ignore>
 				</configuration>
 				<dependencies>
