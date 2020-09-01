@@ -12,12 +12,19 @@
  *******************************************************************************/
 package org.eclipse.corrosion;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Optional;
+
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
@@ -27,7 +34,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IPatternMatchListenerDelegate;
@@ -50,38 +56,42 @@ public class ErrorLineMatcher implements IPatternMatchListenerDelegate {
 		console = null;
 	}
 
+	private static class FileLocation {
+		public final String filePath;
+		public final int lineNumber;
+		public final int lineOffset;
+
+		private FileLocation(String filePath, int lineNumber, int lineOffset) {
+			this.filePath = filePath;
+			this.lineNumber = lineNumber;
+			this.lineOffset = lineOffset;
+		}
+
+		public static FileLocation readFromConsoleString(String consoleString) {
+			int lineNumberLineOffsetSeparatorIndex = consoleString.lastIndexOf(':');
+			int fileNameLineNumberSeparatorIndex = consoleString.lastIndexOf(':',
+					lineNumberLineOffsetSeparatorIndex - 1);
+			return new FileLocation(consoleString.substring(0, fileNameLineNumberSeparatorIndex), //
+					Integer.parseInt(consoleString.substring(fileNameLineNumberSeparatorIndex + 1,
+							lineNumberLineOffsetSeparatorIndex)), //
+					Integer.parseInt(consoleString.substring(lineNumberLineOffsetSeparatorIndex + 1)));
+		}
+	}
+
 	@Override
 	public void matchFound(PatternMatchEvent event) {
 		try {
 			int offset = event.getOffset();
 			int length = event.getLength();
-			IProcess process = (IProcess) console.getAttribute(IDebugUIConstants.ATTR_CONSOLE_PROCESS);
-			if (process != null) {
-				ILaunch launch = process.getLaunch();
-				String projectAttribute = RustLaunchDelegateTools.PROJECT_ATTRIBUTE;
-				String launchConfigurationType = launch.getLaunchConfiguration().getType().getIdentifier();
-				if (launchConfigurationType.equals(RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE)) {
-					// support debug launch configs
-					projectAttribute = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-				}
-				String projectName = launch.getLaunchConfiguration().getAttribute(projectAttribute, ""); //$NON-NLS-1$
-				if (projectName.trim().isEmpty()) {
-					return; // can't determine project so prevent error down
-				}
-				IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-				IProject myProject = myWorkspaceRoot.getProject(projectName);
-				String errorString = console.getDocument().get(event.getOffset(), event.getLength());
-				String[] coordinates = errorString.split(":"); //$NON-NLS-1$
-				IHyperlink link = makeHyperlink(myProject.getFile(coordinates[0]), Integer.parseInt(coordinates[1]),
-						Integer.parseInt(coordinates[2]));
-				console.addHyperlink(link, offset, length);
-			}
+			FileLocation entry = FileLocation
+					.readFromConsoleString(console.getDocument().get(event.getOffset(), event.getLength()));
+			console.addHyperlink(makeHyperlink(getProject(console), entry), offset, length);
 		} catch (BadLocationException | CoreException e) {
-			// ignore
+			CorrosionPlugin.logError(e);
 		}
 	}
 
-	private static IHyperlink makeHyperlink(IFile file, int lineNumber, int lineOffset) {
+	private static IHyperlink makeHyperlink(IProject project, FileLocation location) {
 		return new IHyperlink() {
 			@Override
 			public void linkExited() {
@@ -96,12 +106,40 @@ public class ErrorLineMatcher implements IPatternMatchListenerDelegate {
 			@Override
 			public void linkActivated() {
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				IEditorPart editorPart = null;
+				Optional<IFile> ifile = toIFile(project, location.filePath);
 				try {
-					IEditorPart editorPart = IDE.openEditor(page, file);
-					jumpToPosition(editorPart, lineNumber, lineOffset);
-				} catch (PartInitException e) {
-					// nothing to do here
+					if (ifile.isPresent()) {
+						editorPart = IDE.openEditor(page, ifile.get());
+					} else {
+						File file = new File(location.filePath);
+						if (file.isFile()) {
+							IDE.openInternalEditorOnFileStore(page, EFS.getStore(file.getAbsoluteFile().toURI()));
+						}
+					}
+					if (editorPart != null) {
+						jumpToPosition(editorPart, location.lineNumber, location.lineOffset);
+					}
+				} catch (CoreException ex) {
+					CorrosionPlugin.logError(ex);
 				}
+			}
+
+			private Optional<IFile> toIFile(IProject project, String filePath) {
+				if (filePath == null) {
+					return Optional.empty();
+				}
+				if (project != null && project.isAccessible()) {
+					IFile file = project.getFile(Path.fromOSString(filePath));
+					if (file.isAccessible()) {
+						return Optional.of(file);
+					}
+				}
+				IFile[] files = ResourcesPlugin.getWorkspace().getRoot()
+						.findFilesForLocationURI(new File(filePath).getAbsoluteFile().toURI());
+				return Arrays.stream(files) //
+						.filter(IFile::isAccessible) //
+						.min(Comparator.comparingInt(file -> file.getProjectRelativePath().segmentCount()));
 			}
 		};
 	}
@@ -123,5 +161,26 @@ public class ErrorLineMatcher implements IPatternMatchListenerDelegate {
 					textEditor.selectAndReveal(region.getOffset() + lineOffset - 1, 0);
 			}
 		}
+	}
+
+	private static IProject getProject(TextConsole console) throws CoreException {
+		IProcess process = (IProcess) console.getAttribute(IDebugUIConstants.ATTR_CONSOLE_PROCESS);
+		if (process == null) {
+			return null;
+		}
+		ILaunch launch = process.getLaunch();
+		String projectAttribute = RustLaunchDelegateTools.PROJECT_ATTRIBUTE;
+		String launchConfigurationType = launch.getLaunchConfiguration().getType().getIdentifier();
+		if (launchConfigurationType.equals(RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE)) {
+			// support debug launch configs
+			projectAttribute = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+		}
+		String projectName = launch.getLaunchConfiguration().getAttribute(projectAttribute, ""); //$NON-NLS-1$
+		if (projectName.trim().isEmpty()) {
+			return null; // can't determine project so prevent error down
+		}
+		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IProject myProject = myWorkspaceRoot.getProject(projectName);
+		return myProject.isAccessible() ? myProject : null;
 	}
 }
