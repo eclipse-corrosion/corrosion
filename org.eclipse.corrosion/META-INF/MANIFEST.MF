@@ -35,7 +35,8 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.cdt.debug.ui,
  org.eclipse.cdt.dsf.gdb.ui,
  org.eclipse.tm4e.languageconfiguration,
- org.eclipse.compare;resolution:=optional
+ org.eclipse.compare;resolution:=optional,
+ org.eclipse.core.filesystem
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.corrosion;x-friends:="org.eclipse.corrosion.tests",
