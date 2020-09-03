@@ -2,19 +2,24 @@
 
 ## Upcoming Release
 
-### 0.4.3
+### 1.0.0
 
-* 📅 Release Date (tentative): 9th September 2020
-* All changes: https://github.com/eclipse/corrosion/compare/0.4.2...0.4.3
+* 📅 Release Date (tentative): 16th September 2020
+* All changes: https://github.com/eclipse/corrosion/compare/0.4.2...1.0.0
 
 #### Require Java 11
 
 Corrosion now requires the host IDE to be running with Java 11.
 
-#### [Releng] Updates
+#### "Run Tests" codelens
 
-Updated
+Added support for the `Run test` CodeLens, allowing execution of single test cases directly from within the code editor.
 
+<img alt="logo" src="./images/runTestCodemining.png" width="200px"/>
+
+#### Dependencies and Releng Updates
+
+* TextMate grammar
 * Dependencies
 * Build machinery
 
@@ -30,4 +35,4 @@ Added Oomph profile, updated contribution documentation...
 
 ## Past Release
 
-(previous releases are not documented)
+(previous releases are documented at [documentation/Changelod.md](documentation/Changelod.md))
