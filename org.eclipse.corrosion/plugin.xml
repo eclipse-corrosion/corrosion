@@ -431,5 +431,12 @@
             commandId="rls.run">
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.unittest.unittestViewSupport">
+      <viewSupport
+            class="org.eclipse.corrosion.test.TestViewSupport"
+            id="org.eclipse.corrosion.unitTestSupport">
+      </viewSupport>
+   </extension>
 
 </plugin>

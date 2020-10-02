@@ -37,6 +37,7 @@ import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.unittest.launcher.UnitTestLaunchConfigurationConstants;
 
 public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
@@ -44,9 +45,9 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 	@Override
 	public void launch(ISelection selection, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(
-				RustLaunchDelegateTools.firstResourceFromSelection(selection));
 		try {
+			ILaunchConfiguration launchConfig = getLaunchConfiguration(
+					RustLaunchDelegateTools.firstResourceFromSelection(selection));
 			RustLaunchDelegateTools.launch(launchConfig, mode);
 		} catch (CoreException e) {
 			CorrosionPlugin.logError(e);
@@ -55,8 +56,9 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 	@Override
 	public void launch(IEditorPart editor, String mode) {
-		ILaunchConfiguration launchConfig = getLaunchConfiguration(RustLaunchDelegateTools.resourceFromEditor(editor));
 		try {
+			ILaunchConfiguration launchConfig = getLaunchConfiguration(
+					RustLaunchDelegateTools.resourceFromEditor(editor));
 			RustLaunchDelegateTools.launch(launchConfig, mode);
 		} catch (CoreException e) {
 			CorrosionPlugin.logError(e);
@@ -137,12 +139,14 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		}
 	}
 
-	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
-		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
-				CARGO_TEST_LAUNCH_CONFIG_TYPE_ID);
+	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) throws CoreException {
+		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools
+				.getLaunchConfiguration(resource, CARGO_TEST_LAUNCH_CONFIG_TYPE_ID).getWorkingCopy();
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
+			wc.setAttribute(UnitTestLaunchConfigurationConstants.ATTR_UNIT_TEST_VIEW_SUPPORT,
+					"org.eclipse.corrosion.unitTestSupport"); //$NON-NLS-1$
 		}
 		return launchConfiguration;
 	}
