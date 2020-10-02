@@ -24,6 +24,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.unittest.launcher.TestRunnerClient;
+import org.eclipse.unittest.model.ITestElement;
 import org.eclipse.unittest.model.ITestRunSession;
 
 public class CargoTestRunnerClient extends TestRunnerClient {
@@ -117,8 +118,9 @@ public class CargoTestRunnerClient extends TestRunnerClient {
 					String testId = line.substring("test ".length(), line.indexOf(" ...")); //$NON-NLS-1$ //$NON-NLS-2$
 					notifyTestStarted(testId, testId);
 					if (line.endsWith("FAILED")) { //$NON-NLS-1$ `
-						extractFailure(testId, testId, 1, false); // TODO randomish
-						notifyTestFailed();
+//						extractFailure(testId, testId, 1, false); // TODO randomish
+//						notifyTestFailed();
+						notifyTestFailed(ITestElement.Status.ERROR.getOldCode(), testId, testId, false, "", "", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
 					notifyTestEnded(testId, testId, false);
 				}

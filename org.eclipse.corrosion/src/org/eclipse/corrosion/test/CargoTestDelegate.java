@@ -42,6 +42,7 @@ import org.eclipse.unittest.launcher.UnitTestLaunchConfigurationConstants;
 public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
 	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
+	public static final String CARGO_UNITTEST_VIEW_SUPPORT_ID = "org.eclipse.corrosion.unitTestSupport"; //$NON-NLS-1$
 
 	@Override
 	public void launch(ISelection selection, String mode) {
@@ -68,6 +69,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
 			throws CoreException {
+		updatedLaunchConfiguration(configuration);
 		String projectName = configuration.getAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
 		String options = configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
 		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, ""); //$NON-NLS-1$
@@ -131,12 +133,28 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test"); //$NON-NLS-1$
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
+				e.printStackTrace();
 				RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
 			}
 		});
 		if (wc != null) {
 			wc.doSave();
 		}
+	}
+
+	/**
+	 * Makes the necessary changes to the launch configuration before passing it to
+	 * the underlying delegate. Currently, updates the program arguments with the
+	 * value that was obtained from Tests Runner provider plug-in.
+	 *
+	 * @param config launch configuration
+	 * @throws CoreException in case of error
+	 */
+	private void updatedLaunchConfiguration(ILaunchConfiguration config) throws CoreException {
+		ILaunchConfigurationWorkingCopy configWC = config.getWorkingCopy();
+		configWC.setAttribute(UnitTestLaunchConfigurationConstants.ATTR_UNIT_TEST_VIEW_SUPPORT,
+				CARGO_UNITTEST_VIEW_SUPPORT_ID);
+		configWC.doSave();
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) throws CoreException {
@@ -146,7 +164,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
 			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
 			wc.setAttribute(UnitTestLaunchConfigurationConstants.ATTR_UNIT_TEST_VIEW_SUPPORT,
-					"org.eclipse.corrosion.unitTestSupport"); //$NON-NLS-1$
+					CARGO_UNITTEST_VIEW_SUPPORT_ID);
 		}
 		return launchConfiguration;
 	}
