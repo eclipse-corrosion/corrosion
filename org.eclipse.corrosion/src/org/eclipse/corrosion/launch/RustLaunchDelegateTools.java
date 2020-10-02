@@ -103,7 +103,7 @@ public class RustLaunchDelegateTools {
 		if (filePath == null) {
 			return file;
 		}
-		return filePath.getRawLocation().toFile();
+		return new File(ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toFile(), path);
 	}
 
 	/**
