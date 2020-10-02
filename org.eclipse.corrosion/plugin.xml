@@ -188,6 +188,8 @@
             delegate="org.eclipse.corrosion.test.CargoTestDelegate"
             id="org.eclipse.corrosion.test.CargoTestDelegate"
             modes="run"
+            sourceLocatorId="com.eclipse.corrosion.test.sourselookup.SourceLocator"
+            sourcePathComputerId="com.eclipse.corrosion.test.sourselookup.sourcePathComputer"
             name="%launchConfigurationType.name.0">
       </launchConfigurationType>
       <launchConfigurationType
@@ -288,8 +290,32 @@
             id="com.eclipse.corrosion.debug.SourceLocator"
             name="%sourceLocator.name">
       </sourceLocator>
+      <sourceLocator
+            class="org.eclipse.corrosion.sourcelookup.CargoSourceLookupDirector"
+            id="com.eclipse.corrosion.test.sourselookup.SourceLocator"
+            name="%test.sourceLocator.name">
+      </sourceLocator>
    </extension>
-
+   <extension
+         point="org.eclipse.debug.core.sourcePathComputers">
+      <sourcePathComputer
+            class="org.eclipse.corrosion.sourcelookup.CargoSourcePathComputerDelegate"
+            id="com.eclipse.corrosion.test.sourselookup.sourcePathComputer"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceContainerTypes">
+      <sourceContainerType
+            class="org.eclipse.corrosion.sourcelookup.CargoProjectSourceContainerType"
+            description="%containerDescription.project"
+            id="org.eclipse.corrosion.containerType.project"
+            name="%containerName.project"/>
+      <sourceContainerType
+            class="org.eclipse.corrosion.sourcelookup.CargoAbsolutePathSourceContainerType"
+            description="%containerDescription.absolutePath"
+            id="org.eclipse.corrosion.containerType.absolutePath"
+            name="%containerName.absolutePath"/>
+    </extension>
+    
 <!-- INCREMENTAL BUILD PROCESS -->
    <extension
          point="org.eclipse.ui.menus">
@@ -434,7 +460,7 @@
    <extension
          point="org.eclipse.unittest.ui.unittestViewSupport">
       <viewSupport
-            class="org.eclipse.corrosion.test.TestViewSupport"
+            class="org.eclipse.corrosion.test.CargoTestViewSupport"
             id="org.eclipse.corrosion.unitTestSupport">
       </viewSupport>
    </extension>

@@ -56,7 +56,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	 * A simple state machine to process requests from the RemoteTestRunner
 	 */
 	abstract class ProcessingState {
-		abstract ProcessingState readMessage(String message);
+		abstract ProcessingState readMessage(String message, RunContext<String> context);
 	}
 
 	// Running target/debug/deps/new_rust_project-710966a2c9040a7a
@@ -64,7 +64,8 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 
 	// running 0 tests
 	private static final String TEST_SUITE_START_LINE_BEGIN = "running"; //$NON-NLS-1$
-	private static final String TEST_SUITE_START_LINE_END = "tests"; //$NON-NLS-1$
+	private static final String TEST_SUITE_START_LINE_END_MULTIPLE = "tests"; //$NON-NLS-1$
+	private static final String TEST_SUITE_START_LINE_END_SINGLE = "test"; //$NON-NLS-1$
 
 	// test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 	// test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered
@@ -103,18 +104,11 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 
 	class DefaultProcessingState extends ProcessingState {
 		@Override
-		ProcessingState readMessage(String message) {
-			message = message.trim();
-			// Running target/debug/deps/testfoo-6f7cfd8c97086512
-			if (message.startsWith(TEST_SUITE_HEADER_LINE_BEGIN)) {
-				String testSuiteName = message
-						.substring(TEST_SUITE_HEADER_LINE_BEGIN.length(), message.lastIndexOf('-')).trim();
-				fTestSuiteNameList.add(testSuiteName);
-				return this;
-			}
 
+		ProcessingState readMessage(String message, RunContext<String> context) {
 			// running 0 tests
-			if (message.startsWith(TEST_SUITE_START_LINE_BEGIN) && message.endsWith(TEST_SUITE_START_LINE_END)) {
+			if (message.startsWith(TEST_SUITE_START_LINE_BEGIN) && (message.endsWith(TEST_SUITE_START_LINE_END_SINGLE)
+					|| message.endsWith(TEST_SUITE_START_LINE_END_MULTIPLE))) {
 				/* The following code is not used */
 //				int count = 0;
 //				try {
@@ -127,7 +121,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 //				}
 
 				String testSuiteId = String.valueOf(++fTestId);
-				String testSuiteName = TEST_SUITE_NAME_PREFIX + fTestSuiteNameList.remove(0);
+				String testSuiteName = TEST_SUITE_NAME_PREFIX + context.next();
 				String testSuiteDisplayName = TEST_ELEMENT_DISPLAY_NAME_PREFIX + testSuiteName;
 
 				session.newTestSuite(testSuiteId, testSuiteName, null, null, testSuiteDisplayName, null);
@@ -141,21 +135,21 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			if (message.startsWith(TEST_PERFORMED_LINE_BEGIN) && message.contains(TEST_PERFORMED_LINE_END)) {
 				String testName = message
 						.substring(TEST_PERFORMED_LINE_BEGIN.length(), message.indexOf(TEST_PERFORMED_LINE_END)).trim();
-				String testDisplayName = testName
-						.substring(testName.indexOf(TEST_NAME_SEPARATOR) + TEST_NAME_SEPARATOR.length()).trim();
-				String testSuiteName = testName.substring(0, testName.indexOf(TEST_NAME_SEPARATOR)).trim();
-
+				String testDisplayName = testName.contains(TEST_NAME_SEPARATOR)
+						? testName.substring(testName.lastIndexOf(TEST_NAME_SEPARATOR) + TEST_NAME_SEPARATOR.length())
+								.trim()
+						: testName;
+				String testSuiteName = testName.contains(TEST_NAME_SEPARATOR)
+						? testName.substring(0, testName.lastIndexOf(TEST_NAME_SEPARATOR)).trim()
+						: null;
 				ITestSuiteElement rootSuite = fRootTestSuiteStack.isEmpty() ? null : fRootTestSuiteStack.peek();
 
-				TestElementReference parentSuiteRef = fExecutedTests.get(testSuiteName);
-				if (parentSuiteRef == null) {
-					String testSuiteId = String.valueOf(++fTestId);
-					parentSuiteRef = new TestElementReference(rootSuite.getId(), testSuiteId, testSuiteName);
-					fExecutedTests.put(testSuiteName, parentSuiteRef);
-					session.newTestSuite(testSuiteId, testSuiteName, null, rootSuite, testSuiteName, null);
-				}
-
-				ITestSuiteElement parentSuite = (ITestSuiteElement) session.getTestElement(parentSuiteRef.id);
+				TestElementReference parentSuiteRef = testSuiteName != null
+						? getOrCreateParentTestSuite(testSuiteName, rootSuite)
+						: null;
+				ITestSuiteElement parentSuite = testSuiteName != null
+						? (ITestSuiteElement) session.getTestElement(parentSuiteRef.id)
+						: rootSuite;
 
 				String testId = String.valueOf(++fTestId);
 
@@ -185,6 +179,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 				} else {
 					CorrosionPlugin.logError(new Exception("Ending of an unexpected Test Suite element")); //$NON-NLS-1$
 				}
+				context.done();
 				return this;
 			}
 
@@ -194,6 +189,33 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			}
 
 			return this;
+		}
+
+		private TestElementReference getOrCreateParentTestSuite(String testSuiteName, ITestSuiteElement rootSuite) {
+			String[] displayNames = testSuiteName.split(TEST_NAME_SEPARATOR);
+			String parentSuiteName = null;
+
+			for (String displayName : displayNames) {
+				String name = parentSuiteName != null ? parentSuiteName + TEST_NAME_SEPARATOR + displayName
+						: displayName;
+				TestElementReference suiteRef = fExecutedTests.get(name);
+				if (suiteRef == null) {
+					String testSuiteId = String.valueOf(++fTestId);
+
+					TestElementReference parentSuiteRef = parentSuiteName != null ? fExecutedTests.get(parentSuiteName)
+							: null;
+					ITestSuiteElement parentSuite = parentSuiteRef != null
+							? (ITestSuiteElement) session.getTestElement(parentSuiteRef.id)
+							: rootSuite;
+					String parentSuiteId = parentSuite != null ? parentSuite.getId() : null;
+
+					suiteRef = new TestElementReference(parentSuiteId, testSuiteId, name);
+					fExecutedTests.put(name, suiteRef);
+					session.newTestSuite(testSuiteId, name, null, parentSuite, displayName, null);
+				}
+				parentSuiteName = name;
+			}
+			return fExecutedTests.get(parentSuiteName);
 		}
 	}
 
@@ -214,44 +236,57 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 				TestElementReference testRef = fExecutedTests.get(fFailedTestCaseName);
 				FailureTrace failureTrace = fillFailureTrace(fFailedTestStdout.toString());
 
-				session.notifyTestFailed(session.getTestElement(testRef.id), testRef.failureKind,
-						failureTrace.isComparisonFailure(), failureTrace);
+				session.notifyTestFailed(session.getTestElement(testRef.id), testRef.failureKind, false, failureTrace);
 			}
 		}
+
+		private static final String FAILURE_THREAD = "thread"; //$NON-NLS-1$
+		private static final String FAILURE_PANICKED_AT_BEGIN = "panicked at"; //$NON-NLS-1$
+		private static final String FAILURE_PANICKED_AT_END = "',"; //$NON-NLS-1$
 
 		private static final String FAILURE_ASSERTION_BEGIN = "'assertion failed:"; //$NON-NLS-1$
 		private static final String FAILURE_ASSERTION_LEFT = "left: "; //$NON-NLS-1$
 		private static final String FAILURE_ASSERTION_RIGHT = "right:"; //$NON-NLS-1$
 		private static final String FAILURE_ASSERTION_SEPARATOR = ","; //$NON-NLS-1$
-		private static final String FAILURE_ASSERTION_END = "',"; //$NON-NLS-1$
-		private static final String NL = "\n"; //$NON-NLS-1$
 
 		private FailureTrace fillFailureTrace(String trace) {
-			// thread 'tests::it_fails' panicked at 'assertion failed: `(left == right)`
-			// left: `4`,
-			// right: `5`', tests/testfoo.rs:12:9
-			if (trace.indexOf(FAILURE_ASSERTION_BEGIN) != -1) {
-				int assertion = trace.indexOf(FAILURE_ASSERTION_BEGIN);
-				int leftIndex = trace.indexOf(FAILURE_ASSERTION_LEFT, assertion);
-				int rightIndex = trace.indexOf(FAILURE_ASSERTION_RIGHT, assertion);
-				int assertionEmd = trace.lastIndexOf(FAILURE_ASSERTION_END);
-				if (assertion != -1 && leftIndex != -1 && rightIndex != -1 && assertionEmd != -1) {
-					String assertionText = trace.substring(0, assertionEmd);
-					String leftValue = assertionText.substring(leftIndex + FAILURE_ASSERTION_LEFT.length(),
-							assertionText.lastIndexOf(FAILURE_ASSERTION_SEPARATOR, rightIndex)).strip();
-					String rightValue = assertionText.substring(rightIndex + FAILURE_ASSERTION_RIGHT.length()).strip();
-					String source = trace.substring(assertionEmd + FAILURE_ASSERTION_END.length()).strip();
-					StringBuilder sb = new StringBuilder();
-					sb.append(assertionText).append(NL).append(TestViewSupport.FRAME_PREFIX).append(source); // $NON-NLS-1$
-					return new FailureTrace(sb.toString(), leftValue, rightValue);
+			// thread 'tests1::it_fails_on_panic' panicked at 'Make this test fail',
+			// tests/testfoo.rs:24:9
+			if (trace.contains(FAILURE_THREAD) && trace.contains(FAILURE_PANICKED_AT_BEGIN)
+					&& trace.contains(FAILURE_PANICKED_AT_END)) {
+				// a common case to get a source reference from
+				int panickedAtEmd = trace.lastIndexOf(FAILURE_PANICKED_AT_END);
+				String panickedAtText = trace.substring(0, panickedAtEmd);
+				String source = trace.substring(panickedAtEmd + FAILURE_PANICKED_AT_END.length()).strip();
+				StringBuilder failureTrace = new StringBuilder();
+				failureTrace.append(panickedAtText);
+				failureTrace.append('\n').append(CargoTestViewSupport.FRAME_PREFIX).append(source); // $NON-NLS-1$
+
+				// Some private cases
+
+				// thread 'tests::it_fails' panicked at 'assertion failed: `(left == right)`
+				// left: `4`,
+				// right: `5`', tests/testfoo.rs:12:9
+				if (panickedAtText.contains(FAILURE_ASSERTION_BEGIN)) {
+					int leftIndex = trace.indexOf(FAILURE_ASSERTION_LEFT);
+					int rightIndex = trace.indexOf(FAILURE_ASSERTION_RIGHT, leftIndex);
+					if (leftIndex != -1 && rightIndex != -1) {
+						String leftValue = panickedAtText.substring(leftIndex + FAILURE_ASSERTION_LEFT.length(),
+								panickedAtText.lastIndexOf(FAILURE_ASSERTION_SEPARATOR, rightIndex)).strip();
+						String rightValue = panickedAtText.substring(rightIndex + FAILURE_ASSERTION_RIGHT.length())
+								.strip();
+						return new FailureTrace(failureTrace.toString(), leftValue, rightValue);
+					}
 				}
+				return new FailureTrace(failureTrace.toString(), null, null);
 			}
 
 			return new FailureTrace(trace, null, null);
 		}
 
 		@Override
-		ProcessingState readMessage(String message) {
+
+		ProcessingState readMessage(String message, RunContext<String> context) {
 //			---- tests::it_fails stdout ----
 			if (message.startsWith(TEST_STDOUT_LINE_BEGIN) && message.endsWith(TEST_STDOUT_LINE_END)) {
 				submit();
@@ -275,6 +310,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 				} else {
 					CorrosionPlugin.logError(new Exception("Ending of an unexpected Test Suite element")); //$NON-NLS-1$
 				}
+				context.done();
 				return fDefaultState;
 			}
 
@@ -305,6 +341,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	private IProcess process;
 	private ITestRunSession session;
 	private InputStream inputStream;
+	private InputStream errorStream;
 
 	ProcessingState fDefaultState = new DefaultProcessingState();
 	ProcessingState fTraceState = new TraceProcessingState();
@@ -319,9 +356,10 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			return this.process;
 		}
 		this.process = launch.getProcesses()[0];
-		if (this.process != null && this.inputStream == null) {
-			inputStream = toInputStream(process);
-			Job.createSystem("Monitor test process", (ICoreRunnable) monitor -> run(inputStream)) //$NON-NLS-1$
+		if (this.process != null && this.errorStream == null && this.inputStream == null) {
+			errorStream = toInputStream(process, true);
+			inputStream = toInputStream(process, false);
+			Job.createSystem("Monitor test process", (ICoreRunnable) monitor -> run(errorStream, inputStream)) //$NON-NLS-1$
 					.schedule(100);
 			// TODO schedule(100) is a workaround because we need to wait for listeners to
 			// be plugged in, but
@@ -332,24 +370,17 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 		return this.process;
 	}
 
-	private static InputStream toInputStream(IProcess process) {
-		IStreamMonitor osMonitor = process.getStreamsProxy().getOutputStreamMonitor();
-		IStreamMonitor esMonitor = process.getStreamsProxy().getErrorStreamMonitor();
-
-		if (osMonitor == null && esMonitor == null) {
+	private static InputStream toInputStream(IProcess process, boolean errorStream) {
+		IStreamMonitor monitor = errorStream ? process.getStreamsProxy().getErrorStreamMonitor()
+				: process.getStreamsProxy().getOutputStreamMonitor();
+		if (monitor == null) {
 			return null;
 		}
+
 		List<Integer> content = Collections.synchronizedList(new LinkedList<>());
-		osMonitor.addListener((text, progresMonitor) -> text.chars().forEach(content::add));
-		esMonitor.addListener((text, progresMonitor) -> text.chars().forEach(content::add));
-		if (esMonitor != null) {
-			byte[] initialContent = esMonitor.getContents().getBytes();
-			for (int i = initialContent.length - 1; i >= 0; i--) {
-				content.add(0, Integer.valueOf(initialContent[i]));
-			}
-		}
-		if (osMonitor != null) {
-			byte[] initialContent = osMonitor.getContents().getBytes();
+		monitor.addListener((text, progresMonitor) -> text.chars().forEach(content::add));
+		if (monitor != null) {
+			byte[] initialContent = monitor.getContents().getBytes();
 			for (int i = initialContent.length - 1; i >= 0; i--) {
 				content.add(0, Integer.valueOf(initialContent[i]));
 			}
@@ -394,20 +425,68 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 		};
 	}
 
-	public void run(InputStream iStream) {
-		if (iStream == null) {
+	class RunContext<T> {
+		List<T> queue = new ArrayList<>();
+		T current;
+
+		synchronized void queue(T item) {
+			queue.add(item);
+		}
+
+		synchronized boolean isEmpty() {
+			return queue.isEmpty() && current == null;
+		}
+
+		synchronized T next() {
+			return (current = queue.isEmpty() ? null : queue.remove(0));
+		}
+
+		synchronized boolean busy() {
+			return current != null;
+		}
+
+		synchronized void done() {
+			current = null;
+		}
+	}
+
+	public void run(InputStream eStream, InputStream iStream) {
+		if (iStream == null || eStream == null) {
 			return;
 		}
 		session.notifyTestSessionStarted(null);
 		fExecutedTests.clear();
-		try (InputStreamReader isReader = new InputStreamReader(iStream, StandardCharsets.UTF_8);
+		try (InputStreamReader esReader = new InputStreamReader(eStream, StandardCharsets.UTF_8);
+				BufferedReader eReader = new BufferedReader(esReader);
+				PushbackReader errorrReader = new PushbackReader(eReader);
+				InputStreamReader isReader = new InputStreamReader(iStream, StandardCharsets.UTF_8);
 				BufferedReader reader = new BufferedReader(isReader);
-				PushbackReader pushbackReader = new PushbackReader(reader)) {
+				PushbackReader inputReader = new PushbackReader(reader)) {
 
 			String message;
-			while (pushbackReader != null && (message = readMessage(pushbackReader)) != null) {
-				receiveMessage(message);
+			RunContext<String> context = new RunContext<>();
+			while (true) {
+				//
+				if (!context.busy()) {
+					message = readMessage(errorrReader);
+					if (message == null && context.isEmpty()) {
+						break; // Nothing to do - stop the test run
+					}
+					receiveHeaders(message, context);
+					if (context.isEmpty()) {
+						continue; // Waiting for a next test suite
+					}
+				}
+
+				if (!context.isEmpty()) {
+					message = readMessage(inputReader);
+					if (message == null) {
+						break;
+					}
+					receiveMessage(message, context);
+				}
 			}
+			session.notifyTestSessionCompleted(session.getDuration());
 		} catch (IOException e) {
 			CorrosionPlugin.logError(e);
 			session.notifyTestSessionAborted(null, e);
@@ -419,6 +498,10 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	private String fLastLineDelimiter = "\n"; //$NON-NLS-1$
 
 	private String readMessage(PushbackReader in) throws IOException {
+		if (in == null) {
+			return null;
+		}
+
 		StringBuilder buf = new StringBuilder(128);
 		int ch;
 		while ((ch = in.read()) != -1) {
@@ -441,27 +524,31 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			}
 		}
 		fLastLineDelimiter = null;
-		if (buf.length() == 0)
+		if (buf.length() == 0) {
 			return null;
+		}
 		return buf.toString();
 	}
 
-	public void receiveMessage(String message) {
-		fCurrentState = fCurrentState.readMessage(message);
+	public void receiveHeaders(String message, RunContext<String> context) {
+		if (message != null) {
+			message = message.trim();
+			// Running target/debug/deps/testfoo-6f7cfd8c97086512
+			if (message.startsWith(TEST_SUITE_HEADER_LINE_BEGIN)) {
+				String testSuiteName = message
+						.substring(TEST_SUITE_HEADER_LINE_BEGIN.length(), message.lastIndexOf('-')).trim();
+				context.queue(testSuiteName);
+			}
+		}
+	}
+
+	public void receiveMessage(String message, RunContext<String> context) {
+		fCurrentState = fCurrentState.readMessage(message, context);
 	}
 
 	@Override
 	public void stopTest() {
-		try {
-			inputStream.close();
-		} catch (IOException e) {
-			CorrosionPlugin.logError(e);
-		}
-	}
-
-	private ITestSuiteElement getTestSuite(String parentId) {
-		ITestElement element = session.getTestElement(parentId);
-		return element instanceof ITestSuiteElement ? (ITestSuiteElement) element : null;
+		stopMonitoring();
 	}
 
 	@Override
@@ -471,7 +558,26 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 
 	@Override
 	public void stopMonitoring() {
-		// TODO Auto-generated method stub
+		try {
+			if (inputStream != null) {
+				inputStream.close();
+				inputStream = null;
+			}
+		} catch (IOException e) {
+			CorrosionPlugin.logError(e);
+		}
+		try {
+			if (errorStream != null) {
+				errorStream.close();
+				errorStream = null;
+			}
+		} catch (IOException e) {
+			CorrosionPlugin.logError(e);
+		}
+	}
 
+	private ITestSuiteElement getTestSuite(String parentId) {
+		ITestElement element = session.getTestElement(parentId);
+		return element instanceof ITestSuiteElement ? (ITestSuiteElement) element : null;
 	}
 }

@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2019 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2020 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -43,6 +43,13 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 	public static final String CARGO_UNITTEST_VIEW_SUPPORT_ID = "org.eclipse.corrosion.unitTestSupport"; //$NON-NLS-1$
+
+	@Override
+	public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
+		CorrosionPlugin.activateUnitTestCoreBundle();
+		updatedLaunchConfiguration(configuration);
+		return super.getLaunch(configuration, mode);
+	}
 
 	@Override
 	public void launch(ISelection selection, String mode) {
