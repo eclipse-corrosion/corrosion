@@ -104,8 +104,6 @@ public class RustLaunchDelegateTools {
 			return file;
 		}
 		return new File(ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toFile(), path);
-//		filePath.getFullPath()
-//		return filePath.getFullPath().toFile();
 	}
 
 	/**

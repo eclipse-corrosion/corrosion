@@ -9,6 +9,10 @@
  ********************************************************************/
 package org.eclipse.corrosion.test;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.eclipse.core.text.StringMatcher;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.IViewPart;
@@ -24,11 +28,6 @@ public class TestViewSupport implements ITestViewSupport {
 	@Override
 	public ITestRunnerClient newTestRunnerClient(ITestRunSession session) {
 		return new CargoTestRunnerClient(session);
-	}
-
-	@Override
-	public String[] getFilterPatterns() {
-		return null;
 	}
 
 	@Override
@@ -52,13 +51,20 @@ public class TestViewSupport implements ITestViewSupport {
 	}
 
 	@Override
-	public ILaunchConfiguration getRerunLaunchConfiguration(ITestElement testElement) {
+	public String getDisplayName() {
+		return "Cargo"; //$NON-NLS-1$
+	}
+
+	@Override
+	public Collection<StringMatcher> getTraceExclusionFilterPatterns() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDisplayName() {
-		return "Cargo"; //$NON-NLS-1$
+	public ILaunchConfiguration getRerunLaunchConfiguration(List<ITestElement> testElements) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
