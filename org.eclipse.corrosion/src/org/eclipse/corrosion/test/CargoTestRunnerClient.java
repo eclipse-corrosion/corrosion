@@ -23,14 +23,17 @@ import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
-import org.eclipse.unittest.launcher.TestRunnerClient;
+import org.eclipse.unittest.launcher.ITestRunnerClient;
 import org.eclipse.unittest.model.ITestElement;
+import org.eclipse.unittest.model.ITestElement.FailureTrace;
+import org.eclipse.unittest.model.ITestElement.Result;
 import org.eclipse.unittest.model.ITestRunSession;
 
-public class CargoTestRunnerClient extends TestRunnerClient {
+public class CargoTestRunnerClient implements ITestRunnerClient {
 
 	private IProcess process;
 	private ITestRunSession session;
+	private InputStream inputStream;
 
 	public CargoTestRunnerClient(ITestRunSession session) {
 		this.session = session;
@@ -42,8 +45,8 @@ public class CargoTestRunnerClient extends TestRunnerClient {
 			return this.process;
 		}
 		this.process = launch.getProcesses()[0];
-		if (this.process != null) {
-			InputStream inputStream = toInputStream(process);
+		if (this.process != null && this.inputStream == null) {
+			inputStream = toInputStream(process);
 			Job.createSystem("Monitor test process", (ICoreRunnable) monitor -> run(inputStream)) //$NON-NLS-1$
 					.schedule(100);
 			// TODO schedule(100) is a workaround because we need to wait for listeners to
@@ -109,33 +112,61 @@ public class CargoTestRunnerClient extends TestRunnerClient {
 		if (iStream == null) {
 			return;
 		}
-		notifyTestRunStarted(0);
+		session.notifyTestRunStarted(0);
 		try (InputStreamReader isReader = new InputStreamReader(iStream);
 				BufferedReader reader = new BufferedReader(isReader)) {
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				if (line.startsWith("test ") && line.contains("...")) { //$NON-NLS-1$ //$NON-NLS-2$
 					String testId = line.substring("test ".length(), line.indexOf(" ...")); //$NON-NLS-1$ //$NON-NLS-2$
-					notifyTestStarted(testId, testId);
+					ITestElement test = session.notifyTestStarted(testId, testId);
 					if (line.endsWith("FAILED")) { //$NON-NLS-1$ `
 //						extractFailure(testId, testId, 1, false); // TODO randomish
 //						notifyTestFailed();
-						notifyTestFailed(ITestElement.Status.ERROR.getOldCode(), testId, testId, false, "", "", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						session.notifyTestFailed(test, Result.ERROR, false, new FailureTrace("", "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
-					notifyTestEnded(testId, testId, false);
+					session.notifyTestEnded(test, false);
 				}
 			}
-			notifyTestRunEnded((long) (session.getElapsedTimeInSeconds() * 1000));
+			session.notifyTestRunEnded(session.getDuration());
 		} catch (IOException e) {
 			CorrosionPlugin.logError(e);
-			notifyTestRunTerminated();
+			session.notifyTestRunTerminated();
 		}
 		shutDown();
 	}
 
 	@Override
 	public void stopTest() {
+		try {
+			inputStream.close();
+		} catch (IOException e) {
+			CorrosionPlugin.logError(e);
+		}
+	}
+
+	@Override
+	public boolean isRunning() {
+		try {
+			return inputStream.available() > 0;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	@Override
+	public void stopWaiting() {
 		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void shutDown() {
+		try {
+			inputStream.close();
+		} catch (IOException e) {
+			CorrosionPlugin.logError(e);
+		}
 
 	}
 
