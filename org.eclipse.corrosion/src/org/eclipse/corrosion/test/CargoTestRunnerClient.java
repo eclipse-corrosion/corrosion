@@ -15,11 +15,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
@@ -35,12 +37,30 @@ import org.eclipse.unittest.model.ITestRunSession;
 import org.eclipse.unittest.model.ITestSuiteElement;
 
 public class CargoTestRunnerClient implements ITestRunnerClient {
+
+	class TestElementReference {
+		String parentId;
+		String id;
+		String name;
+		Result failureKind;
+
+		public TestElementReference(String parentId, String id, String name) {
+			this.parentId = parentId;
+			this.id = id;
+			this.name = name;
+			this.failureKind = Result.UNDEFINED;
+		}
+	}
+
 	/**
 	 * A simple state machine to process requests from the RemoteTestRunner
 	 */
 	abstract class ProcessingState {
 		abstract ProcessingState readMessage(String message);
 	}
+
+	// Running target/debug/deps/new_rust_project-710966a2c9040a7a
+	private static final String TEST_SUITE_HEADER_LINE_BEGIN = "Running"; //$NON-NLS-1$
 
 	// running 0 tests
 	private static final String TEST_SUITE_START_LINE_BEGIN = "running"; //$NON-NLS-1$
@@ -55,31 +75,45 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 
 	// test tests::it_works ... ok
 	// test tests::it_fails ... FAILED
-	private static final String TEST_PERFORMED_LINE_BEGIN = "test tests::"; //$NON-NLS-1$
+	private static final String TEST_PERFORMED_LINE_BEGIN = "test "; //$NON-NLS-1$
 	private static final String TEST_PERFORMED_LINE_END = "..."; //$NON-NLS-1$
 
 	// failures:
 	private static final String TEST_FAIUURES_LINE = "failures:"; //$NON-NLS-1$
 
 	// ---- tests::it_fails stdout ----
-	private static final String TEST_STDOUT_LINE_BEGIN = "---- tests::"; //$NON-NLS-1$
+	private static final String TEST_STDOUT_LINE_BEGIN = "---- "; //$NON-NLS-1$
 	private static final String TEST_STDOUT_LINE_END = "stdout ----"; //$NON-NLS-1$
 
-	private static final String TEST_SUITE_NAME_PREFIX = "TestSuite_"; //$NON-NLS-1$
-	private static final String TEST_ELEMENT_DISPLAY_NAME_PREFIX = "tests::"; //$NON-NLS-1$
+	// note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+	private static final String TEST_NOTE_LINE = "note:"; //$NON-NLS-1$
 
-	private String fCurrentTestSuiteId = null;
+	private static final String TEST_NAME_SEPARATOR = "::"; //$NON-NLS-1$
+	private static final String TEST_SUITE_NAME_PREFIX = ""; //$NON-NLS-1$
+	private static final String TEST_ELEMENT_DISPLAY_NAME_PREFIX = "Target: "; //$NON-NLS-1$
+
 	private int fTestId = -1;
 	private boolean fDynamic = false;
 
-	private Map<String, String> fExecutedTests = new HashMap<>();
+	private Map<String, TestElementReference> fExecutedTests = new HashMap<>();
 	private String fFailedTestCaseName = null;
-	private Result fFaulureKind = Result.OK;
 	private StringBuilder fFailedTestStdout = new StringBuilder();
+
+	List<String> fTestSuiteNameList = new ArrayList<>();
+	Stack<ITestSuiteElement> fRootTestSuiteStack = new Stack<>();
 
 	class DefaultProcessingState extends ProcessingState {
 		@Override
 		ProcessingState readMessage(String message) {
+			message = message.trim();
+			// Running target/debug/deps/testfoo-6f7cfd8c97086512
+			if (message.startsWith(TEST_SUITE_HEADER_LINE_BEGIN)) {
+				String testSuiteName = message
+						.substring(TEST_SUITE_HEADER_LINE_BEGIN.length(), message.lastIndexOf('-')).trim();
+				fTestSuiteNameList.add(testSuiteName);
+				return this;
+			}
+
 			// running 0 tests
 			if (message.startsWith(TEST_SUITE_START_LINE_BEGIN) && message.endsWith(TEST_SUITE_START_LINE_END)) {
 				int count = 0;
@@ -95,13 +129,13 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 				}
 
 				String testSuiteId = String.valueOf(++fTestId);
-				String testSuiteName = TEST_SUITE_NAME_PREFIX + testSuiteId;
+				String testSuiteName = TEST_SUITE_NAME_PREFIX + fTestSuiteNameList.remove(0);
 				String testSuiteDisplayName = TEST_ELEMENT_DISPLAY_NAME_PREFIX + testSuiteName;
 
-				session.newTestSuite(testSuiteId, testSuiteName, count, fDynamic, getTestSuite(fCurrentTestSuiteId),
+				session.newTestSuite(testSuiteId, testSuiteName, null /* count */, true /* fDynamic */, null,
 						testSuiteDisplayName, null);
 
-				fCurrentTestSuiteId = String.valueOf(testSuiteId);
+				fRootTestSuiteStack.push(getTestSuite(testSuiteId));
 				return this;
 			}
 
@@ -110,16 +144,36 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			if (message.startsWith(TEST_PERFORMED_LINE_BEGIN) && message.contains(TEST_PERFORMED_LINE_END)) {
 				String testName = message
 						.substring(TEST_PERFORMED_LINE_BEGIN.length(), message.indexOf(TEST_PERFORMED_LINE_END)).trim();
-				String testDisplayName = TEST_ELEMENT_DISPLAY_NAME_PREFIX + testName;
-				String testId = String.valueOf(++fTestId);
-				fExecutedTests.put(testName, testId);
+				String testDisplayName = testName
+						.substring(testName.indexOf(TEST_NAME_SEPARATOR) + TEST_NAME_SEPARATOR.length()).trim();
+				String testSuiteName = testName.substring(0, testName.indexOf(TEST_NAME_SEPARATOR)).trim();
 
-				session.newTestCase(testId, testName, false, getTestSuite(fCurrentTestSuiteId), testDisplayName, null);
+				ITestSuiteElement rootSuite = fRootTestSuiteStack.isEmpty() ? null : fRootTestSuiteStack.peek();
+
+				TestElementReference parentSuiteRef = fExecutedTests.get(testSuiteName);
+				if (parentSuiteRef == null) {
+					String testSuiteId = String.valueOf(++fTestId);
+					parentSuiteRef = new TestElementReference(rootSuite.getId(), testSuiteId, testSuiteName);
+					fExecutedTests.put(testSuiteName, parentSuiteRef);
+					session.newTestSuite(testSuiteId, testSuiteName, null, true, rootSuite, testSuiteName, null);
+				}
+
+				ITestSuiteElement parentSuite = (ITestSuiteElement) session.getTestElement(parentSuiteRef.id);
+
+				String testId = String.valueOf(++fTestId);
+
+				TestElementReference testRef = new TestElementReference(parentSuite.getId(), testId, testName);
+				fExecutedTests.put(testName, testRef);
+				session.newTestCase(testId, testName, true, parentSuite, testDisplayName, null);
+
 				ITestElement testElement = session.getTestElement(testId);
 				session.notifyTestStarted(testElement);
 				if (message.endsWith(STATUS_FAILED)) {
+					testRef.failureKind = Result.FAILURE;
 					session.notifyTestFailed(session.getTestElement(testId), Result.FAILURE, false,
 							new FailureTrace("", "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				} else if (message.endsWith(STATUS_OK)) {
+					testRef.failureKind = Result.OK;
 				}
 				session.notifyTestEnded(testElement, false);
 				return this;
@@ -129,7 +183,12 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			// test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered
 			// out
 			if (message.startsWith(TEST_SUITE_END_LINE)) {
-				fCurrentTestSuiteId = null;
+				if (!fRootTestSuiteStack.isEmpty()) {
+					fRootTestSuiteStack.pop();
+				} else {
+					CorrosionPlugin.logError(new Exception("Ending of an unexpected Test Suite element")); //$NON-NLS-1$
+				}
+//				fCurrentTestSuiteId = null;
 				return this;
 			}
 
@@ -143,21 +202,35 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	}
 
 	class TraceProcessingState extends ProcessingState {
+		boolean isCollectingAFailureTrace = false;
+
+		private void reset() {
+			// Clear the buffers and test name
+			fFailedTestCaseName = null;
+			fFailedTestStdout.setLength(0);
+			isCollectingAFailureTrace = false;
+		}
+
+		private void submit() {
+			// Submit the existing buffer to a test case element, if any
+			if (fFailedTestCaseName != null && fExecutedTests.get(fFailedTestCaseName) != null
+					&& fFailedTestStdout.length() > 0) {
+				TestElementReference testRef = fExecutedTests.get(fFailedTestCaseName);
+				session.notifyTestFailed(session.getTestElement(testRef.id), testRef.failureKind, false,
+						new FailureTrace(fFailedTestStdout.toString(), "", "")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+
 		@Override
 		ProcessingState readMessage(String message) {
 //			---- tests::it_fails stdout ----
 			if (message.startsWith(TEST_STDOUT_LINE_BEGIN) && message.endsWith(TEST_STDOUT_LINE_END)) {
-				// Submit the existing buffer to a test case element, if any
-				if (fFailedTestCaseName != null && fExecutedTests.get(fFailedTestCaseName) != null
-						&& fFailedTestStdout.length() > 0) {
-					session.notifyTestFailed(session.getTestElement(fExecutedTests.get(fFailedTestCaseName)),
-							fFaulureKind, false, new FailureTrace(fFailedTestStdout.toString(), "", "")); //$NON-NLS-1$ //$NON-NLS-2$
-				}
+				submit();
+				reset();
 
-				// Clear the buffers and read the failed test name
 				fFailedTestCaseName = message
 						.substring(TEST_STDOUT_LINE_BEGIN.length(), message.indexOf(TEST_STDOUT_LINE_END)).trim();
-				fFailedTestStdout.setLength(0);
+				isCollectingAFailureTrace = true;
 				return this;
 			}
 
@@ -165,31 +238,35 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			// test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered
 			// out
 			if (message.startsWith(TEST_SUITE_END_LINE)) {
-				// Submit the existing buffer to a test case element, if any
-				if (fFailedTestCaseName != null && fExecutedTests.get(fFailedTestCaseName) != null
-						&& fFailedTestStdout.length() > 0) {
-					fFaulureKind = Result.FAILURE;
-					session.notifyTestFailed(session.getTestElement(fExecutedTests.get(fFailedTestCaseName)),
-							fFaulureKind, false, new FailureTrace(fFailedTestStdout.toString(), "", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				submit();
+				reset();
 
-					// Clear the buffers and test name
-					fFailedTestCaseName = null;
-					fFailedTestStdout.setLength(0);
+				if (!fRootTestSuiteStack.isEmpty()) {
+					fRootTestSuiteStack.pop();
+				} else {
+					CorrosionPlugin.logError(new Exception("Ending of an unexpected Test Suite element")); //$NON-NLS-1$
 				}
-
 				return fDefaultState;
 			}
 
 //			thread 'tests::it_fails' panicked at 'assertion failed: `(left == right)`
 //			  left: `4`,
 //			 right: `5`', tests/testfoo.rs:12:9
+
 //			note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 //			failures:
 //			    tests::it_fails
+			if (message.startsWith(TEST_NOTE_LINE) || message.startsWith(TEST_FAIUURES_LINE)) {
+				submit();
+				reset();
+				return this;
+			}
 
-			fFailedTestStdout.append(message);
-			if (fLastLineDelimiter != null) {
-				fFailedTestStdout.append(fLastLineDelimiter);
+			if (isCollectingAFailureTrace) {
+				fFailedTestStdout.append(message);
+				if (fLastLineDelimiter != null) {
+					fFailedTestStdout.append(fLastLineDelimiter);
+				}
 			}
 
 			return this;
@@ -228,16 +305,28 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	}
 
 	private static InputStream toInputStream(IProcess process) {
-		IStreamMonitor monitor = process.getStreamsProxy().getOutputStreamMonitor();
-		if (monitor == null) {
+		IStreamMonitor osMonitor = process.getStreamsProxy().getOutputStreamMonitor();
+		IStreamMonitor esMonitor = process.getStreamsProxy().getErrorStreamMonitor();
+
+		if (osMonitor == null && esMonitor == null) {
 			return null;
 		}
 		List<Integer> content = Collections.synchronizedList(new LinkedList<>());
-		monitor.addListener((text, progresMonitor) -> text.chars().forEach(content::add));
-		byte[] initialContent = monitor.getContents().getBytes();
-		for (int i = initialContent.length - 1; i >= 0; i--) {
-			content.add(0, Integer.valueOf(initialContent[i]));
+		osMonitor.addListener((text, progresMonitor) -> text.chars().forEach(content::add));
+		esMonitor.addListener((text, progresMonitor) -> text.chars().forEach(content::add));
+		if (esMonitor != null) {
+			byte[] initialContent = esMonitor.getContents().getBytes();
+			for (int i = initialContent.length - 1; i >= 0; i--) {
+				content.add(0, Integer.valueOf(initialContent[i]));
+			}
 		}
+		if (osMonitor != null) {
+			byte[] initialContent = osMonitor.getContents().getBytes();
+			for (int i = initialContent.length - 1; i >= 0; i--) {
+				content.add(0, Integer.valueOf(initialContent[i]));
+			}
+		}
+
 		return new InputStream() {
 			@Override
 			public int read() throws IOException {
@@ -296,6 +385,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			session.notifyTestRunTerminated();
 		}
 		fExecutedTests.clear();
+		fRootTestSuiteStack.clear();
 		shutDown();
 	}
 
