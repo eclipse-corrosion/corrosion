@@ -25,6 +25,8 @@ import org.eclipse.unittest.ui.ITestViewSupport;
 
 public class TestViewSupport implements ITestViewSupport {
 
+	public static final String FRAME_PREFIX = " at "; //$NON-NLS-1$
+
 	@Override
 	public ITestRunnerClient newTestRunnerClient(ITestRunSession session) {
 		return new CargoTestRunnerClient(session);

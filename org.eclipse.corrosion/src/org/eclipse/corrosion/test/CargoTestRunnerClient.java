@@ -93,7 +93,6 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	private static final String TEST_ELEMENT_DISPLAY_NAME_PREFIX = "Target: "; //$NON-NLS-1$
 
 	private int fTestId = -1;
-	private boolean fDynamic = false;
 
 	private Map<String, TestElementReference> fExecutedTests = new HashMap<>();
 	private String fFailedTestCaseName = null;
@@ -116,24 +115,22 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 
 			// running 0 tests
 			if (message.startsWith(TEST_SUITE_START_LINE_BEGIN) && message.endsWith(TEST_SUITE_START_LINE_END)) {
-				int count = 0;
-				try {
-					String arg = message
-							.substring(TEST_SUITE_START_LINE_BEGIN.length(), message.indexOf(TEST_SUITE_START_LINE_END))
-							.trim();
-					count = Integer.parseInt(arg);
-					fDynamic = false;
-				} catch (IndexOutOfBoundsException | NumberFormatException e) {
-					CorrosionPlugin.logError(e);
-					fDynamic = true;
-				}
+				/* The following code is not used */
+//				int count = 0;
+//				try {
+//					String arg = message
+//							.substring(TEST_SUITE_START_LINE_BEGIN.length(), message.indexOf(TEST_SUITE_START_LINE_END))
+//							.trim();
+//					count = Integer.parseInt(arg);
+//				} catch (IndexOutOfBoundsException | NumberFormatException e) {
+//					CorrosionPlugin.logError(e);
+//				}
 
 				String testSuiteId = String.valueOf(++fTestId);
 				String testSuiteName = TEST_SUITE_NAME_PREFIX + fTestSuiteNameList.remove(0);
 				String testSuiteDisplayName = TEST_ELEMENT_DISPLAY_NAME_PREFIX + testSuiteName;
 
-				session.newTestSuite(testSuiteId, testSuiteName, null /* count */, true /* fDynamic */, null,
-						testSuiteDisplayName, null);
+				session.newTestSuite(testSuiteId, testSuiteName, null, true, null, testSuiteDisplayName, null);
 
 				fRootTestSuiteStack.push(getTestSuite(testSuiteId));
 				return this;
@@ -188,7 +185,6 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 				} else {
 					CorrosionPlugin.logError(new Exception("Ending of an unexpected Test Suite element")); //$NON-NLS-1$
 				}
-//				fCurrentTestSuiteId = null;
 				return this;
 			}
 
@@ -216,9 +212,42 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			if (fFailedTestCaseName != null && fExecutedTests.get(fFailedTestCaseName) != null
 					&& fFailedTestStdout.length() > 0) {
 				TestElementReference testRef = fExecutedTests.get(fFailedTestCaseName);
-				session.notifyTestFailed(session.getTestElement(testRef.id), testRef.failureKind, false,
-						new FailureTrace(fFailedTestStdout.toString(), "", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				FailureTrace failureTrace = fillFailureTrace(fFailedTestStdout.toString());
+
+				session.notifyTestFailed(session.getTestElement(testRef.id), testRef.failureKind,
+						failureTrace.isComparisonFailure(), failureTrace);
 			}
+		}
+
+		private static final String FAILURE_ASSERTION_BEGIN = "'assertion failed:"; //$NON-NLS-1$
+		private static final String FAILURE_ASSERTION_LEFT = "left: "; //$NON-NLS-1$
+		private static final String FAILURE_ASSERTION_RIGHT = "right:"; //$NON-NLS-1$
+		private static final String FAILURE_ASSERTION_SEPARATOR = ","; //$NON-NLS-1$
+		private static final String FAILURE_ASSERTION_END = "',"; //$NON-NLS-1$
+		private static final String NL = "\n"; //$NON-NLS-1$
+
+		private FailureTrace fillFailureTrace(String trace) {
+			// thread 'tests::it_fails' panicked at 'assertion failed: `(left == right)`
+			// left: `4`,
+			// right: `5`', tests/testfoo.rs:12:9
+			if (trace.indexOf(FAILURE_ASSERTION_BEGIN) != -1) {
+				int assertion = trace.indexOf(FAILURE_ASSERTION_BEGIN);
+				int leftIndex = trace.indexOf(FAILURE_ASSERTION_LEFT, assertion);
+				int rightIndex = trace.indexOf(FAILURE_ASSERTION_RIGHT, assertion);
+				int assertionEmd = trace.lastIndexOf(FAILURE_ASSERTION_END);
+				if (assertion != -1 && leftIndex != -1 && rightIndex != -1 && assertionEmd != -1) {
+					String assertionText = trace.substring(0, assertionEmd);
+					String leftValue = assertionText.substring(leftIndex + FAILURE_ASSERTION_LEFT.length(),
+							assertionText.lastIndexOf(FAILURE_ASSERTION_SEPARATOR, rightIndex)).strip();
+					String rightValue = assertionText.substring(rightIndex + FAILURE_ASSERTION_RIGHT.length()).strip();
+					String source = trace.substring(assertionEmd + FAILURE_ASSERTION_END.length()).strip();
+					StringBuilder sb = new StringBuilder();
+					sb.append(assertionText).append(NL).append(TestViewSupport.FRAME_PREFIX).append(source); // $NON-NLS-1$
+					return new FailureTrace(sb.toString(), leftValue, rightValue);
+				}
+			}
+
+			return new FailureTrace(trace, null, null);
 		}
 
 		@Override
