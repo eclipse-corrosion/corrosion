@@ -56,16 +56,6 @@
 							<version>1.0.0-SNAPSHOT</version>
 						</artifact>
 					</target>
-					<!-- Needed for test plug-in -->
-					<dependency-resolution>
-						<extraRequirements>
-							<requirement>
-								<type>eclipse-plugin</type>
-								<id>javax.annotation</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-						</extraRequirements>
-					</dependency-resolution>
 				</configuration>
 			</plugin>
 			<plugin>
