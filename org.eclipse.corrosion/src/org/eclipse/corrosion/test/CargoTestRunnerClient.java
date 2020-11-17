@@ -15,13 +15,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
+import java.util.function.BiFunction;
 
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
@@ -55,8 +55,8 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	/**
 	 * A simple state machine to process requests from the RemoteTestRunner
 	 */
-	abstract class ProcessingState {
-		abstract ProcessingState readMessage(String message, RunContext<String> context);
+	private interface ProcessingState extends BiFunction<String, RunContext<String>, ProcessingState> {
+		// nothing more
 	}
 
 	// Running target/debug/deps/new_rust_project-710966a2c9040a7a
@@ -99,13 +99,11 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	private String fFailedTestCaseName = null;
 	private StringBuilder fFailedTestStdout = new StringBuilder();
 
-	List<String> fTestSuiteNameList = new ArrayList<>();
-	Stack<ITestSuiteElement> fRootTestSuiteStack = new Stack<>();
+	private Deque<ITestSuiteElement> fRootTestSuiteStack = new LinkedList<>();
 
-	class DefaultProcessingState extends ProcessingState {
+	class DefaultProcessingState implements ProcessingState {
 		@Override
-
-		ProcessingState readMessage(String message, RunContext<String> context) {
+		public ProcessingState apply(String message, RunContext<String> context) {
 			// running 0 tests
 			if (message.startsWith(TEST_SUITE_START_LINE_BEGIN) && (message.endsWith(TEST_SUITE_START_LINE_END_SINGLE)
 					|| message.endsWith(TEST_SUITE_START_LINE_END_MULTIPLE))) {
@@ -217,9 +215,14 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			}
 			return fExecutedTests.get(parentSuiteName);
 		}
+
+		private ITestSuiteElement getTestSuite(String parentId) {
+			ITestElement element = session.getTestElement(parentId);
+			return element instanceof ITestSuiteElement ? (ITestSuiteElement) element : null;
+		}
 	}
 
-	class TraceProcessingState extends ProcessingState {
+	class TraceProcessingState implements ProcessingState {
 		boolean isCollectingAFailureTrace = false;
 
 		private void reset() {
@@ -285,8 +288,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 		}
 
 		@Override
-
-		ProcessingState readMessage(String message, RunContext<String> context) {
+		public ProcessingState apply(String message, RunContext<String> context) {
 //			---- tests::it_fails stdout ----
 			if (message.startsWith(TEST_STDOUT_LINE_BEGIN) && message.endsWith(TEST_STDOUT_LINE_END)) {
 				submit();
@@ -379,11 +381,9 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 
 		List<Integer> content = Collections.synchronizedList(new LinkedList<>());
 		monitor.addListener((text, progresMonitor) -> text.chars().forEach(content::add));
-		if (monitor != null) {
-			byte[] initialContent = monitor.getContents().getBytes();
-			for (int i = initialContent.length - 1; i >= 0; i--) {
-				content.add(0, Integer.valueOf(initialContent[i]));
-			}
+		byte[] initialContent = monitor.getContents().getBytes();
+		for (int i = initialContent.length - 1; i >= 0; i--) {
+			content.add(0, Integer.valueOf(initialContent[i]));
 		}
 
 		return new InputStream() {
@@ -396,7 +396,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 					try {
 						Thread.sleep(20, 0);
 					} catch (InterruptedException e) {
-						return -1;
+						Thread.currentThread().interrupt();
 					}
 				}
 				return -1;
@@ -426,10 +426,10 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	}
 
 	class RunContext<T> {
-		List<T> queue = new ArrayList<>();
+		Deque<T> queue = new LinkedList<>();
 		T current;
 
-		synchronized void queue(T item) {
+		synchronized void enqueue(T item) {
 			queue.add(item);
 		}
 
@@ -438,7 +438,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 		}
 
 		synchronized T next() {
-			return (current = queue.isEmpty() ? null : queue.remove(0));
+			return current = queue.pop();
 		}
 
 		synchronized boolean busy() {
@@ -450,7 +450,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 		}
 	}
 
-	public void run(InputStream eStream, InputStream iStream) {
+	private void run(InputStream eStream, InputStream iStream) {
 		if (iStream == null || eStream == null) {
 			return;
 		}
@@ -483,7 +483,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 					if (message == null) {
 						break;
 					}
-					receiveMessage(message, context);
+					fCurrentState = fCurrentState.apply(message, context);
 				}
 			}
 			session.notifyTestSessionCompleted(session.getDuration());
@@ -537,13 +537,9 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 			if (message.startsWith(TEST_SUITE_HEADER_LINE_BEGIN)) {
 				String testSuiteName = message
 						.substring(TEST_SUITE_HEADER_LINE_BEGIN.length(), message.lastIndexOf('-')).trim();
-				context.queue(testSuiteName);
+				context.enqueue(testSuiteName);
 			}
 		}
-	}
-
-	public void receiveMessage(String message, RunContext<String> context) {
-		fCurrentState = fCurrentState.readMessage(message, context);
 	}
 
 	@Override
@@ -576,8 +572,4 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 		}
 	}
 
-	private ITestSuiteElement getTestSuite(String parentId) {
-		ITestElement element = session.getTestElement(parentId);
-		return element instanceof ITestSuiteElement ? (ITestSuiteElement) element : null;
-	}
 }
