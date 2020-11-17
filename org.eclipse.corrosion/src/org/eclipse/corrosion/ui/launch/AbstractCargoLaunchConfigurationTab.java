@@ -26,6 +26,7 @@ import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.corrosion.ui.InputComponent;
 import org.eclipse.corrosion.ui.OptionalDefaultInputComponent;
 import org.eclipse.corrosion.ui.cargo.OptionSelector;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -51,8 +52,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 		configuration.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, projectInput.getValue());
 		configuration.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, argsInput.getValue());
 		configuration.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, optionsInput.getValue());
-		configuration.setAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE,
-				workingDirectoryInput.getValue());
+		configuration.setAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, workingDirectoryInput.getValue());
 		setDirty(false);
 	}
 
@@ -148,7 +148,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 		configuration.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
 		configuration.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, ""); //$NON-NLS-1$
 		configuration.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, ""); //$NON-NLS-1$
-		configuration.setAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, ""); //$NON-NLS-1$
+		configuration.setAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
 	}
 
 	@Override
@@ -169,8 +169,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 			argsInput.setValue(""); //$NON-NLS-1$
 		}
 		try {
-			workingDirectoryInput
-					.setValue(configuration.getAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, "")); //$NON-NLS-1$
+			workingDirectoryInput.setValue(configuration.getAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, "")); //$NON-NLS-1$
 		} catch (CoreException ce) {
 			workingDirectoryInput.setValue(""); //$NON-NLS-1$
 		}
