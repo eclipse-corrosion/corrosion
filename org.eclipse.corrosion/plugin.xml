@@ -187,9 +187,8 @@
       <launchConfigurationType
             delegate="org.eclipse.corrosion.test.CargoTestDelegate"
             id="org.eclipse.corrosion.test.CargoTestDelegate"
-            modes="run"
-            sourceLocatorId="com.eclipse.corrosion.test.sourselookup.SourceLocator"
-            sourcePathComputerId="com.eclipse.corrosion.test.sourselookup.sourcePathComputer"
+            modes="run,debug"
+            sourceLocatorId="org.eclipse.corrosion.debug.SourceLocator"
             name="%launchConfigurationType.name.0">
       </launchConfigurationType>
       <launchConfigurationType
@@ -198,7 +197,7 @@
             modes="debug"
             name="%launchConfigurationType.name.1"
             public="true"
-            sourceLocatorId="com.eclipse.corrosion.debug.SourceLocator">
+            sourceLocatorId="org.eclipse.corrosion.debug.SourceLocator">
       </launchConfigurationType>
    </extension>
    <extension
@@ -287,20 +286,20 @@
          point="org.eclipse.debug.core.sourceLocators">
       <sourceLocator
             class="org.eclipse.corrosion.debug.SourceLookupDirector"
-            id="com.eclipse.corrosion.debug.SourceLocator"
+            id="org.eclipse.corrosion.debug.SourceLocator"
             name="%sourceLocator.name">
       </sourceLocator>
-      <sourceLocator
+      <!--sourceLocator
             class="org.eclipse.corrosion.sourcelookup.CargoSourceLookupDirector"
-            id="com.eclipse.corrosion.test.sourselookup.SourceLocator"
+            id="org.eclipse.corrosion.test.sourselookup.SourceLocator"
             name="%test.sourceLocator.name">
-      </sourceLocator>
+      </sourceLocator-->
    </extension>
    <extension
          point="org.eclipse.debug.core.sourcePathComputers">
       <sourcePathComputer
             class="org.eclipse.corrosion.sourcelookup.CargoSourcePathComputerDelegate"
-            id="com.eclipse.corrosion.test.sourselookup.sourcePathComputer"/>
+            id="org.eclipse.corrosion.test.sourselookup.sourcePathComputer"/>
    </extension>
    <extension
          point="org.eclipse.debug.core.sourceContainerTypes">

@@ -12,16 +12,17 @@ package org.eclipse.corrosion.sourcelookup;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.cdt.debug.internal.core.sourcelookup.CSourceLookupDirector;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourceContainerType;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupParticipant;
 
-public class CargoSourceLookupDirector extends AbstractSourceLookupDirector {
+public class CargoSourceLookupDirector extends CSourceLookupDirector { // TODO this should be an abstract sourceLookup
+																		// director but
 	private static Set<String> fSupportedTypes;
 	private static Object fSupportedTypesLock = new Object();
 

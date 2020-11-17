@@ -15,23 +15,40 @@ package org.eclipse.corrosion.test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
+import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
+import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
+import org.eclipse.cdt.dsf.gdb.service.GDBBackend_7_12;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.Messages;
+import org.eclipse.corrosion.RustManager;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.debug.ui.ILaunchShortcut;
@@ -43,6 +60,22 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 	public static final String CARGO_UNITTEST_VIEW_SUPPORT_ID = "org.eclipse.corrosion.unitTestSupport"; //$NON-NLS-1$
+
+	private static final class GDBCommandAccessor extends GDBBackend_7_12 {
+		public GDBCommandAccessor(ILaunchConfiguration config) {
+			super(null, config);
+		}
+
+		@Override
+		public String[] getDebuggerCommandLine() {
+			return super.getDebuggerCommandLine();
+		}
+
+		@Override
+		protected IPath getGDBPath() {
+			return new Path(RustManager.getDefaultDebugger());
+		}
+	}
 
 	@Override
 	public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
@@ -81,10 +114,12 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		String options = configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
 		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, ""); //$NON-NLS-1$
 		String arguments = configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim(); //$NON-NLS-1$
-		String workingDirectoryString = RustLaunchDelegateTools.performVariableSubstitution(
-				configuration.getAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+		String workingDirectoryString = RustLaunchDelegateTools
+				.performVariableSubstitution(configuration.getAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, "").trim()); //$NON-NLS-1$
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
-		ILaunchConfigurationWorkingCopy wc = null;
+		ILaunchConfigurationWorkingCopy wc = configuration.isWorkingCopy()
+				? (ILaunchConfigurationWorkingCopy) configuration
+				: configuration.getWorkingCopy();
 
 		IProject project = null;
 		if (!projectName.isEmpty()) {
@@ -96,10 +131,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 			return;
 		}
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
-			if (configuration instanceof ILaunchConfigurationWorkingCopy) {
-				wc = (ILaunchConfigurationWorkingCopy) configuration;
-				wc.setAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, project.getLocation().toString());
-			}
+			wc.setAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
 		}
 		IFile cargoManifest = project.getFile("Cargo.toml"); //$NON-NLS-1$
 		if (!cargoManifest.exists()) {
@@ -132,12 +164,48 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 
 		final List<String> finalTestCommand = cargoTestCommand;
 		final File finalWorkingDirectory = workingDirectory;
-		final String[] envArgs = DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration);
+		String[] envArgs = DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration);
+		if (envArgs == null) {
+			envArgs = new String[0];
+		}
+		final String[] env = envArgs;
 		CompletableFuture.runAsync(() -> {
 			try {
 				String[] cmdLine = finalTestCommand.toArray(new String[finalTestCommand.size()]);
-				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory, envArgs);
+				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory, env);
 				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test"); //$NON-NLS-1$
+				if (ILaunchManager.DEBUG_MODE.equals(mode)) {
+					ProcessHandle cargoHandle = p.toHandle();
+					Set<ProcessHandle> captured = new HashSet<>();
+					Job pollChildren = Job.createSystem("Capture children processes", //$NON-NLS-1$
+							(ICoreRunnable) progressMonitor -> {
+								while (!process.isTerminated() && !monitor.isCanceled()) {
+									try {
+										Thread.sleep(50);
+									} catch (InterruptedException e) {
+										CorrosionPlugin.logError(e);
+										Thread.currentThread().interrupt();
+									}
+									cargoHandle.descendants() //
+											.filter(Predicate.not(captured::contains)) //
+											.filter(handle -> handle.info().commandLine()
+													.map(line -> line.contains("target/debug")).orElse(Boolean.FALSE)) //$NON-NLS-1$
+											.map(handle -> {
+												captured.add(handle);
+												return debug(handle, configuration);
+											}).filter(Objects::nonNull) //
+											.forEach(config -> {
+												try {
+													config.launch(ILaunchManager.DEBUG_MODE, new NullProgressMonitor());
+												} catch (CoreException e) {
+													CorrosionPlugin.logError(e);
+												}
+											});
+								}
+							});
+					pollChildren.schedule();
+					cargoHandle.onExit().thenAccept(h -> pollChildren.cancel());
+				}
 				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
 			} catch (CoreException e) {
 				e.printStackTrace();
@@ -160,7 +228,35 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	private static void updatedLaunchConfiguration(ILaunchConfiguration config) throws CoreException {
 		ILaunchConfigurationWorkingCopy configWC = config.getWorkingCopy();
 		new ConfigureViewerSupport(CARGO_UNITTEST_VIEW_SUPPORT_ID).apply(configWC);
+		if (configWC.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map<String, String>) null) == null) {
+			configWC.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, Collections.emptyMap());
+		}
 		configWC.doSave();
+	}
+
+	private static ILaunchConfiguration debug(ProcessHandle process, ILaunchConfiguration initialLaunchConfiguration) {
+		ILaunchConfigurationWorkingCopy configWC;
+		try {
+			ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+			configWC = launchManager.getLaunchConfigurationType(ICDTLaunchConfigurationConstants.ID_LAUNCH_C_ATTACH)
+					.newInstance(null,
+							process.info().commandLine().map(line -> line.split(File.separator))
+									.map(segments -> segments[segments.length - 1])
+									.map(launchManager::generateLaunchConfigurationName).orElse("unset")); //$NON-NLS-1$
+			configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, initialLaunchConfiguration
+					.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String) null));
+		} catch (CoreException e) {
+			CorrosionPlugin.logError(e);
+			return null;
+		}
+		configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_START_MODE,
+				ICDTLaunchConfigurationConstants.DEBUGGER_MODE_ATTACH);
+		configWC.setAttribute(IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, true);
+		configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_ATTACH_PROCESS_ID, (int) process.pid());
+		configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
+		configWC.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, RustManager.getDefaultDebugger());
+		configWC.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, Collections.emptyMap());
+		return configWC;
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) throws CoreException {

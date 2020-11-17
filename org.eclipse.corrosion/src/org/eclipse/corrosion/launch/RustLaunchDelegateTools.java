@@ -40,10 +40,9 @@ import org.eclipse.ui.PlatformUI;
 public class RustLaunchDelegateTools {
 
 	public static final String CORROSION_DEBUG_LAUNCH_CONFIG_TYPE = "org.eclipse.corrosion.debug.RustDebugDelegate"; //$NON-NLS-1$
-	public static final String PROJECT_ATTRIBUTE = "PROJECT"; //$NON-NLS-1$
+	public static final String PROJECT_ATTRIBUTE = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 	public static final String OPTIONS_ATTRIBUTE = "OPTIONS"; //$NON-NLS-1$
 	public static final String ARGUMENTS_ATTRIBUTE = "ARGUMENTS"; //$NON-NLS-1$
-	public static final String WORKING_DIRECTORY_ATTRIBUTE = "WORKING_DIRECTORY"; //$NON-NLS-1$
 
 	private RustLaunchDelegateTools() {
 		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
@@ -100,10 +99,10 @@ public class RustLaunchDelegateTools {
 			return file;
 		}
 		final IResource filePath = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
-		if (filePath == null) {
-			return file;
+		if (filePath != null && filePath.exists()) {
+			return filePath.getLocation().toFile();
 		}
-		return new File(ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toFile(), path);
+		return file;
 	}
 
 	/**

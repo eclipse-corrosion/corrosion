@@ -179,7 +179,7 @@ public class LaunchHandler extends LSPCommandHandler {
 			launchWorkingCopy.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, optionsString);
 			launchWorkingCopy.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, argumentsString);
 			launchWorkingCopy.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, envMap);
-			launchWorkingCopy.setAttribute(RustLaunchDelegateTools.WORKING_DIRECTORY_ATTRIBUTE, projectName);
+			launchWorkingCopy.setAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, projectName);
 
 			// we currently do not call launchWorkingCopy.doSave(), since in practice it
 			// would clutter the workspace with launch configurations. Maybe at some point
