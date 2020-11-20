@@ -19,6 +19,7 @@ import static org.eclipse.corrosion.debug.DebugUtil.getDefaultExecutablePath;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
@@ -44,6 +45,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.ui.ILaunchShortcut;
@@ -101,9 +103,6 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		}
 		if (restoreProcess.exitValue() != 0) { // errors will be shown in console
 			return;
-		}
-		if (!(launch instanceof RustGDBLaunchWrapper)) {
-			launch = new RustGDBLaunchWrapper(launch);
 		}
 		super.launch(configuration, mode, launch, monitor);
 	}
@@ -185,9 +184,6 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		}
 
 		ILaunch launch = super.getLaunch(wc.doSave(), mode);
-		if (!(launch instanceof RustGDBLaunchWrapper)) {
-			launch = new RustGDBLaunchWrapper(launch);
-		}
 		// workaround for DLTK bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=419273
 		launch.setAttribute("org.eclipse.dltk.debug.debugConsole", Boolean.toString(false)); //$NON-NLS-1$
 		return launch;
@@ -208,6 +204,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, getDefaultExecutablePath(project)); // $NON-NLS-1$
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
 			wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, RustManager.getDefaultDebugger());
+			wc.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, Collections.emptyMap());
 		}
 		return launchConfiguration;
 	}
