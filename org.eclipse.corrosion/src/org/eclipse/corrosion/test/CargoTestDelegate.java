@@ -27,17 +27,14 @@ import java.util.function.Predicate;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
-import org.eclipse.cdt.dsf.gdb.service.GDBBackend_7_12;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.Messages;
@@ -60,22 +57,6 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 	public static final String CARGO_UNITTEST_VIEW_SUPPORT_ID = "org.eclipse.corrosion.unitTestSupport"; //$NON-NLS-1$
-
-	private static final class GDBCommandAccessor extends GDBBackend_7_12 {
-		public GDBCommandAccessor(ILaunchConfiguration config) {
-			super(null, config);
-		}
-
-		@Override
-		public String[] getDebuggerCommandLine() {
-			return super.getDebuggerCommandLine();
-		}
-
-		@Override
-		protected IPath getGDBPath() {
-			return new Path(RustManager.getDefaultDebugger());
-		}
-	}
 
 	@Override
 	public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
@@ -231,6 +212,13 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		if (configWC.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map<String, String>) null) == null) {
 			configWC.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, Collections.emptyMap());
 		}
+		// consider setting CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER and so on in
+		// debug mode with a good launch command to make the process
+		// wait at startup, since tests can often complete before debugger has time to
+		// attach. Eg trying `/bin/bash -e "( kill -SIGSTOP $BASHPID; exec my_command )
+		// &"` to start the process and restart it with `kill -SIGCONTINUE` once
+		// debugger
+		// is attached.
 		configWC.doSave();
 	}
 
