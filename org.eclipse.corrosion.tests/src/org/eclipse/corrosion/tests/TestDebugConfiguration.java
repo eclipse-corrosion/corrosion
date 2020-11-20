@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +45,6 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,13 +97,6 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 		RustDebugDelegate delegate = new RustDebugDelegate();
 		delegate.launch(new StructuredSelection(project), "debug");
 		assertEquals(Collections.emptyList(), errors);
-		Assumptions.assumeTrue(() -> {
-			try {
-				return Runtime.getRuntime().exec("rust-gdb --version").waitFor() == 0;
-			} catch (InterruptedException | IOException e) {
-				return false;
-			}
-		}, "rust-gdb not found, skipping test continuation");
 		new DisplayHelper() {
 			@Override
 			protected boolean condition() {
