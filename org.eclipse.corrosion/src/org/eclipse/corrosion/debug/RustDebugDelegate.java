@@ -104,6 +104,9 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		if (restoreProcess.exitValue() != 0) { // errors will be shown in console
 			return;
 		}
+		if (!(launch instanceof RustGDBLaunchWrapper)) {
+			launch = new RustGDBLaunchWrapper(launch);
+		}
 		super.launch(configuration, mode, launch, monitor);
 	}
 
@@ -184,6 +187,9 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 		}
 
 		ILaunch launch = super.getLaunch(wc.doSave(), mode);
+		if (!(launch instanceof RustGDBLaunchWrapper)) {
+			launch = new RustGDBLaunchWrapper(launch);
+		}
 		// workaround for DLTK bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=419273
 		launch.setAttribute("org.eclipse.dltk.debug.debugConsole", Boolean.toString(false)); //$NON-NLS-1$
 		return launch;
