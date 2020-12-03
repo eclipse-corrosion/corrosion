@@ -57,6 +57,9 @@
    <bundle id="org.jsoup" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
+   <bundle id="org.eclipse.unittest.ui" version="0.0.0">
+      <category name="org.eclipse.corrosion.dependecies.category"/>
+   </bundle>
    <bundle id="org.eclipse.corrosion.source" version="0.0.0">
       <category name="org.eclipse.corrosion.dev.category"/>
    </bundle>
@@ -67,12 +70,12 @@
    </category-def>
    <category-def name="org.eclipse.corrosion.dependencies.category" label="Dependencies">
       <description>
-         The dependencies for Corrosion.
+         Runtime dependencies for Corrosion; those shouldn't be installed explicitly.
       </description>
    </category-def>
    <category-def name="org.eclipse.corrosion.dev.category" label="Developer Resources">
       <description>
-         The dependencies for Corrosion.
+         Useful resources for Corrosion contributors and integrators.
       </description>
    </category-def>
 </site>
