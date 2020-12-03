@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.corrosion.run.CargoRunDelegate;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -78,7 +79,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 	public void testFailOnFakeProjectName() throws IOException, CoreException {
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
-		launchConfiguration.setAttribute("PROJECT", "fakeProjectName");
+		launchConfiguration.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, "fakeProjectName");
 		confirmErrorPopup(launchConfiguration);
 	}
 
@@ -130,9 +131,9 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 	private static ILaunchConfigurationWorkingCopy createLaunchConfiguration(IProject project) throws CoreException {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType configType = launchManager
-				.getLaunchConfigurationType("org.eclipse.corrosion.run.CargoRunDelegate");
+				.getLaunchConfigurationType(CargoRunDelegate.CARGO_RUN_LAUNCH_CONFIG_TYPE);
 		ILaunchConfigurationWorkingCopy wc = configType.newInstance(project, "launch");
-		wc.setAttribute("PROJECT", project.getName());
+		wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, project.getName());
 		return wc;
 	}
 
