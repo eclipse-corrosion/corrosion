@@ -2,9 +2,16 @@
 
 ## Upcoming Release
 
+### 1.2.0
+
+* 📅 Release Date (tentative): End of February 2020
+* All changes: https://github.com/eclipse/corrosion/compare/1.0.0...1.1.0
+
+## Completed releases
+
 ### 1.1.0
 
-* 📅 Release Date (tentative): 16th December 2020
+* 📅 Release Date: 4th December 2020
 * All changes: https://github.com/eclipse/corrosion/compare/1.0.0...1.1.0
 
 #### Test Report view support
