@@ -20,6 +20,8 @@ Using the _Cargo Test_ launch configuration will now show the Test Report view t
 
 <img alt="logo" src="./images/testReports.png" width="600px"/>
 
+See also [▶️video demo](https://www.screencast.com/t/1sgBo0ENGc).
+
 #### Support Debug for Cargo Tests
 
 The _Cargo Test_ launch can now happen in debug. The children test execution of the `cargo` process are monitored and a debugger is attached when suitable to provide the capability to inspect execution, use breakpoints and so on.

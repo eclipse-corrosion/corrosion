@@ -57,6 +57,8 @@ Using the rust-gdb, Corrosion enables users to debug their Rust programs with in
 
 <img alt="logo" src="./images/testReports.png" width="600px"/>
 
+See also [▶️video demo](https://www.screencast.com/t/1sgBo0ENGc).
+
 ### Cargo and Rustup Integration
 Corrosion is built for all Rust developers, newcomers to experts, bringing a GUI to common Cargo features.
  - New Project Wizard
@@ -68,34 +70,26 @@ Corrosion is built for all Rust developers, newcomers to experts, bringing a GUI
 ![Cargo and Rustup features](images/cargo-features.gif)
 
 
-### Eclipse Integration
-Corrosion fits right into the standard Eclipse workflow welcoming previous Eclipse users
+### in the powerful in versatile Eclipse IDE
+Corrosion fits right into the standard Eclipse IDE workflows that boost productivity:
  - Project Outline
  - Dark Theme
  - Problems View
  - Git integration (Only available in Corrosion Package)
  - Embedded Terminal (Only available in Corrosion Package)
- - ...all Eclipse Marketplace extensions you like!
+ - ...all Eclipse Marketplace extensions you like, including support for any other language!
 
 ![Eclipse features](images/eclipse-features.gif)
-
-## Version History
-
-Please have a look at the [Changelog page](documentation/Changelog.md)
 
 ## Contributing
 Corrosion is always open to new features and pull requests. If you have a feature or bug you wish to work on, [file an issue](https://github.com/eclipse/corrosion/issues) and other Corrosion developers will be able to help you get started.
 
 Refer to our [Contributing Guide](CONTRIBUTING.md) for more instructions.
 
-## Concept
-
-### Prerequisites
-
-The `rustup` and `cargo` commands are required for accessing the language server and performing most tasks. Go into the _Rust_ preferences and either install the commands or input their paths if not automatically found.
-
 ### Project Overview
 For the **edition**, Corrosion uses the [lsp4e](https://projects.eclipse.org/projects/technology.lsp4e) project to integrate with the [Rust Language Server](https://github.com/rust-lang-nursery/rls) and [TM4E](https://projects.eclipse.org/projects/technology.tm4e) project to provide syntax highlighting in order to provide a rich Rust editor in the Eclipse IDE.
+
+`rustup` is used to easily provisin the various necessary Rust tools.
 
 **Initialization, import and export** of projects and execution are provided by integration with `cargo` command.
 
