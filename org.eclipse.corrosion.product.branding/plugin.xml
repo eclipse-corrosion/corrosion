@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="product"
+         name="Eclipse IDE for Rust Developers"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.ui.ide.workbench"
+            name="Eclipse IDE">
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+         <property
+               name="appName"
+               value="Eclipse">
+         </property>
+         <property
+               name="aboutText"
+               value="Eclipse IDE for Rust Developers (includes Incubating components)&#x0A;&#x0A;Version: {1}&#x0A;Build id: {0}&#x0A;&#x0A;(c) Copyright Eclipse contributors and others 2000, 2021.  All rights reserved. Eclipse and the Eclipse logo are trademarks of the Eclipse Foundation, Inc., https://www.eclipse.org/. The Eclipse logo cannot be altered without Eclipse's permission. Eclipse logos are provided for use under the Eclipse logo and trademark guidelines, https://www.eclipse.org/logotm/. Oracle and Java are trademarks or registered trademarks of Oracle and/or its affiliates. Other names may be trademarks of their respective owners.&#x0A;&#x0A;This product includes software developed by other open source projects including the Apache Software Foundation, https://www.apache.org/.&#x0A;">
+         </property>
+         <property
+               name="startupForegroundColor"
+               value="ffffff">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="7,265,320,20">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="2,290,448,10">
+         </property>
+         <property
+               name="aboutImage"
+               value="eclipse_lg.png">
+         </property>
+         <property
+               name="windowImages"
+               value="eclipse16.png,eclipse32.png,eclipse48.png,eclipse256.png">
+         </property>
+         <property
+               name="applicationXMI"
+               value="org.eclipse.platform/LegacyIDE.e4xmi">
+         </property>
+         <property 
+               name="cssTheme"
+               value="org.eclipse.e4.ui.css.theme.e4_default">
+         </property>
+         <property
+               name="applicationCSSResources" 
+               value="platform:/plugin/org.eclipse.ui.themes/images/"> 
+         </property>
+         <property
+               name="buildIdLocation"
+               value="0,220">
+         </property>
+         <property
+               name="buildIdSize"
+               value="293,40">
+         </property>
+      </product>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.preferencePages">
+	  <page
+            category="org.eclipse.ui.preferencePages.Workbench"
+            name="%PreferencePages.Capabilities"
+            id="org.eclipse.sdk.capabilities">
+            <class class="org.eclipse.ui.activities.ActivityCategoryPreferencePage">
+                <parameter name="allowAdvanced" value="true"/>
+                <parameter name="captionMessage" value="%PreferencePages.Capabilities.captionMessage" />
+                <parameter name="activityName" value="%PreferencePages.Capabilities.activityName" />
+                <parameter name="categoryName" value="%PreferencePages.Capabilities.categoryName" />
+                <parameter name="activityPromptButton" value="%PreferencePages.Capabilities.activityPromptButton"/>
+                <parameter name="activityPromptButtonTooltip" value="%PreferencePages.Capabilities.activityPromptButtonTooltip"/>
+            </class>
+      </page>
+   </extension>
+</plugin>

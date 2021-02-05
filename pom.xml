@@ -9,7 +9,7 @@
 		<maven>3.6.3</maven>
 	</prerequisites>
 	<properties>
-		<tycho-version>2.2.0-SNAPSHOT</tycho-version>
+		<tycho-version>2.2.0</tycho-version>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -19,6 +19,7 @@
 		<module>org.eclipse.corrosion</module>
 		<module>org.eclipse.corrosion.tests</module>
 		<module>org.eclipse.corrosion.feature</module>
+		<module>org.eclipse.corrosion.product.branding</module>
 		<module>repository</module>
 	</modules>
 	<build>

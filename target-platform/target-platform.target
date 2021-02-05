@@ -28,6 +28,14 @@
 <unit id="org.apache.commons.io" version="0.0.0"/>
 <unit id="com.google.gson" version="0.0.0"/>
 <unit id="org.eclipse.tm4e.feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.epp.package.common.feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.mylyn.wikitext_feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.epp.mpc.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.platform.ide" version="0.0.0"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
 <repository location="https://download.eclipse.org/releases/2020-12/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">

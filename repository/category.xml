@@ -63,6 +63,8 @@
    <bundle id="org.eclipse.corrosion.source" version="0.0.0">
       <category name="org.eclipse.corrosion.dev.category"/>
    </bundle>
+   <bundle id="org.eclipse.corrosion.product" version="0.0.0"/>
+   <bundle id="org.eclipse.corrosion.product.branding" version="0.0.0"/>
    <category-def name="org.eclipse.corrosion.category" label="Corrosion: Rust edition in Eclipse IDE">
       <description>
          Corrosion enables Rust application development in the Eclipse IDE.
