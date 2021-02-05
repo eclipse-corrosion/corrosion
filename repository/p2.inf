@@ -1,0 +1,21 @@
+# Following requirement cannot go to .product because they're not features
+## add requirement on org.eclipse.platform.ide, to inherit some conf, eg start-levels
+requires.1.namespace=org.eclipse.equinox.p2.iu
+requires.1.name=org.eclipse.platform.ide
+requires.1.greedy=true
+## add branding plugin
+requires.2.namespace=org.eclipse.equinox.p2.iu
+requires.2.name=org.eclipse.corrosion.product.branding
+requires.2.greedy=true
+
+# Add p2 repo to installation for upgrades
+instructions.configure=\
+org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,location:http${#58}//download.eclipse.org/corrosion/releases/latest,name:Eclipse Corrosion Latest Release,enabled:true);\
+org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,location:http${#58}//download.eclipse.org/corrosion/releases/latest,name:Eclipse Corrosion Latest Release,enabled:true);
+
+# Allow upgrading from Rust EPP to this product
+update.matchExp= providedCapabilities.exists(pc | \
+   pc.namespace == 'org.eclipse.equinox.p2.iu' && \
+     (pc.name == 'epp.package.rust' || \
+       (pc.name == 'org.eclipse.corrosion.product' && pc.version ~= range('[0.0.0,$version$)'))))
+ 
