@@ -119,7 +119,7 @@
 								<goals><goal>package-dmg</goal></goals>
 								<phase>package</phase>
 								<configuration>
-									<source>eclipseide-rust-${parsedVersion.major}.${parsedVersion.minor}.${parsedVersion.incremental}-macosx-cocoa-x86_64.tar.gz</source>
+									<source>eclipseide-rust-${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}-macosx-cocoa-x86_64.tar.gz</source>
 								</configuration>
 							</execution>
 						</executions>
