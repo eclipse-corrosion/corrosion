@@ -10,7 +10,7 @@ Corrosion is a Rust development plugin for the Eclipse IDE, providing a rich edi
 
 ### Corrosion
 
-Download [The Eclipse IDE for Rust Developers Package](https://www.eclipse.org/downloads/packages/release/2019-12/r/eclipse-ide-rust-developers-includes-incubating-components). With installation of plugins required, it is the easiest way to start developing Rust projects. _Java must be installed to run this IDE_
+Download a fully-fledged Eclipse IDE for Rust development from [Corrosion download area](https://download.eclipse.org/corrosion/releases/latest/products).
 
 *OR*
 

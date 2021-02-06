@@ -26,10 +26,21 @@
 
 	<artifactId>org.eclipse.corrosion.product</artifactId>
 	<packaging>eclipse-repository</packaging>
-	<version>4.19.0-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 
 	<build>
  		<plugins>
+ 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>parse-version</id>
+						<goals><goal>parse-version</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
@@ -85,19 +96,38 @@
 							<rootFolders>
 								<macosx>Eclipse.app</macosx>
 							</rootFolders>
-							<archiveFileName>eclipseide-rust</archiveFileName>
+							<archiveFileName>eclipseide-rust-${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</archiveFileName>
 						</product>
 					</products>
-					<profile>${project.artifactId}</profile>
+					<profile>CorrosionIDE</profile>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.cbi.maven.plugins</groupId>
-				<artifactId>eclipse-dmg-packager</artifactId>
-				<version>1.1.8-SNAPSHOT</version>
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>packAndSign</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.cbi.maven.plugins</groupId>
+						<artifactId>eclipse-dmg-packager</artifactId>
+						<version>1.1.8-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<goals><goal>package-dmg</goal></goals>
+								<phase>package</phase>
+								<configuration>
+									<source>eclipseide-rust-${parsedVersion.major}.${parsedVersion.minor}.${parsedVersion.incremental}-macosx-cocoa-x86_64.tar.gz</source>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>

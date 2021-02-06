@@ -7,6 +7,10 @@
 * 📅 Release Date (tentative): End of February 2020
 * All changes: https://github.com/eclipse/corrosion/compare/1.0.0...1.1.0
 
+#### Addition of a dedicated IDE package
+
+As the "Eclipse IDE for Rust developers" EPP package is being terminated, Corrosion now maintains and ships its own IDE package. It's available at https://download.eclipse.org/corrosion/releases/latest/products .
+
 ## Completed releases
 
 ### 1.1.0
