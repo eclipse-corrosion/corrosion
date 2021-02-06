@@ -57,7 +57,6 @@ pipeline {
 						ssh genie.corrosion@projects-storage.eclipse.org mkdir -p /home/data/httpd/download.eclipse.org/corrosion/snapshots/products
 						scp -r repository/target/products/*.tar.gz genie.corrosion@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/corrosion/snapshots/products
 						scp -r repository/target/products/*.zip genie.corrosion@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/corrosion/snapshots/products
-						scp -r repository/target/products/*.dmg genie.corrosion@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/corrosion/snapshots/products
 					'''
 				}
 			}
