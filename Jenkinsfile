@@ -1,6 +1,6 @@
 pipeline {
 	agent {
-  		label "migration"
+  		label "centos-8"
 	}
 	options {
 		buildDiscarder(logRotator(numToKeepStr:'10'))
