@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.corrosion.product.branding;singleton:=true
-Bundle-Version: 4.19.0.qualifier
+Bundle-Version: 1.1.1.qualifier
 Bundle-Vendor: Eclipse Corrosion
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.platform,
