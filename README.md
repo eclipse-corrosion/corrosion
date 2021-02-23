@@ -14,6 +14,10 @@ Download a fully-fledged Eclipse IDE for Rust development from [Corrosion downlo
 
 *OR*
 
+With Eclipse IDE properly installed on your machine, just click [Here](eclipse+mpc://marketplace.eclipse.org/install/3835145)
+
+*OR*
+
 From a working Eclipse IDE, find [Eclipse Corrosion](https://marketplace.eclipse.org/content/eclipse-corrosion) on the Eclipse Marketplace ([how to install from marketplace](https://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3835145))
 
 *OR*
@@ -82,6 +86,9 @@ Corrosion fits right into the standard Eclipse IDE workflows that boost producti
 ![Eclipse features](images/eclipse-features.gif)
 
 ## Contributing
+
+<a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a>
+
 Corrosion is always open to new features and pull requests. If you have a feature or bug you wish to work on, [file an issue](https://github.com/eclipse/corrosion/issues) and other Corrosion developers will be able to help you get started.
 
 Refer to our [Contributing Guide](CONTRIBUTING.md) for more instructions.
