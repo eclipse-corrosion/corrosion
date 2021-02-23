@@ -5,6 +5,8 @@ Issue reports and feature requests are always appreciated and are made in the [I
 
 ## Code for Corrosion
 
+<a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a>
+
 ### Automatic Setup
 
 The easiest way to get an IDE to work on Corrosion is to use the Oomph setup.
