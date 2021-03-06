@@ -110,7 +110,6 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_cargoNonExecutable;
 	public static String CorrosionPreferencePage_caro;
 	public static String CorrosionPreferencePage_workingDirectory;
-	public static String CorrosionPreferencePage_disableRustEdition;
 	public static String CorrosionPreferencePage_emptyPath;
 	public static String CorrosionPreferencePage_emptyWorkingDirectory;
 	public static String CorrosionPreferencePage_invaildWorkingDirectory;
@@ -127,7 +126,6 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_invalidSysroot;
 	public static String CorrosionPreferencePage_invalidVersion;
 	public static String CorrosionPreferencePage_otherInstallation;
-	public static String CorrosionPreferencePage_rlsLocation;
 	public static String CorrosionPreferencePage_rlsNonExecutable;
 	public static String CorrosionPreferencePage_rlsPath;
 	public static String CorrosionPreferencePage_rlsConfigurationPath;
@@ -136,8 +134,8 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_rustupMissingRLS;
 	public static String CorrosionPreferencePage_sysrootPath;
 	public static String CorrosionPreferencePage_toolchain;
-	public static String CorrosionPreferencePage_useDefaultPathsRustupCargo;
-	public static String CorrosionPreferencePage_useRustup;
+	public static String CorrosionPreferencePage_downloadRustAnalyzer;
+	public static String CorrosionPreferencePage_downloadingRustAnalyzer;
 	public static String NewCargoProjectWizard_cannotCreateRustProject;
 	public static String NewCargoProjectWizard_cannotCreateRustProject_partialDeletion;
 	public static String NewCargoProjectWizard_cannotOpenProject;

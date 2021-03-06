@@ -14,19 +14,30 @@
 package org.eclipse.corrosion;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ecf.filetransfer.IFileTransferListener;
+import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveDoneEvent;
+import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
+import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
+import org.eclipse.ecf.filetransfer.identity.IFileID;
+import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
+import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
@@ -40,6 +51,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 @SuppressWarnings("restriction")
 public class RustManager {
@@ -162,7 +175,7 @@ public class RustManager {
 		}
 	}
 
-	private static CommandJob createRustupCommandJob(String progressMessage, String errorMessage, String... arguments) {
+	public static CommandJob createRustupCommandJob(String progressMessage, String errorMessage, String... arguments) {
 		String rustup = STORE.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
 		if (rustup.isEmpty()) {
 			return null;
@@ -238,20 +251,15 @@ public class RustManager {
 	public static boolean setSystemProperties() {
 		CorrosionPlugin plugin = CorrosionPlugin.getDefault();
 		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
-		int rustSourceIndex = CorrosionPreferencePage.RUST_SOURCE_OPTIONS
-				.indexOf(preferenceStore.getString(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE));
 
-		String sysrootPath = ""; //$NON-NLS-1$
-
-		if (rustSourceIndex == 0) {
+		String sysrootPath = preferenceStore.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE);
+		if (sysrootPath == null || sysrootPath.isBlank()) {
 			String rustup = preferenceStore.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
 			String toolchain = preferenceStore.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
 			if (!(rustup.isEmpty() || toolchain.isEmpty())) {
 				String[] command = new String[] { rustup, "run", toolchain, "rustc", "--print", "sysroot" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				sysrootPath = CorrosionPlugin.getOutputFromCommand(command);
 			}
-		} else if (rustSourceIndex == 1) {
-			sysrootPath = preferenceStore.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE);
 		}
 
 		if (sysrootPath != null && !sysrootPath.isEmpty()) {
@@ -269,7 +277,7 @@ public class RustManager {
 		return false;
 	}
 
-	public static String getRlsConfigurationPath() {
+	public static File getLanguageServerConfiguration() {
 		CorrosionPlugin plugin = CorrosionPlugin.getDefault();
 		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
 		String preferencePath = preferenceStore
@@ -278,28 +286,59 @@ public class RustManager {
 			CorrosionPlugin.getDefault().getLog()
 					.log(new Status(IStatus.WARNING, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 							Messages.RLSStreamConnectionProvider_rlsConfigurationNotSet));
+			return null;
 		}
-		return preferencePath;
+		return new File(preferencePath);
 	}
 
-	public static String getRLS() {
+	public static File getLanguageServerExecutable() {
 		CorrosionPlugin plugin = CorrosionPlugin.getDefault();
 		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
-		int rustSourceIndex = CorrosionPreferencePage.RUST_SOURCE_OPTIONS
-				.indexOf(preferenceStore.getString(CorrosionPreferenceInitializer.RUST_SOURCE_PREFERENCE));
-
-		String rlsPath = ""; //$NON-NLS-1$
-		if (rustSourceIndex == 0) {
-			String rustup = preferenceStore.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
-			rlsPath = CorrosionPlugin.getOutputFromCommand(rustup, "which", "rls"); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (rustSourceIndex == 1) {
-			rlsPath = preferenceStore.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
-		}
+		String rlsPath = preferenceStore.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
 		if (rlsPath.isEmpty()) {
 			CorrosionPlugin.getDefault().getLog()
 					.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 							Messages.RLSStreamConnectionProvider_rlsNotFound));
+			return null;
 		}
-		return rlsPath;
+		return new File(rlsPath);
+	}
+
+	public static CompletableFuture<File> downloadAndInstallRustAnalyzer() {
+		String filename = "rust-analyzer-" + //$NON-NLS-1$
+				(Platform.OS_LINUX.equals(Platform.getOS()) ? "linux" : //$NON-NLS-1$
+						Platform.OS_WIN32.equals(Platform.getOS()) ? "win.exe" : //$NON-NLS-1$
+								Platform.OS_MACOSX.equals(Platform.getOS()) ? "mac" : "os-not-found"); //$NON-NLS-1$ //$NON-NLS-2$
+		String url = "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/" + filename; //$NON-NLS-1$
+		File file = Platform.getStateLocation(CorrosionPlugin.getDefault().getBundle())
+				.append(System.currentTimeMillis() + '-' + filename).toFile();
+
+		BundleContext bundleContext = CorrosionPlugin.getDefault().getBundle().getBundleContext();
+		ServiceReference<IRetrieveFileTransferFactory> ref = bundleContext
+				.getServiceReference(IRetrieveFileTransferFactory.class);
+		IRetrieveFileTransferFactory transferFactory = bundleContext.getService(ref);
+		IRetrieveFileTransfer retrieve = transferFactory.newInstance();
+		// Use retrieve to initiate file transfer
+		try {
+			CompletableFuture<File> res = new CompletableFuture<>();
+			IFileID id = FileIDFactory.getDefault().createFileID(retrieve.getRetrieveNamespace(), URI.create(url));
+			IFileTransferListener listener = event -> {
+				if (event instanceof IIncomingFileTransferReceiveStartEvent) {
+					IIncomingFileTransferReceiveStartEvent rse = (IIncomingFileTransferReceiveStartEvent) event;
+					try {
+						rse.receive(file);
+					} catch (IOException e) {
+						res.completeExceptionally(e);
+					}
+				} else if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
+					file.setExecutable(true);
+					res.complete(file);
+				}
+			};
+			retrieve.sendRetrieveRequest(id, listener, Map.of());
+			return res;
+		} catch (Exception e) {
+			return CompletableFuture.failedFuture(e);
+		}
 	}
 }

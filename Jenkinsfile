@@ -7,7 +7,7 @@ pipeline {
 		timeout(time: 1, unit: 'HOURS')
 	}
 	environment {
-		PATH = "$HOME/.cargo/bin/:$PATH"
+		PATH = "$HOME/.local/bin:$HOME/.cargo/bin/:$PATH"
 		USER = "jenkins"
 	}
 	tools {
@@ -16,13 +16,10 @@ pipeline {
 	stages {
 		stage('Prepare') {
 			steps {
-				git url: 'https://github.com/eclipse/corrosion.git'
-				cleanWs()
-				checkout scm
-				sh 'org.eclipse.corrosion/scripts/rustup-init.sh -y -c rls'
+				sh 'org.eclipse.corrosion/scripts/rustup-init.sh -y'
 				sh 'rustup install stable-x86_64-unknown-linux-gnu'
 				sh 'rustup default stable-x86_64-unknown-linux-gnu'
-				sh 'rustup component add rls'
+				sh 'mkdir -p ~/.local/bin && curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux -o ~/.local/bin/rust-analyzer && chmod +x ~/.local/bin/rust-analyzer'
 				sh 'echo $PATH'
 			}
 		}
