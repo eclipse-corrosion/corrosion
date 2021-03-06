@@ -203,7 +203,8 @@ public class InputComponent {
 	protected void createSelectionButton() {
 		makeSpaceForButton();
 		browseButton = new Button(container, SWT.NONE);
-		browseButton.setText(Messages.LaunchUI_browse);
+		browseButton.setText(Messages.CorrosionPreferencePage_browse);
+		browseButton.setToolTipText(Messages.LaunchUI_browse);
 		browseButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 	}
 }

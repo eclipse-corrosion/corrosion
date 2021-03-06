@@ -52,13 +52,13 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 
 	@Override
 	public void start() throws IOException {
-		String rls = RustManager.getRLS();
-		if ((rls.isEmpty() || !RustManager.setSystemProperties()
-				|| !CorrosionPlugin.validateCommandVersion(rls, RustManager.RLS_VERSION_FORMAT_PATTERN))) {
+		File languageServer = RustManager.getLanguageServerExecutable();
+		if ((languageServer == null || !RustManager.setSystemProperties() || !CorrosionPlugin
+				.validateCommandVersion(languageServer.getAbsolutePath(), RustManager.RLS_VERSION_FORMAT_PATTERN))) {
 			showSetupRustNotification();
 			return;
 		}
-		this.process = CorrosionPlugin.getProcessForCommand(rls);
+		this.process = CorrosionPlugin.getProcessForCommand(languageServer.getAbsolutePath());
 	}
 
 	private static void showSetupRustNotification() {
@@ -102,9 +102,8 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 
 	@Override
 	public Object getInitializationOptions(URI rootUri) {
-		final String settingsPath = RustManager.getRlsConfigurationPath();
-		if (settingsPath != null && !settingsPath.isEmpty()) {
-			final File settingsFile = new File(settingsPath);
+		final File settingsFile = RustManager.getLanguageServerConfiguration();
+		if (settingsFile != null) {
 			final Gson gson = new Gson();
 			try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
 				return gson.fromJson(reader, HashMap.class);
@@ -112,12 +111,12 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 				CorrosionPlugin.getDefault().getLog()
 						.log(new Status(IStatus.INFO, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 								MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound,
-										settingsPath)));
+										settingsFile)));
 			} catch (Throwable e) {
 				CorrosionPlugin.getDefault().getLog()
 						.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
 								MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError,
-										settingsPath, e)));
+										settingsFile, e)));
 			}
 		}
 		return getDefaultInitializationOptions();

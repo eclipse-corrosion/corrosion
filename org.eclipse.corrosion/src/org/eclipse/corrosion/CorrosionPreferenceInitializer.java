@@ -28,9 +28,6 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	private static final String DEFAULT_DEBUGGER = "rust-gdb"; //$NON-NLS-1$
 	private static final boolean IS_WINDOWS = Platform.getOS().equals(Platform.OS_WIN32);
 
-	public static final String RUST_SOURCE_PREFERENCE = "corrosion.rustSource"; //$NON-NLS-1$
-
-	public static final String DEFAULT_PATHS_PREFERENCE = "corrosion.rustup_defaultPaths"; //$NON-NLS-1$
 	public static final String RUSTUP_PATHS_PREFERENCE = "corrosion.rustup_rustupPath"; //$NON-NLS-1$
 	public static final String CARGO_PATH_PREFERENCE = "corrosion.rustup_cargoPath"; //$NON-NLS-1$
 	public static final String TOOLCHAIN_ID_PREFERENCE = "corrosion.rustup_toolchain_Id"; //$NON-NLS-1$
@@ -49,17 +46,12 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 
 	@Override
 	public void initializeDefaultPreferences() {
-		STORE.setDefault(RUST_SOURCE_PREFERENCE, "rustup"); //$NON-NLS-1$
-
-		STORE.setDefault(DEFAULT_PATHS_PREFERENCE, true);
 		STORE.setDefault(RUSTUP_PATHS_PREFERENCE, getRustupPathBestGuess());
 		STORE.setDefault(CARGO_PATH_PREFERENCE, getCargoPathBestGuess());
 		setToolchainBestGuesses();
+		STORE.setDefault(SYSROOT_PATH_PREFERENCE, getSysrootPathBestGuess(STORE));
 
-		STORE.setDefault(RLS_PATH_PREFERENCE, getRLSPathBestGuess());
-		STORE.setDefault(RLS_CONFIGURATION_PATH_PREFERENCE, ""); //$NON-NLS-1$
-
-		STORE.setDefault(SYSROOT_PATH_PREFERENCE, getSysrootPathBestGuess());
+		STORE.setDefault(RLS_PATH_PREFERENCE, getLanguageServerPathBestGuess());
 
 		STORE.setDefault(WORKING_DIRECTORY_PREFERENCE, getWorkingDirectoryBestGuess());
 		STORE.setDefault(DEFAULT_GDB_PREFERENCE, DEFAULT_DEBUGGER);
@@ -118,10 +110,10 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		STORE.setDefault(TOOLCHAIN_TYPE_PREFERENCE, "Other"); //$NON-NLS-1$
 	}
 
-	private static String getRLSPathBestGuess() {
-		String command = findCommandPath("rls"); //$NON-NLS-1$
+	private static String getLanguageServerPathBestGuess() {
+		String command = findCommandPath("rust-analyzer"); //$NON-NLS-1$
 		if (command.isEmpty()) {
-			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("rls"); //$NON-NLS-1$
+			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("rust-analyzer"); //$NON-NLS-1$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
 				return possibleCommandFile.getAbsolutePath();
 			}
@@ -129,7 +121,13 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		return command;
 	}
 
-	private static String getSysrootPathBestGuess() {
+	private static String getSysrootPathBestGuess(IPreferenceStore preferenceStore) {
+		String rustup = preferenceStore.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE);
+		String toolchain = preferenceStore.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
+		if (!(rustup.isEmpty() || toolchain.isEmpty())) {
+			String[] command = new String[] { rustup, "run", toolchain, "rustc", "--print", "sysroot" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			return CorrosionPlugin.getOutputFromCommand(command);
+		}
 		File rustc = new File(findCommandPath("rustc")); //$NON-NLS-1$
 		if (!(rustc.exists() && rustc.isFile() && rustc.canExecute())) {
 			rustc = getExectuableFileOfCargoDefaultHome("rustc"); //$NON-NLS-1$
