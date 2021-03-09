@@ -4,16 +4,19 @@
 
 ### 1.2.0
 
-* 📅 Release Date (tentative): End of February 2020
-* All changes: https://github.com/eclipse/corrosion/compare/1.0.0...1.1.0
+* 📅 Release Date (tentative): March 2021
+* All changes: https://github.com/eclipse/corrosion/compare/1.1.1...1.2.0
+
+#### Favor Rust-Analyzer over RLS
+
+Initialization first look for `rust-analyzer` before using RLS as a fallback. In the Preferences page, a new button allows to download and install `rust-analyzer`.
 
 ## Completed releases
 
 ### 1.1.1
 
-* 📅 Release Date: February 8th, 2020
+* 📅 Release Date: February 8th, 2021
 * All changes: https://github.com/eclipse/corrosion/compare/1.1.0...1.1.1
-
 
 #### Addition of a dedicated IDE package
 
