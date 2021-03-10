@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2020 Red Hat Inc. and others.
+ * Copyright (c) 2020, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -67,8 +69,6 @@ public class CargoSourceUtils {
 			saveSourceLocations(document, element, locations);
 			return serializeDocument(document, true);
 		} catch (ParserConfigurationException e) {
-			ex = e;
-		} catch (IOException e) {
 			ex = e;
 		} catch (TransformerException e) {
 			ex = e;
@@ -128,7 +128,7 @@ public class CargoSourceUtils {
 				if (entry.getNodeName().equalsIgnoreCase(NAME_SOURCE_LOCATION)) {
 					String className = entry.getAttribute(ATTR_CLASS);
 					String data = entry.getAttribute(ATTR_MEMENTO);
-					if (className == null || className.trim().length() == 0) {
+					if (className == null || className.trim().isEmpty()) {
 						CorrosionPlugin.logError("Unable to restore common source locations - invalid format."); //$NON-NLS-1$
 						continue;
 					}
@@ -138,16 +138,14 @@ public class CargoSourceUtils {
 					} catch (ClassNotFoundException e) {
 						CorrosionPlugin.logError(
 								MessageFormat.format("Unable to restore source location - class not found {0}", //$NON-NLS-1$
-										(Object[]) new String[] { className }));
+										className));
 						continue;
 					}
 					ICargoSourceLocation location = null;
 					try {
-						location = (ICargoSourceLocation) clazz.newInstance();
-					} catch (IllegalAccessException e) {
-						CorrosionPlugin.logError("Unable to restore source location: " + e.getMessage()); //$NON-NLS-1$
-						continue;
-					} catch (InstantiationException e) {
+						location = (ICargoSourceLocation) clazz.getDeclaredConstructor().newInstance();
+					} catch (IllegalAccessException | InstantiationException | IllegalArgumentException
+							| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 						CorrosionPlugin.logError("Unable to restore source location: " + e.getMessage()); //$NON-NLS-1$
 						continue;
 					}
@@ -192,7 +190,7 @@ public class CargoSourceUtils {
 		if (config != null) {
 			try {
 				String name = config.getAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
-				if (name.length() > 0)
+				if (!name.isEmpty())
 					return name;
 			} catch (CoreException e) {
 				CorrosionPlugin.logError(e);
@@ -225,7 +223,7 @@ public class CargoSourceUtils {
 	 *
 	 * @return the document as a string
 	 */
-	public static String serializeDocument(Document doc, boolean indent) throws IOException, TransformerException {
+	public static String serializeDocument(Document doc, boolean indent) throws TransformerException {
 		ByteArrayOutputStream s = new ByteArrayOutputStream();
 		TransformerFactory factory = TransformerFactory.newInstance();
 		Transformer transformer = factory.newTransformer();
@@ -234,7 +232,7 @@ public class CargoSourceUtils {
 		DOMSource source = new DOMSource(doc);
 		StreamResult outputTarget = new StreamResult(s);
 		transformer.transform(source, outputTarget);
-		return s.toString("UTF8"); //$NON-NLS-1$
+		return s.toString(StandardCharsets.UTF_8); // $NON-NLS-1$
 	}
 
 	/**
