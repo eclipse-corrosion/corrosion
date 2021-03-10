@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -137,7 +137,7 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 
 	static String findLabel(Composite composite) {
 		for (Control control : composite.getChildren()) {
-			if (control instanceof Label && ((Label) control).getText().length() > 0) {
+			if (control instanceof Label && !((Label) control).getText().isEmpty()) {
 				return ((Label) control).getText();
 			} else if (control instanceof Composite) {
 				return findLabel((Composite) control);

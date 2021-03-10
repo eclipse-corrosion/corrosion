@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2020 Red Hat Inc. and others.
+ * Copyright (c) 2020, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -51,7 +51,7 @@ public class CargoProjectSourceContainerType extends AbstractSourceContainerType
 			if ("project".equals(element.getNodeName())) { //$NON-NLS-1$
 				String string = element.getAttribute("name"); //$NON-NLS-1$
 				IProject project = null;
-				if (string != null && string.length() > 0) {
+				if (string != null && !string.isEmpty()) {
 					project = ResourcesPlugin.getWorkspace().getRoot().getProject(string);
 				}
 				String nest = element.getAttribute("referencedProjects"); //$NON-NLS-1$

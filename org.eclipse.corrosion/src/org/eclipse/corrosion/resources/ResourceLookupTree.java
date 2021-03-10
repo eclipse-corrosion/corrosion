@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 Wind River Systems, Inc. and others.
+ * Copyright (c) 2008, 2021 Wind River Systems, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -261,7 +261,7 @@ class ResourceLookupTree implements IResourceChangeListener, IResourceDeltaVisit
 				URI uri = res.getLocationURI();
 				if (uri != null) {
 					linkedName = LocationAdapter.URI.extractName(uri);
-					if (linkedName.length() > 0 && fCurrentExtensions.isRelevant(linkedName)) {
+					if (!linkedName.isEmpty() && fCurrentExtensions.isRelevant(linkedName)) {
 						if (linkedName.equals(resName)) {
 							createFileNode(res.getFullPath(), null);
 						} else {
