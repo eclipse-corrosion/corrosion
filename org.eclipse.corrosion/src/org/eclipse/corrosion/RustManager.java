@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.DoubleConsumer;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,6 +33,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.filetransfer.IFileTransferListener;
+import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveDataEvent;
 import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveDoneEvent;
 import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
 import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
@@ -304,7 +306,7 @@ public class RustManager {
 		return new File(rlsPath);
 	}
 
-	public static CompletableFuture<File> downloadAndInstallRustAnalyzer() {
+	public static CompletableFuture<File> downloadAndInstallRustAnalyzer(DoubleConsumer progressConsumer) {
 		String filename = "rust-analyzer-" + //$NON-NLS-1$
 				(Platform.OS_LINUX.equals(Platform.getOS()) ? "linux" : //$NON-NLS-1$
 						Platform.OS_WIN32.equals(Platform.getOS()) ? "win.exe" : //$NON-NLS-1$
@@ -330,6 +332,9 @@ public class RustManager {
 					} catch (IOException e) {
 						res.completeExceptionally(e);
 					}
+				} else if (event instanceof IIncomingFileTransferReceiveDataEvent) {
+					progressConsumer
+							.accept(((IIncomingFileTransferReceiveDataEvent) event).getSource().getPercentComplete());
 				} else if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
 					file.setExecutable(true);
 					res.complete(file);
