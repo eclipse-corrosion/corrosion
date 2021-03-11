@@ -141,9 +141,6 @@ public class RustManager {
 				jobs.add(createRustupCommandJob(Messages.RustManager_settingDefaultToolchain,
 						NLS.bind(Messages.RustManager_unableToSetDefaultToolchain, toolchainId), "default", //$NON-NLS-1$
 						toolchainId));
-				jobs.add(createRustupCommandJob(Messages.RustManager_addingRLSPrevios,
-						NLS.bind(Messages.RustManager_toolchainDoesntIncludeRLS, toolchainId), "component", "add", //$NON-NLS-1$ //$NON-NLS-2$
-						"rls-preview")); //$NON-NLS-1$
 				jobs.add(createRustupCommandJob(Messages.RustManager_addingRustAnalysisRustSrc,
 						Messages.RustManager_unableToAddComponent, "component", //$NON-NLS-1$
 						"add", "rust-analysis")); //$NON-NLS-1$ //$NON-NLS-2$

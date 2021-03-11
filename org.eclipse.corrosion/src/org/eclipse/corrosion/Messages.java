@@ -73,7 +73,6 @@ public class Messages extends NLS {
 	public static String RustDebugTab_cargoCommandConnotBeEmpty;
 	public static String RustDebugTab_Executable;
 	public static String RustDebugTab_InvalidProjectExecutablePath;
-	public static String RustManager_addingRLSPrevios;
 	public static String RustManager_addingRustAnalysisRustSrc;
 	public static String RustManager_installingToolchain;
 	public static String RustManager_rootToolchainSelectionFailure;
@@ -164,7 +163,6 @@ public class Messages extends NLS {
 	public static String NewCargoProjectWizardPage_useVCS;
 	public static String RustManager_unableToInstallToolchain;
 	public static String RustManager_unableToSetDefaultToolchain;
-	public static String RustManager_toolchainDoesntIncludeRLS;
 	public static String CargoRunTab_Title;
 	public static String CargoTestTab_Title;
 	public static String RustDebugTabGroup_gdbErrorMsg;
