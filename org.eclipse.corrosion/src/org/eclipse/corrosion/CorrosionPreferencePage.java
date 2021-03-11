@@ -151,16 +151,22 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 			dlAndInstallRustAnalyzerButton.setText(Messages.CorrosionPreferencePage_downloadingRustAnalyzer);
 			dlAndInstallRustAnalyzerButton.getParent().layout(new Control[] { dlAndInstallRustAnalyzerButton });
 			rlsInput.setEnabled(false);
-			RustManager.downloadAndInstallRustAnalyzer().thenAccept(file -> {
-				if (!dlAndInstallRustAnalyzerButton.isDisposed()) {
-					dlAndInstallRustAnalyzerButton.getDisplay().asyncExec(() -> {
-						rlsInput.setValue(file.getAbsolutePath());
-						rlsInput.setEnabled(true);
-						dlAndInstallRustAnalyzerButton.setText(Messages.CorrosionPreferencePage_downloadRustAnalyzer);
-						setValid(isPageValid());
+			RustManager.downloadAndInstallRustAnalyzer(
+					progress -> dlAndInstallRustAnalyzerButton.getDisplay().asyncExec(() -> {
+						dlAndInstallRustAnalyzerButton.setText(NLS.bind(
+								Messages.CorrosionPreferencePage_downloadingRustAnalyzer, (int) (100. * progress)));
+						dlAndInstallRustAnalyzerButton.requestLayout();
+					})).thenAccept(file -> {
+						if (!dlAndInstallRustAnalyzerButton.isDisposed()) {
+							dlAndInstallRustAnalyzerButton.getDisplay().asyncExec(() -> {
+								rlsInput.setValue(file.getAbsolutePath());
+								rlsInput.setEnabled(true);
+								dlAndInstallRustAnalyzerButton
+										.setText(Messages.CorrosionPreferencePage_downloadRustAnalyzer);
+								setValid(isPageValid());
+							});
+						}
 					});
-				}
-			});
 		}));
 
 		rlsConfigurationPathInput = new InputComponent(container, Messages.CorrosionPreferencePage_rlsConfigurationPath,
