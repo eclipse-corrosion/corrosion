@@ -59,6 +59,11 @@ import org.osgi.framework.ServiceReference;
 @SuppressWarnings("restriction")
 public class RustManager {
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
+	/**
+	 * Set according to rust-analyzer documentation
+	 */
+	static final File RUST_ANALYZER_DEFAULT_LOCATION = new File(System.getProperty("user.home"), //$NON-NLS-1$
+			".local/bin/rust-analyzer"); //$NON-NLS-1$
 	public static final String RLS_VERSION_FORMAT_REGEX = "^(rls|rust-analyzer).*$"; //$NON-NLS-1$
 	public static final String CARGO_VERSION_FORMAT_REGEX = "^cargo .*$"; //$NON-NLS-1$
 	public static final String RUSTUP_VERSION_FORMAT_REGEX = "^rustup .*$"; //$NON-NLS-1$
@@ -312,8 +317,6 @@ public class RustManager {
 						Platform.OS_WIN32.equals(Platform.getOS()) ? "win.exe" : //$NON-NLS-1$
 								Platform.OS_MACOSX.equals(Platform.getOS()) ? "mac" : "os-not-found"); //$NON-NLS-1$ //$NON-NLS-2$
 		String url = "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/" + filename; //$NON-NLS-1$
-		File file = Platform.getStateLocation(CorrosionPlugin.getDefault().getBundle())
-				.append(System.currentTimeMillis() + '-' + filename).toFile();
 
 		BundleContext bundleContext = CorrosionPlugin.getDefault().getBundle().getBundleContext();
 		ServiceReference<IRetrieveFileTransferFactory> ref = bundleContext
@@ -328,7 +331,7 @@ public class RustManager {
 				if (event instanceof IIncomingFileTransferReceiveStartEvent) {
 					IIncomingFileTransferReceiveStartEvent rse = (IIncomingFileTransferReceiveStartEvent) event;
 					try {
-						rse.receive(file);
+						rse.receive(RUST_ANALYZER_DEFAULT_LOCATION);
 					} catch (IOException e) {
 						res.completeExceptionally(e);
 					}
@@ -336,8 +339,8 @@ public class RustManager {
 					progressConsumer
 							.accept(((IIncomingFileTransferReceiveDataEvent) event).getSource().getPercentComplete());
 				} else if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
-					file.setExecutable(true);
-					res.complete(file);
+					RUST_ANALYZER_DEFAULT_LOCATION.setExecutable(true);
+					res.complete(RUST_ANALYZER_DEFAULT_LOCATION);
 				}
 			};
 			retrieve.sendRetrieveRequest(id, listener, Map.of());
