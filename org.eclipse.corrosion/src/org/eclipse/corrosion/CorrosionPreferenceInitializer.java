@@ -51,7 +51,7 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		setToolchainBestGuesses();
 		STORE.setDefault(SYSROOT_PATH_PREFERENCE, getSysrootPathBestGuess(STORE));
 
-		STORE.setDefault(RLS_PATH_PREFERENCE, getLanguageServerPathBestGuess());
+		STORE.setDefault(RLS_PATH_PREFERENCE, getLanguageServerPathBestGuess().getAbsolutePath());
 
 		STORE.setDefault(WORKING_DIRECTORY_PREFERENCE, getWorkingDirectoryBestGuess());
 		STORE.setDefault(DEFAULT_GDB_PREFERENCE, DEFAULT_DEBUGGER);
@@ -110,15 +110,23 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		STORE.setDefault(TOOLCHAIN_TYPE_PREFERENCE, "Other"); //$NON-NLS-1$
 	}
 
-	private static String getLanguageServerPathBestGuess() {
+	private static File getLanguageServerPathBestGuess() {
+		// first PATH
 		String command = findCommandPath("rust-analyzer"); //$NON-NLS-1$
 		if (command.isEmpty()) {
+			// then Cargo installation
 			File possibleCommandFile = getExectuableFileOfCargoDefaultHome("rust-analyzer"); //$NON-NLS-1$
 			if (possibleCommandFile.exists() && possibleCommandFile.isFile() && possibleCommandFile.canExecute()) {
-				return possibleCommandFile.getAbsolutePath();
+				return possibleCommandFile;
+			}
+			// then manual installation
+			if (RustManager.RUST_ANALYZER_DEFAULT_LOCATION.exists()
+					&& RustManager.RUST_ANALYZER_DEFAULT_LOCATION.isFile()
+					&& RustManager.RUST_ANALYZER_DEFAULT_LOCATION.canExecute()) {
+				return RustManager.RUST_ANALYZER_DEFAULT_LOCATION;
 			}
 		}
-		return command;
+		return new File(command);
 	}
 
 	private static String getSysrootPathBestGuess(IPreferenceStore preferenceStore) {
