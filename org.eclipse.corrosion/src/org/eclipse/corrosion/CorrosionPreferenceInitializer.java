@@ -31,7 +31,6 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	public static final String RUSTUP_PATHS_PREFERENCE = "corrosion.rustup_rustupPath"; //$NON-NLS-1$
 	public static final String CARGO_PATH_PREFERENCE = "corrosion.rustup_cargoPath"; //$NON-NLS-1$
 	public static final String TOOLCHAIN_ID_PREFERENCE = "corrosion.rustup_toolchain_Id"; //$NON-NLS-1$
-	public static final String TOOLCHAIN_TYPE_PREFERENCE = "corrosion.rustup_toolchain_type"; //$NON-NLS-1$
 
 	public static final String RLS_PATH_PREFERENCE = "corrosion.rslPath"; //$NON-NLS-1$
 	public static final String RLS_CONFIGURATION_PATH_PREFERENCE = "corrosion.rls_configurationPath"; //$NON-NLS-1$
@@ -87,27 +86,13 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 		String toolchain = RustManager.getDefaultToolchain();
 		if (toolchain == null || toolchain.isEmpty()) {
 			STORE.setDefault(TOOLCHAIN_ID_PREFERENCE, ""); //$NON-NLS-1$
-			STORE.setDefault(TOOLCHAIN_TYPE_PREFERENCE, "Other"); //$NON-NLS-1$
 			return;
 		}
 		int splitIndex = toolchain.indexOf('-');
 		if (splitIndex != -1) {
-			String type = toolchain.substring(0, splitIndex);
-			if ("nightly".equals(type)) { //$NON-NLS-1$
-				STORE.setDefault(TOOLCHAIN_ID_PREFERENCE, toolchain);
-				STORE.setDefault(TOOLCHAIN_TYPE_PREFERENCE, "Nightly"); //$NON-NLS-1$
-			} else {
-				for (String option : CorrosionPreferencePage.RUSTUP_TOOLCHAIN_OPTIONS) {
-					if (option.equalsIgnoreCase(type)) {
-						STORE.setDefault(TOOLCHAIN_ID_PREFERENCE, type);
-						STORE.setDefault(TOOLCHAIN_TYPE_PREFERENCE, option);
-					}
-				}
-			}
-			return;
+			toolchain = toolchain.substring(0, splitIndex);
 		}
 		STORE.setDefault(TOOLCHAIN_ID_PREFERENCE, toolchain.trim());
-		STORE.setDefault(TOOLCHAIN_TYPE_PREFERENCE, "Other"); //$NON-NLS-1$
 	}
 
 	private static File getLanguageServerPathBestGuess() {

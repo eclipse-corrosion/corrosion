@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -48,19 +46,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.osgi.framework.Bundle;
 
 public class CorrosionPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 	public static final String PAGE_ID = "org.eclipse.corrosion.preferencePage"; //$NON-NLS-1$
-	protected static final List<String> RUSTUP_TOOLCHAIN_OPTIONS = Arrays.asList("Stable", "Beta", "Nightly", "Other"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	private IPreferenceStore store;
 
 	private Combo rustupToolchainCombo;
-	private Text otherToolchainIdInput;
 	private InputComponent rlsInput;
 	private InputComponent sysrootInput;
 	private InputComponent rlsConfigurationPathInput;
@@ -76,16 +71,6 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		container.setLayout(new GridLayout(4, false));
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
 
-		installButton = new Button(container, SWT.NONE);
-		installButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 4, 1));
-		installButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			if (Platform.getOS().equals(Platform.OS_WIN32)) {
-				Program.launch("https://rustup.rs/"); //$NON-NLS-1$
-			} else {
-				installRustupCommands();
-			}
-		}));
-
 		rustupInput = new InputComponent(container, Messages.CorrosionPreferencePage_Rustup,
 				e -> setValid(isPageValid()));
 		rustupInput.createComponent();
@@ -99,24 +84,15 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 		Composite toolchainParent = new Composite(container, SWT.NONE);
 		toolchainParent.setLayout(new GridLayout(2, false));
-		toolchainParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
+		toolchainParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 
-		rustupToolchainCombo = new Combo(toolchainParent, SWT.DROP_DOWN | SWT.READ_ONLY);
+		rustupToolchainCombo = new Combo(toolchainParent, SWT.DROP_DOWN);
 		rustupToolchainCombo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-		for (String toolchain : RUSTUP_TOOLCHAIN_OPTIONS) {
-			rustupToolchainCombo.add(toolchain);
-		}
-		rustupToolchainCombo.addSelectionListener(widgetSelectedAdapter(e -> {
-			setToolchainSelection(rustupToolchainCombo.getSelectionIndex());
-			getShell().pack();
-			getShell().layout();
-			setValid(isPageValid());
-		}));
-		GridData otherIdData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		otherIdData.exclude = false;
-		otherToolchainIdInput = new Text(toolchainParent, SWT.BORDER);
-		otherToolchainIdInput.setLayoutData(otherIdData);
-		otherToolchainIdInput.addModifyListener(e -> setValid(isPageValid()));
+		rustupToolchainCombo.add("stable"); //$NON-NLS-1$
+		rustupToolchainCombo.add("beta"); //$NON-NLS-1$
+		rustupToolchainCombo.add("nightly"); //$NON-NLS-1$
+		rustupToolchainCombo.addSelectionListener(widgetSelectedAdapter(e -> setValid(isPageValid())));
+		rustupToolchainCombo.addModifyListener(e -> setValid(isPageValid()));
 
 		cargoInput = new InputComponent(container, Messages.CorrosionPreferencePage_caro, e -> setValid(isPageValid()));
 		cargoInput.createComponent();
@@ -128,6 +104,17 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		sysrootInput.createComponent();
 		sysrootInput.createVariableSelection();
 		sysrootInput.createFileSelection();
+
+		new Composite(container, SWT.NONE).setLayoutData(new GridData(0, 0));
+		installButton = new Button(container, SWT.PUSH);
+		installButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 3, 1));
+		installButton.addSelectionListener(widgetSelectedAdapter(e -> {
+			if (Platform.getOS().equals(Platform.OS_WIN32)) {
+				Program.launch("https://rustup.rs/"); //$NON-NLS-1$
+			} else {
+				installRustupCommands();
+			}
+		}));
 
 		workingDirectoryInput = new InputComponent(container, Messages.LaunchUI_workingDirectory,
 				e -> setValid(isPageValid()));
@@ -166,6 +153,12 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 								setValid(isPageValid());
 							});
 						}
+					}).exceptionally(ex -> {
+						dlAndInstallRustAnalyzerButton.getDisplay().asyncExec(() -> {
+							dlAndInstallRustAnalyzerButton.setText("🛑" + ex.getMessage()); //$NON-NLS-1$
+							dlAndInstallRustAnalyzerButton.getParent().requestLayout();
+						});
+						return null;
 					});
 		}));
 
@@ -181,17 +174,8 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private void initializeContent() {
-		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS
-				.indexOf(store.getString(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE));
 		String toolchainId = store.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
-		otherToolchainIdInput.setText(toolchainId);
-		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
-			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).equalsIgnoreCase(toolchainId.toLowerCase())) {
-				toolchainIndex = i;
-				break;
-			}
-		}
-		setToolchainSelection(toolchainIndex);
+		rustupToolchainCombo.setText(toolchainId);
 		rustupInput.setValue(store.getString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE));
 		cargoInput.setValue(store.getString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		rlsInput.setValue(store.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE));
@@ -253,7 +237,7 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private boolean isRustupSectionValid() {
-		if (rustupToolchainCombo.getSelectionIndex() == 3 && otherToolchainIdInput.getText().isEmpty()) {
+		if (rustupToolchainCombo.getText().isBlank()) {
 			setErrorMessage(Messages.CorrosionPreferencePage_emptyToolchain);
 			return false;
 		}
@@ -297,17 +281,8 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 	@Override
 	protected void performDefaults() {
-		int toolchainIndex = RUSTUP_TOOLCHAIN_OPTIONS
-				.indexOf(store.getDefaultString(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE));
 		String toolchainId = store.getDefaultString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE);
-		otherToolchainIdInput.setText(toolchainId);
-		for (int i = 0; i < RUSTUP_TOOLCHAIN_OPTIONS.size(); i++) {
-			if (RUSTUP_TOOLCHAIN_OPTIONS.get(i).equalsIgnoreCase(toolchainId.toLowerCase())) {
-				toolchainIndex = i;
-				break;
-			}
-		}
-		setToolchainSelection(toolchainIndex);
+		rustupToolchainCombo.setText(toolchainId);
 		rustupInput.setValue(store.getDefaultString(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE));
 		cargoInput.setValue(store.getDefaultString(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE));
 		rlsInput.setValue(store.getDefaultString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE));
@@ -317,26 +292,16 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		super.performDefaults();
 	}
 
-	private void setToolchainSelection(int selection) {
-		rustupToolchainCombo.select(selection);
-		GridData otherIdData = (GridData) otherToolchainIdInput.getLayoutData();
-		otherIdData.exclude = selection != 3;
-		otherToolchainIdInput.getParent().layout();
-		otherToolchainIdInput.setVisible(!otherIdData.exclude);
-		otherToolchainIdInput.getParent().getParent().layout(true);
-	}
-
 	@Override
 	public boolean performOk() {
 		store.setValue(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE, workingDirectoryInput.getValue());
 		store.setValue(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE,
 				rlsConfigurationPathInput.getValue());
 
-		store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_TYPE_PREFERENCE, rustupToolchainCombo.getText());
 		store.setValue(CorrosionPreferenceInitializer.RUSTUP_PATHS_PREFERENCE, rustupInput.getValue());
 		store.setValue(CorrosionPreferenceInitializer.CARGO_PATH_PREFERENCE, cargoInput.getValue());
 
-		String id = getToolchainId();
+		String id = rustupToolchainCombo.getText();
 		if (!store.getString(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE).equals(id)) {
 			RustManager.setDefaultToolchain(id);
 			store.setValue(CorrosionPreferenceInitializer.TOOLCHAIN_ID_PREFERENCE, id);
@@ -344,17 +309,6 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		store.setValue(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE, rlsInput.getValue());
 		store.setValue(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE, sysrootInput.getValue());
 		return true;
-	}
-
-	private String getToolchainId() {
-		int index = rustupToolchainCombo.getSelectionIndex();
-		if (index == -1) {
-			return ""; //$NON-NLS-1$
-		} else if (index < 3) {
-			return RUSTUP_TOOLCHAIN_OPTIONS.get(index).toLowerCase();
-		} else {
-			return otherToolchainIdInput.getText();
-		}
 	}
 
 	private Button installButton;
@@ -389,15 +343,15 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 		CommandJob installCommandJob = new CommandJob(command, Messages.CorrosionPreferencePage_installingRustupCargo,
 				Messages.CorrosionPreferencePage_cannotInstallRustupCargo,
 				Messages.CorrosionPreferencePage_cannotInstallRustupCargo_details, 15);
-		String toolchain = getToolchainId();
+		String toolchain = rustupToolchainCombo.getText();
 		installCommandJob.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(final IJobChangeEvent event) {
 				if (event.getResult() == Status.OK_STATUS) {
 					CorrosionPreferenceInitializer initializer = new CorrosionPreferenceInitializer();
 					initializer.initializeDefaultPreferences();
-					Job setDefaultToolchainJob = RustManager.setDefaultToolchain(
-							toolchain.isEmpty() ? RUSTUP_TOOLCHAIN_OPTIONS.get(0).toLowerCase() : toolchain);
+					Job setDefaultToolchainJob = RustManager
+							.setDefaultToolchain(toolchain.isEmpty() ? "stable" : toolchain); //$NON-NLS-1$
 					setDefaultToolchainJob.addJobChangeListener(new JobChangeAdapter() {
 						@Override
 						public void done(final IJobChangeEvent event) {
