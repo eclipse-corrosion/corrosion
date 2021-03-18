@@ -4,7 +4,7 @@
 
 ### 1.2.0
 
-* 📅 Release Date (tentative): March 2021
+* 📅 Release Date: March 18th, 2021
 * All changes: https://github.com/eclipse/corrosion/compare/1.1.1...1.2.0
 
 #### Favor Rust-Analyzer over RLS
