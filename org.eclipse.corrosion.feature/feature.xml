@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.corrosion.feature"
       label="%name"
-      version="1.2.0.qualifier"
+      version="1.2.1.qualifier"
       provider-name="Eclipse Corrosion"
       license-feature="org.eclipse.license"
       license-feature-version="0.0.0">

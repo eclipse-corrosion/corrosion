@@ -309,6 +309,9 @@ public class RustManager {
 	}
 
 	public static CompletableFuture<File> downloadAndInstallRustAnalyzer(DoubleConsumer progressConsumer) {
+		if (!RUST_ANALYZER_DEFAULT_LOCATION.getParentFile().exists()) {
+			RUST_ANALYZER_DEFAULT_LOCATION.getParentFile().mkdirs();
+		}
 		String filename = "rust-analyzer-" + //$NON-NLS-1$
 				(Platform.OS_LINUX.equals(Platform.getOS()) ? "linux" : //$NON-NLS-1$
 						Platform.OS_WIN32.equals(Platform.getOS()) ? "win.exe" : //$NON-NLS-1$
