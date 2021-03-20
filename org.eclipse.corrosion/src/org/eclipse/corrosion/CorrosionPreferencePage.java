@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.ui.InputComponent;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.osgi.util.NLS;
@@ -191,14 +192,17 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 	}
 
 	private boolean isPageValid() {
+		setMessage(null);
 		return isCommandPathsValid() && isRustupSectionValid() && isLanguageServerInstallSectionValid();
 	}
 
 	private boolean isCommandPathsValid() {
 
 		String error = ""; //$NON-NLS-1$
-		if ((rustupInput.getValue().isEmpty() || cargoInput.getValue().isEmpty())) {
+		if (cargoInput.getValue().isEmpty()) {
 			error = Messages.CorrosionPreferencePage_emptyRustupCargoPath;
+		} else if ((rustupInput.getValue().isEmpty())) {
+			setMessage(Messages.CorrosionPreferencePage_emptyRustupCargoPath, IMessageProvider.WARNING);
 		} else {
 			File rustup = new File(varParse(rustupInput.getValue()));
 			File cargo = new File(varParse(cargoInput.getValue()));
@@ -238,10 +242,8 @@ public class CorrosionPreferencePage extends PreferencePage implements IWorkbenc
 
 	private boolean isRustupSectionValid() {
 		if (rustupToolchainCombo.getText().isBlank()) {
-			setErrorMessage(Messages.CorrosionPreferencePage_emptyToolchain);
-			return false;
+			setMessage(Messages.CorrosionPreferencePage_emptyToolchain);
 		}
-		setErrorMessage(null);
 		return true;
 	}
 
