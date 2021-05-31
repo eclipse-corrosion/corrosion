@@ -313,9 +313,11 @@ public class RustManager {
 			RUST_ANALYZER_DEFAULT_LOCATION.getParentFile().mkdirs();
 		}
 		String filename = "rust-analyzer-" + //$NON-NLS-1$
-				(Platform.OS_LINUX.equals(Platform.getOS()) ? "linux" : //$NON-NLS-1$
-						Platform.OS_WIN32.equals(Platform.getOS()) ? "win.exe" : //$NON-NLS-1$
-								Platform.OS_MACOSX.equals(Platform.getOS()) ? "mac" : "os-not-found"); //$NON-NLS-1$ //$NON-NLS-2$
+				(Platform.ARCH_AARCH64.equals(Platform.getOSArch()) ? "aarch64-" : //$NON-NLS-1$
+					Platform.ARCH_X86_64.equals(Platform.getOSArch()) ? "x86_64-" : "arch-not-found") //$NON-NLS-1$ //$NON-NLS-2$
+				+ (Platform.OS_LINUX.equals(Platform.getOS()) ? "unknown-linux-gnu.gz" : //$NON-NLS-1$
+						Platform.OS_WIN32.equals(Platform.getOS()) ? "pc-windows-msvc.gz" : //$NON-NLS-1$
+								Platform.OS_MACOSX.equals(Platform.getOS()) ? "apple-darwin.gz" : "os-not-found"); //$NON-NLS-1$ //$NON-NLS-2$
 		String url = "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/" + filename; //$NON-NLS-1$
 
 		BundleContext bundleContext = CorrosionPlugin.getDefault().getBundle().getBundleContext();
