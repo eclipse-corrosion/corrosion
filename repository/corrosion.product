@@ -201,7 +201,7 @@ United States, other countries, or both.
    </plugins>
 
    <features>
-      <feature id="org.eclipse.epp.package.common.feature" version="4.18.0.qualifier"/>
+      <feature id="org.eclipse.epp.package.common.feature" version="4.20.0.qualifier"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.epp.mpc" installMode="root"/>
       <feature id="org.eclipse.justj.openjdk.hotspot.jre.full" installMode="root"/> 

@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2019 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,8 @@ import org.eclipse.corrosion.sourcelookup.CargoSourceLookupDirector;
 import org.eclipse.corrosion.sourcelookup.CargoSourceUtils;
 import org.eclipse.corrosion.sourcelookup.ICargoSourceLocation;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
+import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
+import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -49,11 +51,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class CorrosionPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.corrosion"; //$NON-NLS-1$
+
+	private static BundleContext context;
 
 	/**
 	 * Status code indicating an unexpected internal error.
@@ -63,6 +69,8 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static CorrosionPlugin plugin;
 
+	private ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> retrievalFactoryTracker;
+
 	private static synchronized void setSharedInstance(CorrosionPlugin newValue) {
 		plugin = newValue;
 	}
@@ -70,6 +78,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		CorrosionPlugin.context = context;
 		setSharedInstance(this);
 		ResourceLookup.startup();
 		initializeCommonSourceLookupDirector();
@@ -79,10 +88,17 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		if (retrievalFactoryTracker != null) {
+			retrievalFactoryTracker.close();
+		}
 		setSharedInstance(null);
 		disposeCommonSourceLookupDirector();
 		ResourceLookup.shutdown();
 		super.stop(context);
+	}
+
+	public static BundleContext getContext() {
+		return context;
 	}
 
 	/**
@@ -306,5 +322,43 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 
 	private void convertSourceLocations(CargoCommonSourceLookupDirector director) {
 		director.setSourceContainers(CargoSourceUtils.convertSourceLocations(getCommonSourceLocations()));
+	}
+
+	/**
+	 * Get an ECF based file transfer service.
+	 *
+	 * @return retrieve file transfer
+	 */
+	public IRetrieveFileTransfer getFileTransferService() {
+		IRetrieveFileTransferFactory factory = getFileTransferServiceTracker().getService();
+		return factory.newInstance();
+	}
+
+	private synchronized ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> getFileTransferServiceTracker() {
+		if (retrievalFactoryTracker == null) {
+			retrievalFactoryTracker = new ServiceTracker<>(getContext(), IRetrieveFileTransferFactory.class, null);
+			retrievalFactoryTracker.open();
+			startBundle("org.eclipse.ecf"); //$NON-NLS-1$
+			startBundle("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
+		}
+		return retrievalFactoryTracker;
+	}
+
+	private static boolean startBundle(String bundleId) {
+		Bundle[] bundles = getContext().getBundles();
+		for (Bundle bundle : bundles) {
+			if (bundle.getSymbolicName().equals(bundleId)) {
+				if ((bundle.getState() & Bundle.INSTALLED) == 0) {
+					try {
+						bundle.start(Bundle.START_ACTIVATION_POLICY);
+						bundle.start(Bundle.START_TRANSIENT);
+						return true;
+					} catch (BundleException e) {
+						return false;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }
