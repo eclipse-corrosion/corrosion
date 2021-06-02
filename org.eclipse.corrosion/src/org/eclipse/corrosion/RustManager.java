@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2018 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,8 @@ package org.eclipse.corrosion;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -26,7 +28,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.DoubleConsumer;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -39,7 +43,6 @@ import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEven
 import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
 import org.eclipse.ecf.filetransfer.identity.IFileID;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
@@ -53,12 +56,11 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 @SuppressWarnings("restriction")
 public class RustManager {
 	private static final IPreferenceStore STORE = CorrosionPlugin.getDefault().getPreferenceStore();
+
 	/**
 	 * Set according to rust-analyzer documentation
 	 */
@@ -70,6 +72,8 @@ public class RustManager {
 	public static final Pattern RLS_VERSION_FORMAT_PATTERN = Pattern.compile(RLS_VERSION_FORMAT_REGEX);
 	public static final Pattern CARGO_VERSION_FORMAT_PATTERN = Pattern.compile(CARGO_VERSION_FORMAT_REGEX);
 	public static final Pattern RUSTUP_VERSION_FORMAT_PATTERN = Pattern.compile(RUSTUP_VERSION_FORMAT_REGEX);
+
+	private static final String RUST_ANALIZER_BASE_URL = "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/"; //$NON-NLS-1$
 
 	private RustManager() {
 		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
@@ -314,18 +318,16 @@ public class RustManager {
 		}
 		String filename = "rust-analyzer-" + //$NON-NLS-1$
 				(Platform.ARCH_AARCH64.equals(Platform.getOSArch()) ? "aarch64-" : //$NON-NLS-1$
-					Platform.ARCH_X86_64.equals(Platform.getOSArch()) ? "x86_64-" : "arch-not-found") //$NON-NLS-1$ //$NON-NLS-2$
+						Platform.ARCH_X86_64.equals(Platform.getOSArch()) ? "x86_64-" : "arch-not-found") //$NON-NLS-1$ //$NON-NLS-2$
 				+ (Platform.OS_LINUX.equals(Platform.getOS()) ? "unknown-linux-gnu.gz" : //$NON-NLS-1$
 						Platform.OS_WIN32.equals(Platform.getOS()) ? "pc-windows-msvc.gz" : //$NON-NLS-1$
 								Platform.OS_MACOSX.equals(Platform.getOS()) ? "apple-darwin.gz" : "os-not-found"); //$NON-NLS-1$ //$NON-NLS-2$
-		String url = "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/" + filename; //$NON-NLS-1$
+		String url = RUST_ANALIZER_BASE_URL + filename;
 
-		BundleContext bundleContext = CorrosionPlugin.getDefault().getBundle().getBundleContext();
-		ServiceReference<IRetrieveFileTransferFactory> ref = bundleContext
-				.getServiceReference(IRetrieveFileTransferFactory.class);
-		IRetrieveFileTransferFactory transferFactory = bundleContext.getService(ref);
-		IRetrieveFileTransfer retrieve = transferFactory.newInstance();
+		IRetrieveFileTransfer retrieve = CorrosionPlugin.getDefault().getFileTransferService();
+
 		// Use retrieve to initiate file transfer
+		File archiveFile = new File(RUST_ANALYZER_DEFAULT_LOCATION.getParentFile(), filename);
 		try {
 			CompletableFuture<File> res = new CompletableFuture<>();
 			IFileID id = FileIDFactory.getDefault().createFileID(retrieve.getRetrieveNamespace(), URI.create(url));
@@ -333,7 +335,7 @@ public class RustManager {
 				if (event instanceof IIncomingFileTransferReceiveStartEvent) {
 					IIncomingFileTransferReceiveStartEvent rse = (IIncomingFileTransferReceiveStartEvent) event;
 					try {
-						rse.receive(RUST_ANALYZER_DEFAULT_LOCATION);
+						rse.receive(archiveFile);
 					} catch (IOException e) {
 						res.completeExceptionally(e);
 					}
@@ -341,14 +343,29 @@ public class RustManager {
 					progressConsumer
 							.accept(((IIncomingFileTransferReceiveDataEvent) event).getSource().getPercentComplete());
 				} else if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
-					RUST_ANALYZER_DEFAULT_LOCATION.setExecutable(true);
-					res.complete(RUST_ANALYZER_DEFAULT_LOCATION);
+					try {
+						decompressGzip(archiveFile, RUST_ANALYZER_DEFAULT_LOCATION);
+						res.complete(RUST_ANALYZER_DEFAULT_LOCATION);
+					} catch (IOException e) {
+						res.completeExceptionally(e);
+					}
 				}
 			};
 			retrieve.sendRetrieveRequest(id, listener, Map.of());
 			return res;
 		} catch (Exception e) {
 			return CompletableFuture.failedFuture(e);
+		}
+	}
+
+	public static void decompressGzip(File input, File output) throws IOException {
+		output.delete();
+		try (GZIPInputStream in = new GZIPInputStream(new FileInputStream(input))) {
+			try (FileOutputStream out = new FileOutputStream(output)) {
+				IOUtils.copy(in, out);
+				output.setExecutable(true);
+				input.delete();
+			}
 		}
 	}
 }
