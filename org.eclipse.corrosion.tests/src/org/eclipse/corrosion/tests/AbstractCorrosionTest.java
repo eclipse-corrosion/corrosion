@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -21,6 +22,9 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IProject;
@@ -31,6 +35,10 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.corrosion.RustManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -51,6 +59,7 @@ public class AbstractCorrosionTest {
 	@BeforeEach
 	public void setUp() {
 		this.provisionedProjects = new HashMap<>();
+		setupRustAnalyzerExecutable();
 	}
 
 	/**
@@ -111,5 +120,40 @@ public class AbstractCorrosionTest {
 
 	protected IWorkbench getWorkbench() {
 		return PlatformUI.getWorkbench();
+	}
+
+	protected void setupRustAnalyzerExecutable() {
+		IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
+
+		// Download Rust Analyzer if it'n not installed yet
+		if (getRustAnalyzerExecutable(store) == null) {
+			try {
+				RustManager.downloadAndInstallRustAnalyzer(progress -> {
+				}).thenAccept(file -> {
+					String rustAnalyzerPath = file.getAbsolutePath();
+
+					// CorrosionPreferencePage sets up the following preference value in `performOK`
+					// method, then the preference value is used to get the rust-analyzer executable
+					// when needed
+					//
+					store.setValue(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE, rustAnalyzerPath);
+				}).exceptionally(ex -> {
+					fail(ex);
+					return null;
+				}).get(30, TimeUnit.SECONDS);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				fail("Rust Analyzer executable setup failed", e);
+			}
+
+			assertNotNull(getRustAnalyzerExecutable(store), "Rust Analyzer executable setup failed");
+		}
+	}
+
+	protected File getRustAnalyzerExecutable(IPreferenceStore store) {
+		String rustAnalyzerExecutablePath = store.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
+		File rustAnalyzerExecutable = new File(rustAnalyzerExecutablePath != null ? rustAnalyzerExecutablePath : "");
+
+		return (rustAnalyzerExecutable.exists() && rustAnalyzerExecutable.isFile()
+				&& rustAnalyzerExecutable.canExecute() ? rustAnalyzerExecutable : null);
 	}
 }

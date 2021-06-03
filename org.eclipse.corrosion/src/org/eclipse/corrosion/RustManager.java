@@ -337,6 +337,7 @@ public class RustManager {
 					try {
 						rse.receive(archiveFile);
 					} catch (IOException e) {
+						e.printStackTrace();
 						res.completeExceptionally(e);
 					}
 				} else if (event instanceof IIncomingFileTransferReceiveDataEvent) {
@@ -347,6 +348,7 @@ public class RustManager {
 						decompressGzip(archiveFile, RUST_ANALYZER_DEFAULT_LOCATION);
 						res.complete(RUST_ANALYZER_DEFAULT_LOCATION);
 					} catch (IOException e) {
+						e.printStackTrace();
 						res.completeExceptionally(e);
 					}
 				}
@@ -354,6 +356,7 @@ public class RustManager {
 			retrieve.sendRetrieveRequest(id, listener, Map.of());
 			return res;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return CompletableFuture.failedFuture(e);
 		}
 	}

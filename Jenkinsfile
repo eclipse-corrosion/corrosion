@@ -19,7 +19,7 @@ pipeline {
 				sh 'org.eclipse.corrosion/scripts/rustup-init.sh -y'
 				sh 'rustup install stable-x86_64-unknown-linux-gnu'
 				sh 'rustup default stable-x86_64-unknown-linux-gnu'
-				sh 'mkdir -p ~/.local/bin && curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux -o ~/.local/bin/rust-analyzer && chmod +x ~/.local/bin/rust-analyzer'
+				sh 'mkdir -p ~/.local/bin'
 				sh 'echo $PATH'
 			}
 		}
