@@ -41,6 +41,9 @@ public class RustGDBLaunchWrapper extends GdbLaunch {
 	public String[] getLaunchEnvironment() throws CoreException {
 		String[] cProjectEnv = super.getLaunchEnvironment();
 		String[] launchConfigEnv = getLaunchManager().getEnvironment(getLaunchConfiguration());
+		if (launchConfigEnv == null) {
+			return new String[0];
+		}
 		Map<String, String> env = new HashMap<>(cProjectEnv.length + launchConfigEnv.length);
 		Stream.of(cProjectEnv, launchConfigEnv) //
 				.flatMap(Arrays::stream) //
