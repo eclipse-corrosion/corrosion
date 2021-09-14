@@ -51,7 +51,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 	void testNewProjectPage() {
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
+		wizard.init(PlatformUI.getWorkbench(), StructuredSelection.EMPTY);
 		dialog.create();
 		confirmPageState(wizard, DEFAULT_PROJECT_NAME, "none", true);
 
@@ -80,7 +80,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
+		wizard.init(PlatformUI.getWorkbench(), StructuredSelection.EMPTY);
 		dialog.create();
 
 		assertTrue(wizard.canFinish());
@@ -105,7 +105,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
+		wizard.init(PlatformUI.getWorkbench(), StructuredSelection.EMPTY);
 		dialog.create();
 		confirmPageState(wizard, DEFAULT_PROJECT_NAME, "none", true);
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
