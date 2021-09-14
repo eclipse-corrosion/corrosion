@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -60,13 +60,12 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 	private static final List<Snippet> snippets = new ArrayList<>();
 	static {
 		JsonArray snippetArray = null;
-		JsonParser parser = new JsonParser();
 		try {
 			URL url = FileLocator.toFileURL(FileLocator.find(CorrosionPlugin.getDefault().getBundle(),
 					Path.fromPortableString("snippets/rust.json"), Collections.emptyMap())); //$NON-NLS-1$
 			StringBuilder snippetsBuilder = new StringBuilder();
 			Files.readAllLines(new File(url.getFile()).toPath()).forEach(line -> snippetsBuilder.append(line));
-			snippetArray = parser.parse(snippetsBuilder.toString()).getAsJsonArray();
+			snippetArray = JsonParser.parseString(snippetsBuilder.toString()).getAsJsonArray();
 		} catch (IOException e) {
 			// Caught with null snippetArray
 		}
