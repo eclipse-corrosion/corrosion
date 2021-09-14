@@ -1,4 +1,5 @@
 /*********************************************************************
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -38,6 +39,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +51,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 	void testNewProjectPage() {
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		wizard.init(getWorkbench(), new StructuredSelection());
+		wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
 		dialog.create();
 		confirmPageState(wizard, DEFAULT_PROJECT_NAME, "none", true);
 
@@ -78,7 +80,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		wizard.init(getWorkbench(), new StructuredSelection());
+		wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
 		dialog.create();
 
 		assertTrue(wizard.canFinish());
@@ -103,7 +105,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		wizard.init(getWorkbench(), new StructuredSelection());
+		wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
 		dialog.create();
 		confirmPageState(wizard, DEFAULT_PROJECT_NAME, "none", true);
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
