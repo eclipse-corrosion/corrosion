@@ -41,12 +41,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
-public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
+class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
 	private static final String DEFAULT_PROJECT_NAME = "new_rust_project";
 
 	@Test
-	public void testNewProjectPage() {
+	void testNewProjectPage() {
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		wizard.init(getWorkbench(), new StructuredSelection());
@@ -74,7 +74,7 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testCreateNewProject() {
+	void testCreateNewProject() {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
@@ -99,7 +99,7 @@ public class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testCreateNewProjectOutOfWorkspace() throws IOException {
+	void testCreateNewProjectOutOfWorkspace() throws IOException {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);

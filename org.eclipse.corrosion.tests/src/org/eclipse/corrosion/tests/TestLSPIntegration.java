@@ -32,10 +32,10 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
-public class TestLSPIntegration extends AbstractCorrosionTest {
+class TestLSPIntegration extends AbstractCorrosionTest {
 
 	@Test
-	public void testLSWorks() throws IOException, CoreException {
+	void testLSWorks() throws IOException, CoreException {
 		IProject project = getProject(BASIC_ERRORS_PROJECT_NAME);
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;

@@ -90,7 +90,7 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testDebugLaunch() throws Exception {
+	void testDebugLaunch() throws Exception {
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		IFile file = project.getFile("src/main.rs");
 		assertTrue(file.exists());

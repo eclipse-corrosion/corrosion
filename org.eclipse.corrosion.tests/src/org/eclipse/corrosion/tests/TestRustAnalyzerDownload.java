@@ -20,7 +20,7 @@ import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.junit.jupiter.api.Test;
 
-public class TestRustAnalyzerDownload extends AbstractCorrosionTest {
+class TestRustAnalyzerDownload extends AbstractCorrosionTest {
 
 	@Test
 	void testRustAnalyzerDownload() {

@@ -24,13 +24,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
-public class TestLSPExtensions {
+class TestLSPExtensions {
 
 	private static final String PROGRESS_ID_1 = "progress_1";
 	private static final String PROGRESS_ID_2 = "progress_2";
 
 	@Test
-	public void testBuildingMessages() {
+	void testBuildingMessages() {
 		String jobType = "Building";
 		RLSClientImplementation clientImplementation = new RLSClientImplementation();
 		IJobManager jobManager = Job.getJobManager();
@@ -45,11 +45,11 @@ public class TestLSPExtensions {
 
 		clientImplementation.progress(new ProgressParams(PROGRESS_ID_1, jobType, true));
 		waitUntilJobIsDone(jobManager, jobType);
-		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
+		assertEquals(IStatus.OK, rustJob.getResult().getCode());
 	}
 
 	@Test
-	public void testIndexingMessages() {
+	void testIndexingMessages() {
 		String jobType = "Indexing";
 		RLSClientImplementation clientImplementation = new RLSClientImplementation();
 		IJobManager jobManager = Job.getJobManager();
@@ -61,7 +61,7 @@ public class TestLSPExtensions {
 
 		clientImplementation.progress(new ProgressParams(PROGRESS_ID_2, jobType, true));
 		waitUntilJobIsDone(jobManager, jobType);
-		assertEquals(rustJob.getResult().getCode(), IStatus.OK);
+		assertEquals(IStatus.OK, rustJob.getResult().getCode());
 	}
 
 	private static void waitUntilJobIsStarted(IJobManager jobManager, String jobType) {
