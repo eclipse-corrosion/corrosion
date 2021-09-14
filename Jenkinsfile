@@ -29,7 +29,7 @@ pipeline {
 				sh 'rustup show'
 				sh 'rust-gdb --version'
 				wrap([$class: 'Xvnc', useXauthority: true]) {
-					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -PpackAndSign -Dsurefire.timeout=1800'
+					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -Psign -Dsurefire.timeout=1800'
 				}
 			}
 			post {
