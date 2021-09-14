@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
@@ -42,9 +43,9 @@ class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 		wizard = new CargoExportWizard();
 		if (!selectedProjectName.isEmpty()) {
 			IProject project = getProject(selectedProjectName);
-			wizard.init(getWorkbench(), new StructuredSelection(project));
+			wizard.init(PlatformUI.getWorkbench(), new StructuredSelection(project));
 		} else {
-			wizard.init(getWorkbench(), new StructuredSelection());
+			wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
 		}
 		dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();

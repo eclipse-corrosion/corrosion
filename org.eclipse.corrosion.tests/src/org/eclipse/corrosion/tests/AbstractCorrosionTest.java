@@ -40,7 +40,6 @@ import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.corrosion.RustManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -116,10 +115,6 @@ public abstract class AbstractCorrosionTest {
 
 	protected Shell getShell() {
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-	}
-
-	protected IWorkbench getWorkbench() {
-		return PlatformUI.getWorkbench();
 	}
 
 	protected void setupRustAnalyzerExecutable() {
