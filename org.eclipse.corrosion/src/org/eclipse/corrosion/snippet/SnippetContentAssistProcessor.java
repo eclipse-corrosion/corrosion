@@ -64,7 +64,7 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 			URL url = FileLocator.toFileURL(FileLocator.find(CorrosionPlugin.getDefault().getBundle(),
 					Path.fromPortableString("snippets/rust.json"), Collections.emptyMap())); //$NON-NLS-1$
 			StringBuilder snippetsBuilder = new StringBuilder();
-			Files.readAllLines(new File(url.getFile()).toPath()).forEach(line -> snippetsBuilder.append(line));
+			Files.readAllLines(new File(url.getFile()).toPath()).forEach(snippetsBuilder::append);
 			snippetArray = JsonParser.parseString(snippetsBuilder.toString()).getAsJsonArray();
 		} catch (IOException e) {
 			// Caught with null snippetArray
