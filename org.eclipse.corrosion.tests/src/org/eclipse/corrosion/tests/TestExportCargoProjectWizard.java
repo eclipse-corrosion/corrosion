@@ -45,7 +45,7 @@ class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 			IProject project = getProject(selectedProjectName);
 			wizard.init(PlatformUI.getWorkbench(), new StructuredSelection(project));
 		} else {
-			wizard.init(PlatformUI.getWorkbench(), new StructuredSelection());
+			wizard.init(PlatformUI.getWorkbench(), StructuredSelection.EMPTY);
 		}
 		dialog = new WizardDialog(getShell(), wizard);
 		dialog.create();
