@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2019 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -51,7 +51,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 	private Set<IWorkingSet> workingSets;
 	private File directory;
 	private String projectName;
-	private Boolean isDirectoryAndProjectLinked = true;
+	private boolean isDirectoryAndProjectLinked = true;
 
 	protected NewCargoProjectWizardPage() {
 		super(NewCargoProjectWizardPage.class.getName());
@@ -158,9 +158,8 @@ public class NewCargoProjectWizardPage extends WizardPage {
 					projectNameError = Messages.NewCargoProjectWizardPage_InvalidDotProjectInDirectory;
 				}
 			} else {
-				IProject project = null;
 				try {
-					project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+					IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 					if (project.exists() && (project.getLocation() == null
 							|| !directory.getAbsoluteFile().equals(project.getLocation().toFile().getAbsoluteFile()))) {
 						projectNameError = Messages.NewCargoProjectWizardPage_projectNameAlreadyUsed;
