@@ -49,7 +49,7 @@ import org.junit.jupiter.api.BeforeEach;
  * Takes care of creating a temporary project and resource before test and to
  * clean it up after.
  */
-public class AbstractCorrosionTest {
+public abstract class AbstractCorrosionTest {
 	protected static final String BASIC_PROJECT_NAME = "basic";
 	protected static final String BASIC_ERRORS_PROJECT_NAME = "basic_errors";
 	protected static final String NOT_CARGO_PROJECT_NAME = "not_cargo";
