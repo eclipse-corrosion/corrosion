@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
-public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
+class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 
 	private WizardDialog dialog;
 	private CargoExportWizard wizard;
@@ -57,7 +57,7 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testExportPageWithSelection() throws IOException, CoreException {
+	void testExportPageWithSelection() throws IOException, CoreException {
 		createWizard(BASIC_PROJECT_NAME);
 		confirmPageState(getProject(BASIC_PROJECT_NAME).getName(), true);
 
@@ -66,7 +66,7 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testExportPageWithChangingProject() throws IOException, CoreException {
+	void testExportPageWithChangingProject() throws IOException, CoreException {
 		createWizard(BASIC_PROJECT_NAME);
 		confirmPageState(getProject(BASIC_PROJECT_NAME).getName(), true);
 
@@ -76,7 +76,7 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testExportPageWithNonCargoProject() throws IOException, CoreException {
+	void testExportPageWithNonCargoProject() throws IOException, CoreException {
 		createWizard(BASIC_PROJECT_NAME);
 		confirmPageState(getProject(BASIC_PROJECT_NAME).getName(), true);
 
@@ -89,7 +89,7 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 		CargoExportWizardPage page = (CargoExportWizardPage) wizard.getPages()[0];
 		if (!expectedFinishState) {
 			assertFalse(wizard.canFinish());
-			assertEquals(locationLabel.getText(), "");
+			assertTrue(locationLabel.getText().isEmpty());
 		} else {
 			assertEquals(expectedProjectName, page.getProject().getName());
 			assertEquals(locationLabel.getText(),
@@ -98,7 +98,7 @@ public class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testExportProject() throws IOException, CoreException {
+	void testExportProject() throws IOException, CoreException {
 		IProject basic = getProject(BASIC_PROJECT_NAME);
 		createWizard(BASIC_PROJECT_NAME);
 		Composite composite = (Composite) wizard.getPages()[0].getControl();

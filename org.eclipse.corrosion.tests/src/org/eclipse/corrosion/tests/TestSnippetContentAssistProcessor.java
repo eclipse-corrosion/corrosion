@@ -33,22 +33,22 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("restriction")
-public class TestSnippetContentAssistProcessor extends AbstractCorrosionTest {
+class TestSnippetContentAssistProcessor extends AbstractCorrosionTest {
 
 	private static final String[] PRINT_COMPLETION_PROPOSALS = new String[] { "println!(\"$1\", $0)" };
 
 	@Test
-	public void testCompletionsPresent() throws IOException, CoreException {
+	void testCompletionsPresent() throws IOException, CoreException {
 		validateCompletionProposals("println", PRINT_COMPLETION_PROPOSALS);
 	}
 
 	@Test
-	public void testCompletionsLimited() throws IOException, CoreException {
+	void testCompletionsLimited() throws IOException, CoreException {
 		validateCompletionProposals("noExpectedCompletion", null);
 	}
 
 	@Test
-	public void testSingleLineComment() throws IOException, CoreException {
+	void testSingleLineComment() throws IOException, CoreException {
 		validateCompletionProposals("// println", null);
 		// With prefix
 		validateCompletionProposals("not a comment // println", null);
@@ -59,7 +59,7 @@ public class TestSnippetContentAssistProcessor extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testMultiLineComment() throws IOException, CoreException {
+	void testMultiLineComment() throws IOException, CoreException {
 		validateCompletionProposals("/* println", null);
 		// With prefix
 		validateCompletionProposals("not a comment /* println", null);

@@ -13,6 +13,7 @@
 package org.eclipse.corrosion.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,7 +41,7 @@ import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class TestRunConfiguration extends AbstractCorrosionTest {
+class TestRunConfiguration extends AbstractCorrosionTest {
 
 	@AfterEach
 	public void testErrorPopup() {
@@ -51,7 +52,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testBasicRun() throws IOException, CoreException, InterruptedException {
+	void testBasicRun() throws IOException, CoreException, InterruptedException {
 		CargoRunDelegate delegate = new CargoRunDelegate();
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		delegate.launch(new StructuredSelection(project), "run");
@@ -63,7 +64,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 			}
 		}.waitForCondition(Display.getCurrent(), 15000);
 		assertNull(getErrorPopup());
-		assertTrue(DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0);
+		assertNotEquals(0, DebugPlugin.getDefault().getLaunchManager().getProcesses().length);
 		for (IProcess process : DebugPlugin.getDefault().getLaunchManager().getProcesses()) {
 			if (process.getLabel().equals("cargo run")) {
 				while (!process.isTerminated()) {
@@ -76,7 +77,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testFailOnFakeProjectName() throws IOException, CoreException {
+	void testFailOnFakeProjectName() throws IOException, CoreException {
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		launchConfiguration.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, "fakeProjectName");
@@ -84,7 +85,7 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testFailOnDeletedProject() throws IOException, CoreException {
+	void testFailOnDeletedProject() throws IOException, CoreException {
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		project.delete(true, new NullProgressMonitor());
@@ -92,14 +93,14 @@ public class TestRunConfiguration extends AbstractCorrosionTest {
 	}
 
 	@Test
-	public void testFailOnNonCargoProject() throws IOException, CoreException {
+	void testFailOnNonCargoProject() throws IOException, CoreException {
 		IProject project = getProject(NOT_CARGO_PROJECT_NAME);
 		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		confirmErrorPopup(launchConfiguration);
 	}
 
 	@Test
-	public void testTranslateVariablesInBuildCommand() throws InterruptedException, IOException, CoreException {
+	void testTranslateVariablesInBuildCommand() throws InterruptedException, IOException, CoreException {
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		launchConfiguration.setAttribute("BUILD_COMMAND", "-- ${workspace_loc}");

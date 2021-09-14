@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class TestIDEIntegration extends AbstractCorrosionTest {
+class TestIDEIntegration extends AbstractCorrosionTest {
 
 	@SuppressWarnings("restriction")
 	@ParameterizedTest
 	@ValueSource(strings = { "Cargo.toml", "src/main.rs" })
-	public void testEditorAssociation(String fileName) throws IOException, CoreException {
+	void testEditorAssociation(String fileName) throws IOException, CoreException {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
 		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFile(fileName));

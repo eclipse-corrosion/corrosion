@@ -17,7 +17,7 @@ import org.eclipse.ui.console.PatternMatchEvent;
 import org.eclipse.ui.console.TextConsole;
 import org.junit.jupiter.api.Test;
 
-public class TestErrorLineMatcher {
+class TestErrorLineMatcher {
 
 	private static class MockTextConsole extends TextConsole {
 
@@ -33,7 +33,7 @@ public class TestErrorLineMatcher {
 	}
 
 	@Test
-	public void testColonInFileName() throws Exception {
+	void testColonInFileName() throws Exception {
 		MockTextConsole console = new MockTextConsole("--> C:\\coding\\rust\\checkbook\\src\\data_types.rs:2:2");
 		PatternMatchEvent event = new PatternMatchEvent(console, 4, console.getDocument().getLength() - 4);
 		ErrorLineMatcher errorLineMatcher = new ErrorLineMatcher();

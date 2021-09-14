@@ -28,11 +28,11 @@ import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class TestSyntaxHighlighting extends AbstractCorrosionTest {
+class TestSyntaxHighlighting extends AbstractCorrosionTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = { "Cargo.toml", "src/main.rs" })
-	public void testSyntaxHighlighting(String fileName) throws CoreException, IOException {
+	void testSyntaxHighlighting(String fileName) throws CoreException, IOException {
 		IFile rustFile = getProject(BASIC_PROJECT_NAME).getFile(fileName);
 		TextEditor editor = (TextEditor) IDE.openEditor(
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), rustFile,
