@@ -21,7 +21,7 @@ From a working Eclipse IDE, find [Eclipse Corrosion](https://marketplace.eclipse
 
 *OR*
 
-From a working Eclipse IDE, install from p2 repository [http://download.eclipse.org/releases/latest/](http://download.eclipse.org/releases/latest/) (or [http://download.eclipse.org/corrosion/snapshots/](http://download.eclipse.org/corrosion/snapshots/) for development builds).
+From a working Eclipse IDE, install from p2 repository [https://download.eclipse.org/releases/latest/](https://download.eclipse.org/releases/latest/) (or [https://download.eclipse.org/corrosion/snapshots/](https://download.eclipse.org/corrosion/snapshots/) for development builds).
 
 ### Uses Rust Toolchain
 
