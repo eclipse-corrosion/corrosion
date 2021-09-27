@@ -136,7 +136,7 @@
 				<configuration>
 					<baselineRepositories>
 						<repository>
-							<url>http://download.eclipse.org/corrosion/snapshots/</url>
+							<url>https://download.eclipse.org/corrosion/snapshots/</url>
 						</repository>
 					</baselineRepositories>
 				</configuration>
@@ -172,7 +172,7 @@
 						</goals>
 						<configuration>
 							<baselines>
-								<url>http://download.eclipse.org/corrosion/releases/latest</url>
+								<url>https://download.eclipse.org/corrosion/releases/latest</url>
 							</baselines>
 							<comparator>zip</comparator>
 						</configuration>

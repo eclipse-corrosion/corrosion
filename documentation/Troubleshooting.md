@@ -29,8 +29,8 @@ Support for Rust is provided by the Corrosion plugin. There are two ways to get 
 
 1. You can get the all-in-one Eclipse IDE for Rust developer packages from here. This is a self-contained solution which quickly enables Rust development out-of-the box at https://www.eclipse.org/downloads/packages/release/2019-03/r/eclipse-ide-rust-developers-includes-incubating-components
 2. Install any flavour of Eclipse from the link above and then add the Corrosion plugin with **Help** -> **Install new software** -> **Add**, then choose one of the repositories:
-    - Corrosion Releases - http://download.eclipse.org/corrosion/releases/
-    - Corrosion Snapshots - http://download.eclipse.org/corrosion/snapshots/
+    - Corrosion Releases - https://download.eclipse.org/corrosion/releases/
+    - Corrosion Snapshots - https://download.eclipse.org/corrosion/snapshots/
  
 The Corrosion Releases channel contains older, more stable code while the Snapshots one is more up-to-date with bug fixes but also more likely to contain unfinished features and regression bugs.
 
@@ -51,7 +51,7 @@ The TextMate project offers wide support for general language-aware text editing
 
 It is sometimes necessary, albeit very rarely, to get the latest version of TextMate from the snapshot project repository:
 
-- TM4E Snapshots: http://download.eclipse.org/tm4e/snapshots/
+- TM4E Snapshots: https://download.eclipse.org/tm4e/snapshots/
 
 #### The **Rust Language Server** (RLS)
 
@@ -73,7 +73,7 @@ The recommended way to install `rls` is to use `rustup`. Some users find the `| 
 
 This component allows Eclipse to communicate to all the Language servers, including the RLS, via Language Server protocol.
 
-- LSP4E Snapshots - http://download.eclipse.org/lsp4e/snapshots/
+- LSP4E Snapshots - https://download.eclipse.org/lsp4e/snapshots/
 
 ----
 
@@ -355,9 +355,9 @@ When everything else fails, there is still the last resort of starting over and 
 3. start the installed Eclipse.
 
 1. **Help** -> **Install new software** .Do not press `Next >`. Instead, add the following three sites via `Add...` or `Manage...`
-  * Corrosion Snapshots - http://download.eclipse.org/corrosion/snapshots/
-  * TM4E Snapshots - http://download.eclipse.org/tm4e/snapshots/
-  * LSP4E Snapshots - http://download.eclipse.org/lsp4e/snapshots/
+  * Corrosion Snapshots - https://download.eclipse.org/corrosion/snapshots/
+  * TM4E Snapshots - https://download.eclipse.org/tm4e/snapshots/
+  * LSP4E Snapshots - https://download.eclipse.org/lsp4e/snapshots/
 1. Close the "Install" window
 2. **Help** -> **Check for updates**
 3. accept the proposed selection (in my case Corrosion wanted to upgrade)
