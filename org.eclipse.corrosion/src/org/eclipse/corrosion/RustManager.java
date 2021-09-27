@@ -209,7 +209,7 @@ public class RustManager {
 						IDocument document = (((ITextEditor) editor.getEditor(false)).getDocumentProvider())
 								.getDocument(input);
 						Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document,
-								capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
+								capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider().get()));
 						if (!infos.isEmpty()) {
 							return infos.iterator().next();
 						}
