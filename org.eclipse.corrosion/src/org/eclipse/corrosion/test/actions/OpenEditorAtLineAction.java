@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2020 Red Hat Inc. and others.
+ * Copyright (c) 2020, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -149,7 +149,7 @@ public class OpenEditorAtLineAction extends Action {
 			editorID = GENERIC_EDITOR_ID;
 		}
 
-		if (input != null && editorID != null) {
+		if (input != null) {
 			// Open the editor
 			IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
