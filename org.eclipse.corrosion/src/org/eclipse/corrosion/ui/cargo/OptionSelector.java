@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -44,9 +44,11 @@ public class OptionSelector extends ElementListSelectionDialog {
 	}
 
 	/**
-	 * Returns the option the user generated from this dialog, or <code>null</code> if none.
+	 * Returns the option the user generated from this dialog, or <code>null</code>
+	 * if none.
 	 *
-	 * @return option expression the user generated from this dialog, or <code>null</code> if none
+	 * @return option expression the user generated from this dialog, or
+	 *         <code>null</code> if none
 	 */
 	public String returnOptionSelection() {
 		if (selection == null) {
@@ -59,22 +61,18 @@ public class OptionSelector extends ElementListSelectionDialog {
 		return returnString;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets. Composite)
-	 */
-	@Override protected Control createDialogArea(Composite parent) {
+	@Override
+	protected Control createDialogArea(Composite parent) {
 		Control control = super.createDialogArea(parent);
 		createArgumentArea((Composite) control);
 		return control;
 	}
 
 	/**
-	 * Creates an area to display a description of the selected option and a field to configure the options's argument.
+	 * Creates an area to display a description of the selected option and a field
+	 * to configure the options's argument.
 	 *
-	 * @param parent
-	 *            parent widget
+	 * @param parent parent widget
 	 */
 	private void createArgumentArea(Composite parent) {
 		Composite container = SWTFactory.createComposite(parent, 1, 1, GridData.FILL_HORIZONTAL);
@@ -82,9 +80,7 @@ public class OptionSelector extends ElementListSelectionDialog {
 		fArgumentText = new Text(container, SWT.BORDER);
 		fArgumentText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		fArgumentText.setEnabled(false);
-		fArgumentText.addModifyListener(e -> {
-			argumentString = fArgumentText.getText();
-		});
+		fArgumentText.addModifyListener(e -> argumentString = fArgumentText.getText());
 
 		new Label(container, SWT.NONE).setText(Messages.OptionSelector_optionDescription);
 		fDescriptionText = new Text(container, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
@@ -96,7 +92,8 @@ public class OptionSelector extends ElementListSelectionDialog {
 		fDescriptionText.setLayoutData(gd);
 	}
 
-	@Override protected void handleSelectionChanged() {
+	@Override
+	protected void handleSelectionChanged() {
 		fArgumentText.setText(""); //$NON-NLS-1$
 		fArgumentText.setEnabled(false);
 		fDescriptionText.setText(""); //$NON-NLS-1$

@@ -161,7 +161,7 @@ public class CargoSourceUtils {
 		return sourceLocations.toArray(new ICargoSourceLocation[sourceLocations.size()]);
 	}
 
-	static public ISourceContainer[] convertSourceLocations(ICargoSourceLocation[] locations) {
+	public static ISourceContainer[] convertSourceLocations(ICargoSourceLocation[] locations) {
 		ArrayList<ISourceContainer> containers = new ArrayList<>(locations.length);
 		for (ICargoSourceLocation location : locations) {
 			if (location instanceof IProjectSourceLocation) {

@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017,2018 Red Hat Inc. and others.
+ * Copyright (c) 2017,2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,8 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 		setNeedsProgressMonitor(true);
 	}
 
-	@Override public void init(IWorkbench workbench, IStructuredSelection selection) {
+	@Override
+	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle(Messages.CargoExportWizard_title);
 
 		Iterator<?> selectionIterator = selection.iterator();
@@ -54,16 +55,18 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 		wizardPage = new CargoExportWizardPage(project);
 	}
 
-	@Override public void addPages() {
+	@Override
+	public void addPages() {
 		addPage(wizardPage);
 	}
 
-	@Override public boolean performFinish() {
+	@Override
+	public boolean performFinish() {
 		IProject project = wizardPage.getProject();
 		String toolchain = wizardPage.getToolchain();
-		Boolean noVerify = wizardPage.noVerify();
-		Boolean noMetadata = wizardPage.noMetadata();
-		Boolean allowDirty = wizardPage.allowDirty();
+		boolean noVerify = wizardPage.noVerify();
+		boolean noMetadata = wizardPage.noMetadata();
+		boolean allowDirty = wizardPage.allowDirty();
 
 		List<String> exportCommandList = new ArrayList<>();
 		exportCommandList.add(CargoTools.getCargoCommand());
@@ -84,9 +87,10 @@ public class CargoExportWizard extends Wizard implements IExportWizard {
 		exportCommandList.add("--manifest-path"); //$NON-NLS-1$
 		exportCommandList.add(project.getFile("Cargo.toml").getLocation().toString()); //$NON-NLS-1$
 
-		CommandJob packageCommandJob = new CommandJob(exportCommandList.toArray(new String[exportCommandList.size()]), "Cargo Package", //$NON-NLS-1$
-				Messages.CargoExportWizard_cannotCreateProject,
-				Messages.CargoExportWizard_cannotCreateProject_details, 0);
+		CommandJob packageCommandJob = new CommandJob(exportCommandList.toArray(new String[exportCommandList.size()]),
+				"Cargo Package", //$NON-NLS-1$
+				Messages.CargoExportWizard_cannotCreateProject, Messages.CargoExportWizard_cannotCreateProject_details,
+				0);
 		packageCommandJob.setUser(true);
 		packageCommandJob.addJobChangeListener(new JobChangeAdapter() {
 			@Override
