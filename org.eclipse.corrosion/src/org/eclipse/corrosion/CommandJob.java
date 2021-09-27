@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -53,14 +53,12 @@ public class CommandJob extends Job {
 			subMonitor.beginTask(progressMessage, expectedWork);
 			process = CorrosionPlugin.getProcessForCommand(command);
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-				CompletableFuture.runAsync(() -> {
-					reader.lines().forEachOrdered(line -> {
-						subMonitor.subTask(line);
-						if (expectedWork > 0) {
-							subMonitor.worked(1);
-						}
-					});
-				});
+				CompletableFuture.runAsync(() -> reader.lines().forEachOrdered(line -> {
+					subMonitor.subTask(line);
+					if (expectedWork > 0) {
+						subMonitor.worked(1);
+					}
+				}));
 				if (process.waitFor() != 0) {
 					if (!subMonitor.isCanceled()) {
 						CorrosionPlugin.showError(errorTitle, errorMessage);

@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2020 Red Hat Inc. and others.
+ * Copyright (c) 2020, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -138,7 +138,7 @@ public class CargoProjectSourceContainer extends CompositeSourceContainer {
 		}
 
 		// Check sub-folders
-		if ((isFindDuplicates() && true) || (sources.isEmpty() && true)) {
+		if ((isFindDuplicates()) || (sources.isEmpty())) {
 			ISourceContainer[] containers = getSourceContainers();
 			for (ISourceContainer container : containers) {
 				Object[] objects = container.findSourceElements(name);
@@ -167,7 +167,7 @@ public class CargoProjectSourceContainer extends CompositeSourceContainer {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj != null && obj instanceof CargoProjectSourceContainer) {
+		if (obj instanceof CargoProjectSourceContainer) {
 			CargoProjectSourceContainer loc = (CargoProjectSourceContainer) obj;
 			return fProject == null ? loc.fProject == null : fProject.equals(loc.fProject);
 		}

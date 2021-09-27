@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2019 Fraunhofer FOKUS and others.
+ * Copyright (c) 2019, 2021 Fraunhofer FOKUS and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -139,7 +139,7 @@ public class LaunchHandler extends LSPCommandHandler {
 			Set<Entry<String, String>> envMapEntries = envMap.entrySet();
 			// prefer running existing launch configuration with same parameters
 			ILaunchConfiguration launchConfig = Arrays.stream(launchConfigurations)
-					.filter((l) -> matchesTestLaunchConfig(l, project, args, envMapEntries)).findAny()
+					.filter(l -> matchesTestLaunchConfig(l, project, args, envMapEntries)).findAny()
 					.orElseGet(() -> createCargoLaunchConfig(manager, type, project, args, envMap));
 
 			if (launchConfig != null) {
@@ -201,8 +201,7 @@ public class LaunchHandler extends LSPCommandHandler {
 		String nameSuffix = Stream.of(command, optionsString, "--", argumentsString).filter(NOT_EMPTY) //$NON-NLS-1$
 				.collect(Collectors.joining(" ", " [", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ ;
 		String nameWithSuffix = projectName + nameSuffix;
-		String result = manager.generateLaunchConfigurationName(nameWithSuffix);
-		return result;
+		return manager.generateLaunchConfigurationName(nameWithSuffix);
 	}
 
 	private static boolean matchesTestLaunchConfig(ILaunchConfiguration launchConfig, IProject cmdProject,

@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2019 Fraunhofer FOKUS and others.
+ * Copyright (c) 2019, 2021 Fraunhofer FOKUS and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -52,7 +52,7 @@ class RLSRunCommand {
 	 */
 	public static Optional<RLSRunCommand> fromLSPCommand(Command command) {
 		List<Object> arguments = command.getArguments();
-		if (arguments == null || arguments.size() < 1) {
+		if (arguments == null || arguments.isEmpty()) {
 			return Optional.empty();
 		}
 

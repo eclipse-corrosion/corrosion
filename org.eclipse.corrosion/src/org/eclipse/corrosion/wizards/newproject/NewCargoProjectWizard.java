@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2018 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -105,10 +105,10 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		File location = wizardPage.getDirectory();
 		String projectName = wizardPage.getProjectName();
-		Boolean isBin = wizardPage.isBinaryTemplate();
+		boolean isBin = wizardPage.isBinaryTemplate();
 		String vcs = wizardPage.getVCS();
 
-		Boolean makeLocation = !location.exists();
+		boolean makeLocation = !location.exists();
 		if (makeLocation) {
 			location.mkdirs();
 		}

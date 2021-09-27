@@ -83,7 +83,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 		ResourceLookup.startup();
 		initializeCommonSourceLookupDirector();
 		Job.create("Import .cargo in workspace", //$NON-NLS-1$
-				(ICoreRunnable) (monitor -> CargoTools.ensureDotCargoImportedAsProject(monitor))).schedule();
+				(ICoreRunnable) (CargoTools::ensureDotCargoImportedAsProject)).schedule();
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 		declareRegistryImage(reg, "icons/rustEditorIcon.png"); //$NON-NLS-1$
 	}
 
-	private final static void declareRegistryImage(ImageRegistry reg, String image) {
+	private static final void declareRegistryImage(ImageRegistry reg, String image) {
 		ImageDescriptor desc = ImageDescriptor.getMissingImageDescriptor();
 		URL url = null;
 		Bundle bundle = plugin.getBundle();

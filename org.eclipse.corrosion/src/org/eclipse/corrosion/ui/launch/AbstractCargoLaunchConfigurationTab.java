@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018, 2019 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -77,7 +77,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 				result -> {
 					setDirty(true);
 					updateLaunchConfigurationDialog();
-				}, () -> getDefaultWorkingDirectoryPath());
+				}, this::getDefaultWorkingDirectoryPath);
 		workingDirectoryInput.createComponent();
 		workingDirectoryInput.createContainerSelection(() -> project);
 	}
