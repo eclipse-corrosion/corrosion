@@ -128,7 +128,7 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 		LSPDocumentInfo docInfo = infos.iterator().next();
 
 		return snippets.stream().filter(s -> s.matchesPrefix(prefix))
-				.map(s -> s.convertToCompletionProposal(offset, docInfo, prefix, indent, range))
+				.map(s -> s.convertToCompletionProposal(offset, docInfo, indent, range))
 				.toArray(ICompletionProposal[]::new);
 	}
 

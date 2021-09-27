@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2020 Red Hat Inc. and others.
+ * Copyright (c) 2020, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -43,12 +43,12 @@ public class CargoTestViewSupport implements ITestViewSupport {
 
 	@Override
 	public IAction getOpenTestAction(Shell shell, ITestCaseElement testCase) {
-		return new OpenTestAction(shell, testCase);
+		return new OpenTestAction(testCase);
 	}
 
 	@Override
 	public IAction getOpenTestAction(Shell shell, ITestSuiteElement testSuite) {
-		return new OpenTestAction(shell, testSuite);
+		return new OpenTestAction(testSuite);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class CargoTestViewSupport implements ITestViewSupport {
 
 			String lineNumber = traceLine.substring(lineNumberIndex + 1, columNumberIndex).trim();
 			int line = Integer.parseInt(lineNumber);
-			return new OpenEditorAtLineAction(shell, testName, failure.getTestRunSession(), line);
+			return new OpenEditorAtLineAction(testName, failure.getTestRunSession(), line);
 		} catch (NumberFormatException | IndexOutOfBoundsException e) {
 			CorrosionPlugin.logError(e);
 		}

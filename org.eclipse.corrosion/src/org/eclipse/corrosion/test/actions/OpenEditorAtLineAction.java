@@ -33,7 +33,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -55,7 +54,7 @@ public class OpenEditorAtLineAction extends Action {
 	private int line;
 	private ITestRunSession fTestRunSession;
 
-	public OpenEditorAtLineAction(Shell shell, String fileName, ITestRunSession testRunSession, int line) {
+	public OpenEditorAtLineAction(String fileName, ITestRunSession testRunSession, int line) {
 		super(ActionsMessages.OpenInEditorAction_text);
 		this.fileName = fileName;
 		this.fTestRunSession = testRunSession;
