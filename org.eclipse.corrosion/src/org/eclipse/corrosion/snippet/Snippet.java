@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -45,8 +45,8 @@ public class Snippet {
 		this.kind = kind;
 	}
 
-	public ICompletionProposal convertToCompletionProposal(int offset, LSPDocumentInfo info, String prefix,
-			String lineIndentation, Range textRange) {
+	public ICompletionProposal convertToCompletionProposal(int offset, LSPDocumentInfo info, String lineIndentation,
+			Range textRange) {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(display);
 		item.setKind(kind);
