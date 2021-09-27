@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2018 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2021 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -42,7 +42,7 @@ public class Implementations extends AbstractHandler {
 		if (part instanceof ITextEditor) {
 			Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(
 					LSPEclipseUtils.getDocument((ITextEditor) part),
-					capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
+					capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider().get()));
 			if (!infos.isEmpty()) {
 				LSPDocumentInfo info = infos.iterator().next();
 				ISelection sel = ((AbstractTextEditor) part).getSelectionProvider().getSelection();
@@ -67,7 +67,7 @@ public class Implementations extends AbstractHandler {
 		if (part instanceof ITextEditor) {
 			Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(
 					LSPEclipseUtils.getDocument((ITextEditor) part),
-					capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider()));
+					capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider().get()));
 			ISelection selection = ((ITextEditor) part).getSelectionProvider().getSelection();
 			return !infos.isEmpty() && !selection.isEmpty() && selection instanceof ITextSelection;
 		}
