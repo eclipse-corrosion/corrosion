@@ -91,7 +91,7 @@ class TestSnippetContentAssistProcessor extends AbstractCorrosionTest {
 		}
 		assertNotNull(proposals);
 		for (int i = 0; i < proposals.length; i++) {
-			assertEquals(((LSCompletionProposal) proposals[i]).getItem().getTextEdit().getNewText(),
+			assertEquals(((LSCompletionProposal) proposals[i]).getItem().getTextEdit().getLeft().getNewText(),
 					expectedProposalTexts[i]);
 		}
 	}

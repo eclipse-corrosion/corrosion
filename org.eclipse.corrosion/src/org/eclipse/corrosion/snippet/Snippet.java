@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 @SuppressWarnings("restriction")
@@ -54,7 +55,7 @@ public class Snippet {
 		IDocument document = info.getDocument();
 		// if there is a text selection, take it, since snippets with $TM_SELECTED_TEXT
 		// will want to wrap the selection.
-		item.setTextEdit(new TextEdit(textRange, createReplacement(lineIndentation)));
+		item.setTextEdit(Either.forLeft(new TextEdit(textRange, createReplacement(lineIndentation))));
 		return new LSCompletionProposal(document, offset, item, getLanguageClient(info));
 	}
 
