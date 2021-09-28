@@ -49,10 +49,6 @@
             contentType="org.eclipse.corrosion.rust"
             id="org.eclipse.corrosion.rls">
       </contentTypeMapping>
-      <contentTypeMapping
-            contentType="org.eclipse.corrosion.manifest"
-            id="org.eclipse.corrosion.rls">
-      </contentTypeMapping>
    </extension>
    <extension
          point="org.eclipse.tm4e.registry.grammars">
