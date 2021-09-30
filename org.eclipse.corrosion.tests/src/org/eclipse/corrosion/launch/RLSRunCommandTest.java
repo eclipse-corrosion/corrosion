@@ -30,7 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class RLSRunCommandTest {
+class RLSRunCommandTest {
 
 	private static final String TITLE = "Run test";
 	private static final String COMMAND_ID = "rls.run";
@@ -53,21 +53,21 @@ public class RLSRunCommandTest {
 
 	@ParameterizedTest
 	@MethodSource("parameters")
-	public void testMapEntryArgument(Map<String, Object> argument) {
+	void testMapEntryArgument(Map<String, Object> argument) {
 		Command command = new Command(TITLE, COMMAND_ID, Arrays.asList(argument));
 		Optional<RLSRunCommand> lspCommand = RLSRunCommand.fromLSPCommand(command);
 		assertFalse(lspCommand.isPresent());
 	}
 
 	@Test
-	public void testNoArgument() {
+	void testNoArgument() {
 		Command command = new Command(TITLE, COMMAND_ID, Arrays.asList());
 		Optional<RLSRunCommand> lspCommand = RLSRunCommand.fromLSPCommand(command);
 		assertFalse(lspCommand.isPresent());
 	}
 
 	@Test
-	public void testArgumentListNull() {
+	void testArgumentListNull() {
 		Command command = new Command(TITLE, COMMAND_ID, null);
 		Optional<RLSRunCommand> lspCommand = RLSRunCommand.fromLSPCommand(command);
 		assertFalse(lspCommand.isPresent());
@@ -81,7 +81,7 @@ public class RLSRunCommandTest {
 	}
 
 	@Test
-	public void testEmptyArguments() {
+	void testEmptyArguments() {
 		Command command = new Command(TITLE, COMMAND_ID,
 				Arrays.asList(createArgument(VALID_BINARY, EMPTY_ARGS, EMPTY_ENV)));
 		Optional<RLSRunCommand> lspCommand = RLSRunCommand.fromLSPCommand(command);
@@ -93,7 +93,7 @@ public class RLSRunCommandTest {
 	}
 
 	@Test
-	public void testValidArguments() {
+	void testValidArguments() {
 		Command command = new Command(TITLE, COMMAND_ID,
 				Arrays.asList(createArgument(VALID_BINARY, VALID_ARGS, VALID_ENV)));
 		Optional<RLSRunCommand> lspCommand = RLSRunCommand.fromLSPCommand(command);
@@ -105,7 +105,7 @@ public class RLSRunCommandTest {
 	}
 
 	@Test
-	public void testInvalidEnvEntry() {
+	void testInvalidEnvEntry() {
 		Map<String, String> env = new HashMap<>();
 		env.put("INVALID", null);
 		env.put("RUST_BACKTRACE", "short");

@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2019 Fraunhofer FOKUS and others.
+ * Copyright (c) 2019, 2021 Fraunhofer FOKUS and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,7 @@ import java.util.List;
  * "test" or "run"), the options (flags for the command) and arguments (to be
  * passed to the executable called by cargo). Instances of this class can be
  * created via the static factory method
- * {@link CargoArgs#fromAllArguments(String[])}.
+ * {@link CargoArgs#fromAllArguments(String...)}.
  */
 class CargoArgs {
 	public final List<String> options;
@@ -53,7 +53,7 @@ class CargoArgs {
 	 * @param args all arguments after a sub-command (e.g. )
 	 * @return instance of {@code CargoArgs} holding command, options and arguments
 	 */
-	public static CargoArgs fromAllArguments(String[] args) {
+	public static CargoArgs fromAllArguments(String... args) {
 
 		String resultCommand = ""; //$NON-NLS-1$
 		List<String> resultOptions = Collections.emptyList();
@@ -84,5 +84,4 @@ class CargoArgs {
 		}
 		return new CargoArgs(resultOptions, resultArguments, resultCommand);
 	}
-	// foo
 }
