@@ -13,7 +13,7 @@ Download a fully-fledged Eclipse IDE for Rust development from [Corrosion downlo
 
 *OR*
 
-With Eclipse IDE properly installed on your machine, just click [Here](eclipse+mpc://marketplace.eclipse.org/install/3835145)
+With Eclipse IDE properly installed on your machine, just click [Here](https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirectToMarketplace.html?entryId=3835145)
 
 *OR*
 
