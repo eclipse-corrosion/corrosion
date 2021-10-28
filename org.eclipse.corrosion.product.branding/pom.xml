@@ -28,6 +28,6 @@
 
 	<artifactId>org.eclipse.corrosion.product.branding</artifactId>
 	<packaging>eclipse-plugin</packaging>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.2-SNAPSHOT</version>
 
 </project>
