@@ -2,13 +2,28 @@
 
 ## Upcoming Release
 
-### 1.2.2
-
-* 📅 Release Date: Unknown yet
-* All changes: https://github.com/eclipse/corrosion/compare/1.2.1...1.2.2
 
 
 ## Completed releases
+
+### 1.2.2
+
+* 📅 Release Date: October 29th, 2021
+* All changes: https://github.com/eclipse/corrosion/compare/1.2.1...1.2.2
+
+#### Do not associate LS with Cargo.toml
+
+Rust-Analyzer doesn't support Cargo.toml files editing smartness and just generated errors.
+
+#### Fix compatibility with Eclipse 2021-09 release
+
+LSP4J 0.12 contains API changes that require adjustments to Corrosion internals to properly work with it.
+
+#### MacOS X AArch64 product added
+
+The standalone Rust IDE product is generated for that CPU architecture too.
+
+#### Standalone downloads builtin JVM updated to Java 17
 
 ### 1.2.1
 
