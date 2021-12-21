@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.corrosion</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.2.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	
 	<prerequisites>
@@ -15,7 +15,6 @@
 	</properties>
 
 	<modules>
-		<module>target-platform</module>
 		<module>org.eclipse.corrosion</module>
 		<module>org.eclipse.corrosion.tests</module>
 		<module>org.eclipse.corrosion.feature</module>
@@ -50,11 +49,7 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<target>
-						<artifact>
-							<groupId>${project.groupId}</groupId>
-							<artifactId>target-platform</artifactId>
-							<version>1.0.0-SNAPSHOT</version>
-						</artifact>
+						<file>../target-platform/target-platform.target</file>
 					</target>
 					<environments>
 						<environment>
