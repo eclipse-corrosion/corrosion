@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.corrosion;singleton:=true
-Bundle-Version: 1.2.2.qualifier
+Bundle-Version: 1.2.3.qualifier
 Automatic-Module-Name: org.eclipse.corrosion
 Bundle-Activator: org.eclipse.corrosion.CorrosionPlugin
 Bundle-Vendor: %Bundle-Vendor
