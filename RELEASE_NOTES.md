@@ -6,6 +6,13 @@
 
 ## Completed releases
 
+### 1.2.3
+
+* 📅 Release Date: January 26th, 2022
+* All changes: https://github.com/eclipse/corrosion/compare/1.2.2...1.2.3
+
+#### Rebuilt against Eclipse 2021-12 release
+
 ### 1.2.2
 
 * 📅 Release Date: October 29th, 2021
