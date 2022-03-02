@@ -30,7 +30,6 @@ import java.util.function.DoubleConsumer;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -365,7 +364,7 @@ public class RustManager {
 		output.delete();
 		try (GZIPInputStream in = new GZIPInputStream(new FileInputStream(input))) {
 			try (FileOutputStream out = new FileOutputStream(output)) {
-				IOUtils.copy(in, out);
+				in.transferTo(out);
 				output.setExecutable(true);
 				input.delete();
 			}
