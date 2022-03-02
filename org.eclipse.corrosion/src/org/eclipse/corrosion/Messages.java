@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -130,7 +130,6 @@ public class Messages extends NLS {
 	public static String CorrosionPreferencePage_rlsConfigurationPath;
 	public static String CorrosionPreferencePage_Rustup;
 	public static String CorrosionPreferencePage_rustupNonExecutable;
-	public static String CorrosionPreferencePage_rustupMissingRLS;
 	public static String CorrosionPreferencePage_sysrootPath;
 	public static String CorrosionPreferencePage_toolchain;
 	public static String CorrosionPreferencePage_downloadRustAnalyzer;
