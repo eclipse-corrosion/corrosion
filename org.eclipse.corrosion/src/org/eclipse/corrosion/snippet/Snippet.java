@@ -50,6 +50,7 @@ public class Snippet {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(display);
 		item.setKind(kind);
+		item.setSortText("zzzSnippet" + display); //$NON-NLS-1$
 		item.setInsertTextFormat(InsertTextFormat.Snippet);
 
 		IDocument document = info.getDocument();
