@@ -84,8 +84,8 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		File workingDirectory = RustLaunchDelegateTools.convertToAbsolutePath(workingDirectoryString);
 		if (workingDirectoryString.isEmpty() || !workingDirectory.exists() || !workingDirectory.isDirectory()) {
 			workingDirectory = project.getLocation().toFile();
-			if (configuration instanceof ILaunchConfigurationWorkingCopy) {
-				wc = (ILaunchConfigurationWorkingCopy) configuration;
+			if (configuration instanceof ILaunchConfigurationWorkingCopy current) {
+				wc = current;
 				wc.setAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
 			}
 		}
@@ -136,8 +136,7 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				CARGO_RUN_LAUNCH_CONFIG_TYPE);
-		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
-			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
+		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy wc) {
 			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
 		}
 		return launchConfiguration;

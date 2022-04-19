@@ -59,8 +59,6 @@ public class CargoAbsolutePathSourceContainer extends AbstractSourceContainer {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof CargoAbsolutePathSourceContainer))
-			return false;
-		return true;
+		return obj instanceof CargoAbsolutePathSourceContainer;
 	}
 }

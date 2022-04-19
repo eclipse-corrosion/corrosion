@@ -18,7 +18,7 @@
 -showsplash org.eclipse.epp.package.common
 --launcher.defaultAction openFile
       </programArgs>
-      <vmArgs>-Dosgi.requiredJavaVersion=11
+      <vmArgs>-Dosgi.requiredJavaVersion=17
 -Dosgi.instance.area.default=@user.home/eclipse-workspace
 -Dsun.java.command=Eclipse
 -Xms256m
@@ -201,7 +201,7 @@ United States, other countries, or both.
    </plugins>
 
    <features>
-      <feature id="org.eclipse.epp.package.common.feature" version="4.22.0.qualifier"/>
+      <feature id="org.eclipse.epp.package.common.feature" version="4.23.0.qualifier"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.epp.mpc" installMode="root"/>
       <feature id="org.eclipse.justj.openjdk.hotspot.jre.full" installMode="root"/> 

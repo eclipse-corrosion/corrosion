@@ -39,17 +39,17 @@ public class Implementations extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IEditorPart part = HandlerUtil.getActiveEditor(event);
-		if (part instanceof ITextEditor) {
+		if (part instanceof ITextEditor editor) {
 			Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(
-					LSPEclipseUtils.getDocument((ITextEditor) part),
+					LSPEclipseUtils.getDocument(editor),
 					capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider().get()));
 			if (!infos.isEmpty()) {
 				LSPDocumentInfo info = infos.iterator().next();
 				ISelection sel = ((AbstractTextEditor) part).getSelectionProvider().getSelection();
 
-				if (sel instanceof TextSelection) {
+				if (sel instanceof TextSelection selection) {
 					try {
-						int offset = ((TextSelection) sel).getOffset();
+						int offset = selection.getOffset();
 						ImplementationsSearchQuery query = new ImplementationsSearchQuery(offset, info);
 						NewSearchUI.runQueryInBackground(query);
 					} catch (BadLocationException e) {

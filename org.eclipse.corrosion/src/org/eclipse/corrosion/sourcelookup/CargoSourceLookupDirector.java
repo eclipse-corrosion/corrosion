@@ -45,12 +45,12 @@ public class CargoSourceLookupDirector extends CSourceLookupDirector { // TODO t
 		synchronized (fSupportedTypesLock) {
 			if (fSupportedTypes == null) {
 				fSupportedTypes = new HashSet<>();
-				String name = CorrosionPlugin.PLUGIN_ID + ".supportedSourceContainerTypes"; //$NON-NLS-1$ ;
+				String name = CorrosionPlugin.PLUGIN_ID + ".supportedSourceContainerTypes"; //$NON-NLS-1$
 				IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(name);
 				if (extensionPoint != null) {
 					for (IExtension extension : extensionPoint.getExtensions()) {
 						for (IConfigurationElement configurationElements : extension.getConfigurationElements()) {
-							String id = configurationElements.getAttribute("id"); //$NON-NLS-1$ ;
+							String id = configurationElements.getAttribute("id"); //$NON-NLS-1$
 							if (id != null)
 								fSupportedTypes.add(id);
 						}

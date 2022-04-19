@@ -203,8 +203,7 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
-		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
-			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
+		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy wc) {
 			final IProject project = resource.getProject();
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
 			wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, getDefaultExecutablePath(project)); // $NON-NLS-1$

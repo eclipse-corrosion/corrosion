@@ -208,8 +208,7 @@ class ResourceLookupTree implements IResourceChangeListener, IResourceDeltaVisit
 				return SKIP_CHILDREN;
 
 			switch (delta.getKind()) {
-			case IResourceDelta.ADDED: // new projects should not yet be part of the tree
-			case IResourceDelta.REMOVED:
+			case IResourceDelta.ADDED, IResourceDelta.REMOVED: // new projects should not yet be part of the tree
 				fFileExtensions.remove(name);
 				remove(res);
 				return SKIP_CHILDREN;
@@ -294,8 +293,8 @@ class ResourceLookupTree implements IResourceChangeListener, IResourceDeltaVisit
 	private long countNodes() {
 		long result = 0;
 		for (Object node : fNodeMap.values()) {
-			if (node instanceof Node[]) {
-				result += ((Node[]) node).length;
+			if (node instanceof Node[] nodes) {
+				result += nodes.length;
 			} else {
 				result++;
 			}
@@ -466,8 +465,7 @@ class ResourceLookupTree implements IResourceChangeListener, IResourceDeltaVisit
 		Node[] nodes = null;
 		int len = 0;
 		if (obj != null) {
-			if (obj instanceof Node) {
-				Node node = (Node) obj;
+			if (obj instanceof Node node) {
 				if (isNodeForSegments(node, segments, segmentCount, isFileLinkTarget)) {
 					if (!hasFileLocationName)
 						fLastFolderNode = node;
@@ -545,8 +543,7 @@ class ResourceLookupTree implements IResourceChangeListener, IResourceDeltaVisit
 			return;
 
 		final char[][] segments = toCharArrayArray(fullPath.segments(), null);
-		if (obj instanceof Node) {
-			final Node node = (Node) obj;
+		if (obj instanceof Node node) {
 			if (!node.fDeleted && isNodeForSegments(node, segments, segmentCount, false)) {
 				node.fDeleted = true;
 				if (node.fHasChildren)
@@ -601,8 +598,8 @@ class ResourceLookupTree implements IResourceChangeListener, IResourceDeltaVisit
 
 		for (Iterator<Object> iterator = fNodeMap.values().iterator(); iterator.hasNext();) {
 			Object obj = iterator.next();
-			if (obj instanceof Node) {
-				if (isDeleted((Node) obj)) {
+			if (obj instanceof Node node) {
+				if (isDeleted(node)) {
 					iterator.remove();
 				}
 			} else {
@@ -694,8 +691,8 @@ class ResourceLookupTree implements IResourceChangeListener, IResourceDeltaVisit
 	}
 
 	private static Node[] convert(Object obj) {
-		if (obj instanceof Node)
-			return new Node[] { (Node) obj };
+		if (obj instanceof Node node)
+			return new Node[] { node };
 
 		final Node[] nodes = (Node[]) obj;
 		final int len = lastValid(nodes, -1) + 1;

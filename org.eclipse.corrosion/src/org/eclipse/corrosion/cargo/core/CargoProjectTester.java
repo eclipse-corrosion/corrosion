@@ -15,7 +15,7 @@ package org.eclipse.corrosion.cargo.core;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Adapters;
 
 public class CargoProjectTester extends PropertyTester {
 	public static final String PROPERTY_NAME = "isCargoProject"; //$NON-NLS-1$
@@ -23,7 +23,7 @@ public class CargoProjectTester extends PropertyTester {
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		if (property.equals(PROPERTY_NAME)) {
-			IResource resource = toResource(receiver);
+			IResource resource = Adapters.adapt(receiver, IResource.class);
 			if (resource == null) {
 				return false;
 			}
@@ -31,16 +31,6 @@ public class CargoProjectTester extends PropertyTester {
 			return project.getFile("Cargo.toml").exists(); //$NON-NLS-1$
 		}
 		return false;
-	}
-
-	private static IResource toResource(Object o) {
-		if (o instanceof IResource) {
-			return (IResource) o;
-		} else if (o instanceof IAdaptable) {
-			return ((IAdaptable) o).getAdapter(IResource.class);
-		} else {
-			return null;
-		}
 	}
 
 }
