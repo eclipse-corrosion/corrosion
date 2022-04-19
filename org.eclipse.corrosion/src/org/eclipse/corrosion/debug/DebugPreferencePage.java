@@ -65,8 +65,8 @@ public class DebugPreferencePage extends PreferencePage implements IWorkbenchPre
 		gdbLink.setText(Messages.DebugPreferencePage_seeGDBPage);
 		gdbLink.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
 			IPreferencePageContainer prefContainer = getContainer();
-			if (prefContainer instanceof IWorkbenchPreferenceContainer) {
-				((IWorkbenchPreferenceContainer) prefContainer).openPage("org.eclipse.cdt.dsf.gdb.ui.preferences", //$NON-NLS-1$
+			if (prefContainer instanceof IWorkbenchPreferenceContainer workbenchPrefContainer) {
+				workbenchPrefContainer.openPage("org.eclipse.cdt.dsf.gdb.ui.preferences", //$NON-NLS-1$
 						null);
 			}
 		}));

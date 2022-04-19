@@ -33,8 +33,8 @@ public class CargoSourceLookupParticipant extends AbstractSourceLookupParticipan
 
 	@Override
 	public String getSourceName(Object object) throws CoreException {
-		if (object instanceof String) {
-			return (String) object;
+		if (object instanceof String s) {
+			return s;
 		}
 		return null;
 	}

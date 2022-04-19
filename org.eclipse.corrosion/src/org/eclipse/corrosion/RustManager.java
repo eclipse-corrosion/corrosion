@@ -204,9 +204,9 @@ public class RustManager {
 					} catch (PartInitException e) {
 						continue;
 					}
-					if (input.getName().endsWith(".rs") && editor.getEditor(false) instanceof ITextEditor) { //$NON-NLS-1$
-						IDocument document = (((ITextEditor) editor.getEditor(false)).getDocumentProvider())
-								.getDocument(input);
+					// Should use ContentType detection instead
+					if (input.getName().endsWith(".rs") && editor.getEditor(false) instanceof ITextEditor textEditor) { //$NON-NLS-1$
+						IDocument document = textEditor.getDocumentProvider().getDocument(input);
 						Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document,
 								capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider().get()));
 						if (!infos.isEmpty()) {
@@ -331,27 +331,28 @@ public class RustManager {
 			CompletableFuture<File> res = new CompletableFuture<>();
 			IFileID id = FileIDFactory.getDefault().createFileID(retrieve.getRetrieveNamespace(), URI.create(url));
 			IFileTransferListener listener = event -> {
-				if (event instanceof IIncomingFileTransferReceiveStartEvent) {
-					IIncomingFileTransferReceiveStartEvent rse = (IIncomingFileTransferReceiveStartEvent) event;
+				if (event instanceof IIncomingFileTransferReceiveStartEvent rse) {
 					try {
 						rse.receive(archiveFile);
 					} catch (IOException e) {
-						e.printStackTrace();
 						res.completeExceptionally(e);
 					}
-				} else if (event instanceof IIncomingFileTransferReceiveDataEvent) {
-					progressConsumer
-							.accept(((IIncomingFileTransferReceiveDataEvent) event).getSource().getPercentComplete());
+				} else if (event instanceof IIncomingFileTransferReceiveDataEvent receiveEvent) {
+					progressConsumer.accept(receiveEvent.getSource().getPercentComplete());
 				} else if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
 					try {
 						decompressGzip(archiveFile, RUST_ANALYZER_DEFAULT_LOCATION);
 						res.complete(RUST_ANALYZER_DEFAULT_LOCATION);
 					} catch (IOException e) {
-						e.printStackTrace();
 						res.completeExceptionally(e);
 					}
 				}
 			};
+			res.exceptionally(e -> {
+				CorrosionPlugin.logError("Could not download " + url); //$NON-NLS-1$
+				CorrosionPlugin.logError(e);
+				return null;
+			});
 			retrieve.sendRetrieveRequest(id, listener, Map.of());
 			return res;
 		} catch (Exception e) {

@@ -27,11 +27,11 @@ public class RLSClientImplementation extends LanguageClientImpl {
 	@JsonNotification("window/progress")
 	public void progress(ProgressParams progress) {
 		String id = progress.getId();
-		if (!progressJobs.containsKey(id)) {
+		progressJobs.computeIfAbsent(id, theId -> {
 			ProgressIndicatorJob job = new ProgressIndicatorJob(progress.getTitle());
 			job.schedule();
-			progressJobs.put(id, job);
-		}
+			return job;
+		});
 		progressJobs.get(id).update(progress);
 		if (progress.isDone()) {
 			progressJobs.remove(id);

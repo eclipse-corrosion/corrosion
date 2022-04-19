@@ -78,8 +78,7 @@ public class OpenEditorAtLineAction extends Action {
 	// org.eclipse.linuxtools.valgrind.ui/src/org/eclipse/linuxtools/internal/valgrind/ui/CoreMessagesViewer.java
 	private static void lookupSource(String file, int lineNumber, ILaunch launch) {
 		ISourceLocator locator = launch.getSourceLocator();
-		if (locator instanceof AbstractSourceLookupDirector) {
-			AbstractSourceLookupDirector director = (AbstractSourceLookupDirector) locator;
+		if (locator instanceof AbstractSourceLookupDirector director) {
 			ISourceLookupParticipant[] participants = director.getParticipants();
 			if (participants.length == 0) {
 				// source locator likely disposed, try recreating it
@@ -128,8 +127,8 @@ public class OpenEditorAtLineAction extends Action {
 			Object sourceElement = result.getSourceElement();
 			if (sourceElement != null) {
 				// Resolve IResource in case we get a LocalFileStorage object
-				if (sourceElement instanceof LocalFileStorage) {
-					IPath filePath = ((LocalFileStorage) sourceElement).getFullPath();
+				if (sourceElement instanceof LocalFileStorage source) {
+					IPath filePath = source.getFullPath();
 					URI fileURI = URIUtil.toURI(filePath);
 					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 					IFile[] files = root.findFilesForLocationURI(fileURI);
@@ -138,8 +137,8 @@ public class OpenEditorAtLineAction extends Action {
 						sourceElement = files[0];
 						input = new FileEditorInput((IFile) sourceElement);
 					}
-				} else if (sourceElement instanceof IFile) {
-					input = new FileEditorInput((IFile) sourceElement);
+				} else if (sourceElement instanceof IFile file) {
+					input = new FileEditorInput(file);
 				}
 			}
 		}
@@ -154,9 +153,7 @@ public class OpenEditorAtLineAction extends Action {
 
 			IEditorPart editor = IDE.openEditor(activePage, input, editorID);
 			// Select the line
-			if (editor instanceof ITextEditor) {
-				ITextEditor textEditor = (ITextEditor) editor;
-
+			if (editor instanceof ITextEditor textEditor) {
 				if (lineNumber > 0) {
 					IDocumentProvider provider = textEditor.getDocumentProvider();
 					IDocument document = provider.getDocument(textEditor.getEditorInput());

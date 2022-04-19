@@ -199,7 +199,7 @@ public class LaunchHandler extends LSPCommandHandler {
 	private static String createLaunchConfigName(ILaunchManager manager, String projectName, String command,
 			String optionsString, String argumentsString) {
 		String nameSuffix = Stream.of(command, optionsString, "--", argumentsString).filter(NOT_EMPTY) //$NON-NLS-1$
-				.collect(Collectors.joining(" ", " [", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ ;
+				.collect(Collectors.joining(" ", " [", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String nameWithSuffix = projectName + nameSuffix;
 		return manager.generateLaunchConfigurationName(nameWithSuffix);
 	}

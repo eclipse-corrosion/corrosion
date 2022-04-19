@@ -14,8 +14,6 @@ package org.eclipse.corrosion.ui.launch;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.util.stream.Collectors;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -105,7 +103,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 		optionButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			OptionSelector dialog = new OptionSelector(optionButton.getShell(),
 					CargoTools.getOptions(getCargoSubcommand()).stream()
-							.filter(o -> !o.getFlag().equals("--manifest-path")).collect(Collectors.toList())); //$NON-NLS-1$
+							.filter(o -> !o.getFlag().equals("--manifest-path")).toList()); //$NON-NLS-1$
 			dialog.open();
 			String result = dialog.returnOptionSelection();
 			if (result != null) {

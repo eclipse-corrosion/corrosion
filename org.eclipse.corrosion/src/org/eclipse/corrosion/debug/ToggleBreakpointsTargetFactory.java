@@ -39,10 +39,12 @@ public class ToggleBreakpointsTargetFactory implements IToggleBreakpointsTargetF
 	}
 
 	private static boolean isRustPart(IWorkbenchPart part) {
-		if (part instanceof ITextEditor) {
-			IEditorInput editorInput = ((ITextEditor) part).getEditorInput();
-			return editorInput instanceof FileEditorInput
-					&& "rs".equals(((FileEditorInput) editorInput).getPath().getFileExtension()); //$NON-NLS-1$
+		if (part instanceof ITextEditor editor) {
+			IEditorInput editorInput = editor.getEditorInput();
+			if (editorInput instanceof FileEditorInput input) {
+				// should probably use ContentType detection
+				return "rs".equals(input.getPath().getFileExtension()); //$NON-NLS-1$
+			}
 		}
 		return false;
 	}

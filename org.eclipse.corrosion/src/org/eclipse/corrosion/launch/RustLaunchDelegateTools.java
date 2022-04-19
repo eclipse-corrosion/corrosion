@@ -18,8 +18,8 @@ import java.util.Iterator;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -55,14 +55,12 @@ public class RustLaunchDelegateTools {
 	 * @return First element in the selection or null if nothing is selected
 	 */
 	public static IResource firstResourceFromSelection(ISelection selection) {
-		if (selection instanceof IStructuredSelection) {
-			Iterator<?> selectionIterator = ((IStructuredSelection) selection).iterator();
+		if (selection instanceof IStructuredSelection structuredSelection) {
+			Iterator<?> selectionIterator = structuredSelection.iterator();
 			while (selectionIterator.hasNext()) {
-				Object element = selectionIterator.next();
-				if (element instanceof IResource) {
-					return (IResource) element;
-				} else if (element instanceof IAdaptable) {
-					return ((IAdaptable) element).getAdapter(IResource.class);
+				IResource adapted = Adapters.adapt(selectionIterator.next(), IResource.class);
+				if (adapted != null) {
+					return adapted;
 				}
 			}
 		}

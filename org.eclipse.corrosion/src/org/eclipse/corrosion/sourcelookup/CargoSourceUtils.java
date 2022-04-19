@@ -68,9 +68,7 @@ public class CargoSourceUtils {
 			document.appendChild(element);
 			saveSourceLocations(document, element, locations);
 			return serializeDocument(document, true);
-		} catch (ParserConfigurationException e) {
-			ex = e;
-		} catch (TransformerException e) {
+		} catch (ParserConfigurationException | TransformerException e) {
 			ex = e;
 		}
 		CorrosionPlugin.logError(
@@ -164,9 +162,8 @@ public class CargoSourceUtils {
 	public static ISourceContainer[] convertSourceLocations(ICargoSourceLocation[] locations) {
 		ArrayList<ISourceContainer> containers = new ArrayList<>(locations.length);
 		for (ICargoSourceLocation location : locations) {
-			if (location instanceof IProjectSourceLocation) {
-				containers
-						.add(new CargoProjectSourceContainer(((IProjectSourceLocation) location).getProject(), false));
+			if (location instanceof IProjectSourceLocation sourceLocation) {
+				containers.add(new CargoProjectSourceContainer(sourceLocation.getProject(), false));
 			}
 		}
 		return containers.toArray(new ISourceContainer[containers.size()]);

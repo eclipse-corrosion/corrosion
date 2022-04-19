@@ -145,8 +145,7 @@ public class ErrorLineMatcher implements IPatternMatchListenerDelegate {
 	}
 
 	private static void jumpToPosition(IEditorPart editorPart, int lineNumber, int lineOffset) {
-		if (editorPart instanceof ITextEditor) {
-			ITextEditor textEditor = (ITextEditor) editorPart;
+		if (editorPart instanceof ITextEditor textEditor) {
 			IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
 
 			if (document != null) {

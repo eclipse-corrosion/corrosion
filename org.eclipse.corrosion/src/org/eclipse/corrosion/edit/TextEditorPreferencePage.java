@@ -40,14 +40,12 @@ public class TextEditorPreferencePage extends PreferencePage implements IWorkben
 		container.setLayout(new GridLayout(1, false));
 
 		Link textEditorsLink = new Link(container, SWT.NONE);
-		textEditorsLink.setText(
-				Messages.TextEditorPreferencePage_linkTextEditorsPref);
+		textEditorsLink.setText(Messages.TextEditorPreferencePage_linkTextEditorsPref);
 		textEditorsLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
-					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.ui.preferencePages.GeneralTextEditor", null); //$NON-NLS-1$
+				if (getContainer() instanceof IWorkbenchPreferenceContainer workbenchPreferenceContainer) {
+					workbenchPreferenceContainer.openPage("org.eclipse.ui.preferencePages.GeneralTextEditor", null); //$NON-NLS-1$
 				}
 			}
 		});
@@ -57,9 +55,8 @@ public class TextEditorPreferencePage extends PreferencePage implements IWorkben
 		textMateLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
-					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.tm4e.ui.preferences.ThemePreferencePage", null); //$NON-NLS-1$
+				if (getContainer() instanceof IWorkbenchPreferenceContainer workbenchPreferenceContainer) {
+					workbenchPreferenceContainer.openPage("org.eclipse.tm4e.ui.preferences.ThemePreferencePage", null); //$NON-NLS-1$
 				}
 			}
 		});
@@ -69,9 +66,8 @@ public class TextEditorPreferencePage extends PreferencePage implements IWorkben
 		fontsLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (getContainer() instanceof IWorkbenchPreferenceContainer) {
-					((IWorkbenchPreferenceContainer) getContainer())
-					.openPage("org.eclipse.ui.preferencePages.ColorsAndFonts", null); //$NON-NLS-1$
+				if (getContainer() instanceof IWorkbenchPreferenceContainer workbenchPreferenceContainer) {
+					workbenchPreferenceContainer.openPage("org.eclipse.ui.preferencePages.ColorsAndFonts", null); //$NON-NLS-1$
 				}
 			}
 		});

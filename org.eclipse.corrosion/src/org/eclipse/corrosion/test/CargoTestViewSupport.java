@@ -9,11 +9,9 @@
  ********************************************************************/
 package org.eclipse.corrosion.test;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.text.StringMatcher;
@@ -100,8 +98,7 @@ public class CargoTestViewSupport implements ITestViewSupport {
 		try {
 			res = origin.copy(origin.getName() + "\uD83D\uDD03"); //$NON-NLS-1$
 
-			ArrayList<String> list = (ArrayList<String>) testElements.stream().map(CargoTestViewSupport::packTestPaths)
-					.collect(Collectors.toList());
+			List<String> list = testElements.stream().map(CargoTestViewSupport::packTestPaths).toList();
 
 			String testName = ""; //$NON-NLS-1$
 			StringBuilder attributes = new StringBuilder();

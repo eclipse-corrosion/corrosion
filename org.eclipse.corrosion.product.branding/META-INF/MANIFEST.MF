@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.corrosion.product.branding;singleton:=true
 Bundle-Version: 1.2.4.qualifier
 Bundle-Vendor: Eclipse Corrosion
-Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.platform,
  org.eclipse.equinox.app,
  org.eclipse.ui.workbench
