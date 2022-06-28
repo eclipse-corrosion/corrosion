@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2021 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -265,10 +265,10 @@ public class NewCargoProjectWizard extends Wizard implements INewWizard {
 	}
 
 	private static IResource toResource(Object o) {
-		if (o instanceof IResource) {
-			return (IResource) o;
-		} else if (o instanceof IAdaptable) {
-			return ((IAdaptable) o).getAdapter(IResource.class);
+		if (o instanceof IResource resource) {
+			return resource;
+		} else if (o instanceof IAdaptable adaptable) {
+			return adaptable.getAdapter(IResource.class);
 		} else {
 			return null;
 		}

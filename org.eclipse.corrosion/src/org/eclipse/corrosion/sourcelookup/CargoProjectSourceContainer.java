@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2020, 2021 Red Hat Inc. and others.
+ * Copyright (c) 2020, 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -167,8 +167,7 @@ public class CargoProjectSourceContainer extends CompositeSourceContainer {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof CargoProjectSourceContainer) {
-			CargoProjectSourceContainer loc = (CargoProjectSourceContainer) obj;
+		if (obj instanceof CargoProjectSourceContainer loc) {
 			return fProject == null ? loc.fProject == null : fProject.equals(loc.fProject);
 		}
 		return false;
