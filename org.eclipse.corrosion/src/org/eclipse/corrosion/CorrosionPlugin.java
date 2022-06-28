@@ -116,11 +116,11 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	 * @param status status to log
 	 */
 	public static void logError(String message) {
-		getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, INTERNAL_ERROR, message, null));
+		getDefault().getLog().log(Status.error(message));
 	}
 
 	public static void logError(Throwable t) {
-		logError(new Status(IStatus.ERROR, PLUGIN_ID, t.getMessage(), t));
+		logError(Status.error(t.getMessage(), t));
 	}
 
 	public static void logError(IStatus s) {

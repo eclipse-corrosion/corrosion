@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -63,7 +63,8 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 		this.filename = resource != null ? resource.getName() : info.getFileUri().toString();
 	}
 
-	@Override public IStatus run(IProgressMonitor monitor) {
+	@Override
+	public IStatus run(IProgressMonitor monitor) {
 		startTime = System.currentTimeMillis();
 		// Cancel last references future if needed.
 		if (references != null) {
@@ -78,24 +79,25 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 			params.setContext(new ReferenceContext(true));
 			params.setTextDocument(new TextDocumentIdentifier(info.getFileUri().toString()));
 			params.setPosition(position);
-			info.getInitializedLanguageClient().thenCompose(languageServer -> ((RLSServerInterface) languageServer).implementations(params)).thenAccept(locs -> {
-				// Loop for each LSP Location and convert it to Match search.
-				for (Location loc : locs) {
-					Match match = toMatch(loc);
-					result.addMatch(match);
-				}
-			});
+			info.getInitializedLanguageClient()
+					.thenCompose(languageServer -> ((RLSServerInterface) languageServer).implementations(params))
+					.thenAccept(locs -> {
+						// Loop for each LSP Location and convert it to Match search.
+						for (Location loc : locs) {
+							Match match = toMatch(loc);
+							result.addMatch(match);
+						}
+					});
 			return Status.OK_STATUS;
 		} catch (Exception ex) {
-			return new Status(IStatus.ERROR, LanguageServerPlugin.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex);
+			return Status.error(ex.getMessage(), ex);
 		}
 	}
 
 	/**
 	 * Convert the given LSP {@link Location} to Eclipse search {@link Match}.
 	 *
-	 * @param location
-	 *            the LSP location to convert.
+	 * @param location the LSP location to convert.
 	 * @return the converted Eclipse search {@link Match}.
 	 */
 	private static Match toMatch(Location location) {
@@ -107,12 +109,15 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 				int endOffset = LSPEclipseUtils.toOffset(location.getRange().getEnd(), document);
 
 				IRegion lineInformation = document.getLineInformationOfOffset(startOffset);
-				LineElement lineEntry = new LineElement(resource, document.getLineOfOffset(startOffset), lineInformation.getOffset(), document.get(lineInformation.getOffset(), lineInformation.getLength()));
+				LineElement lineEntry = new LineElement(resource, document.getLineOfOffset(startOffset),
+						lineInformation.getOffset(),
+						document.get(lineInformation.getOffset(), lineInformation.getLength()));
 				return new FileMatch((IFile) resource, startOffset, endOffset - startOffset, lineEntry);
 
 			}
 			Position startPosition = location.getRange().getStart();
-			LineElement lineEntry = new LineElement(resource, startPosition.getLine(), 0, String.format("%s:%s", startPosition.getLine(), startPosition.getCharacter())); //$NON-NLS-1$
+			LineElement lineEntry = new LineElement(resource, startPosition.getLine(), 0,
+					String.format("%s:%s", startPosition.getLine(), startPosition.getCharacter())); //$NON-NLS-1$
 			return new FileMatch((IFile) resource, 0, 0, lineEntry);
 		} catch (BadLocationException ex) {
 			LanguageServerPlugin.logError(ex);
@@ -120,29 +125,35 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 		return null;
 	}
 
-	@Override public ISearchResult getSearchResult() {
+	@Override
+	public ISearchResult getSearchResult() {
 		if (result == null) {
 			result = new FileSearchResult(this);
 		}
 		return result;
 	}
 
-	@Override public String getLabel() {
+	@Override
+	public String getLabel() {
 		return Messages.ImplementationsSearchQuery_implementations;
 	}
 
-	@Override public String getResultLabel(int nMatches) {
+	@Override
+	public String getResultLabel(int nMatches) {
 		long time = 0;
 		if (startTime > 0) {
 			time = System.currentTimeMillis() - startTime;
 		}
 		if (nMatches == 1) {
-			return NLS.bind(Messages.ImplementationsSearchQuery_oneReference, new Object[] { filename, position.getLine() + 1, position.getCharacter() + 1, time });
+			return NLS.bind(Messages.ImplementationsSearchQuery_oneReference,
+					new Object[] { filename, position.getLine() + 1, position.getCharacter() + 1, time });
 		}
-		return NLS.bind(Messages.ImplementationsSearchQuery_severalReferences, new Object[] { filename, position.getLine() + 1, position.getCharacter() + 1, nMatches, time });
+		return NLS.bind(Messages.ImplementationsSearchQuery_severalReferences,
+				new Object[] { filename, position.getLine() + 1, position.getCharacter() + 1, nMatches, time });
 	}
 
-	@Override public boolean isFileNameSearch() {
+	@Override
+	public boolean isFileNameSearch() {
 		// Return false to display lines where references are found
 		return false;
 	}
