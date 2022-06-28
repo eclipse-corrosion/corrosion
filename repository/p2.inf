@@ -10,8 +10,8 @@ requires.2.greedy=true
 
 # Add p2 repo to installation for upgrades
 instructions.configure=\
-org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,location:http${#58}//download.eclipse.org/corrosion/releases/latest,name:Eclipse Corrosion Latest Release,enabled:true);\
-org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,location:http${#58}//download.eclipse.org/corrosion/releases/latest,name:Eclipse Corrosion Latest Release,enabled:true);
+org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,location:https${#58}//download.eclipse.org/corrosion/releases/latest,name:Eclipse Corrosion Latest Release,enabled:true);\
+org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,location:https${#58}//download.eclipse.org/corrosion/releases/latest,name:Eclipse Corrosion Latest Release,enabled:true);
 
 # Allow upgrading from Rust EPP to this product
 update.matchExp= providedCapabilities.exists(pc | \
