@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2019, 2021 Fraunhofer FOKUS and others.
+ * Copyright (c) 2019, 2022 Fraunhofer FOKUS and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -32,7 +32,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.corrosion.CorrosionPlugin;
@@ -77,7 +76,7 @@ public class LaunchHandler extends LSPCommandHandler {
 			// RLS sent unknown command format, we cannot give advice to user, just log
 			// the error
 			String msg = NLS.bind(Messages.LaunchHandler_unableToLaunchCommand, command);
-			CorrosionPlugin.logError(new Status(IStatus.ERROR, CorrosionPlugin.PLUGIN_ID, msg));
+			CorrosionPlugin.logError(Status.error(msg));
 		}
 
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getFile(context).getProject();
@@ -90,7 +89,7 @@ public class LaunchHandler extends LSPCommandHandler {
 				// If command is not present, we have RLS command we don't know how to execute.
 				// We cannot give user advice on what to do, just log the error
 				String msg = NLS.bind(Messages.LaunchHandler_unableToLaunchCommand, command);
-				CorrosionPlugin.logError(new Status(IStatus.ERROR, CorrosionPlugin.PLUGIN_ID, msg));
+				CorrosionPlugin.logError(Status.error(msg));
 			}
 
 			return null;

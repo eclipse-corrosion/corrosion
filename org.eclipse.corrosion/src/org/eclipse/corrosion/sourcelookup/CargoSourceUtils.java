@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2020, 2021 Red Hat Inc. and others.
+ * Copyright (c) 2020, 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -36,7 +36,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.corrosion.CorrosionPlugin;
@@ -60,19 +59,15 @@ public class CargoSourceUtils {
 	private static final String ATTR_MEMENTO = "memento"; //$NON-NLS-1$
 
 	public static String getCommonSourceLocationsMemento(ICargoSourceLocation[] locations) {
-		Document document = null;
-		Throwable ex = null;
 		try {
-			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			Element element = document.createElement(NAME_COMMON_SOURCE_LOCATIONS);
 			document.appendChild(element);
 			saveSourceLocations(document, element, locations);
 			return serializeDocument(document, true);
 		} catch (ParserConfigurationException | TransformerException e) {
-			ex = e;
+			CorrosionPlugin.logError(Status.error("Error saving common source settings.", e)); //$NON-NLS-1$
 		}
-		CorrosionPlugin.logError(
-				new Status(IStatus.ERROR, CorrosionPlugin.PLUGIN_ID, 0, "Error saving common source settings.", ex)); //$NON-NLS-1$
 		return null;
 	}
 
@@ -100,15 +95,8 @@ public class CargoSourceUtils {
 				Element root = parser.parse(source).getDocumentElement();
 				if (root.getNodeName().equalsIgnoreCase(NAME_COMMON_SOURCE_LOCATIONS))
 					result = initializeSourceLocations(root);
-			} catch (ParserConfigurationException e) {
-				CorrosionPlugin.logError(new Status(IStatus.ERROR, CorrosionPlugin.PLUGIN_ID, 0,
-						"Error initializing common source settings.", e)); //$NON-NLS-1$
-			} catch (SAXException e) {
-				CorrosionPlugin.logError(new Status(IStatus.ERROR, CorrosionPlugin.PLUGIN_ID, 0,
-						"Error initializing common source settings.", e)); //$NON-NLS-1$
-			} catch (IOException e) {
-				CorrosionPlugin.logError(new Status(IStatus.ERROR, CorrosionPlugin.PLUGIN_ID, 0,
-						"Error initializing common source settings.", e)); //$NON-NLS-1$
+			} catch (ParserConfigurationException | SAXException | IOException e) {
+				CorrosionPlugin.logError(Status.error("Error initializing common source settings.", e)); //$NON-NLS-1$
 			}
 		}
 		return result;

@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2021 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -278,9 +278,7 @@ public class RustManager {
 				return true;
 			}
 		}
-		CorrosionPlugin.getDefault().getLog()
-				.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-						Messages.RLSStreamConnectionProvider_unableToSet));
+		CorrosionPlugin.getDefault().getLog().log(Status.error(Messages.RLSStreamConnectionProvider_unableToSet));
 		return false;
 	}
 
@@ -291,8 +289,7 @@ public class RustManager {
 				.getString(CorrosionPreferenceInitializer.RLS_CONFIGURATION_PATH_PREFERENCE);
 		if (preferencePath.isEmpty()) {
 			CorrosionPlugin.getDefault().getLog()
-					.log(new Status(IStatus.WARNING, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-							Messages.RLSStreamConnectionProvider_rlsConfigurationNotSet));
+					.log(Status.warning(Messages.RLSStreamConnectionProvider_rlsConfigurationNotSet));
 			return null;
 		}
 		return new File(preferencePath);
@@ -303,9 +300,7 @@ public class RustManager {
 		IPreferenceStore preferenceStore = plugin.getPreferenceStore();
 		String rlsPath = preferenceStore.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
 		if (rlsPath.isEmpty()) {
-			CorrosionPlugin.getDefault().getLog()
-					.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-							Messages.RLSStreamConnectionProvider_rlsNotFound));
+			CorrosionPlugin.getDefault().getLog().log(Status.error(Messages.RLSStreamConnectionProvider_rlsNotFound));
 			return null;
 		}
 		return new File(rlsPath);

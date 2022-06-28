@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2018 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferencePage;
@@ -108,15 +107,11 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 			try (JsonReader reader = new JsonReader(new FileReader(settingsFile))) {
 				return gson.fromJson(reader, HashMap.class);
 			} catch (FileNotFoundException e) {
-				CorrosionPlugin.getDefault().getLog()
-						.log(new Status(IStatus.INFO, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-								MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound,
-										settingsFile)));
+				CorrosionPlugin.getDefault().getLog().log(Status.info(MessageFormat
+						.format(Messages.RLSStreamConnectionProvider_rlsConfigurationNotFound, settingsFile)));
 			} catch (Throwable e) {
-				CorrosionPlugin.getDefault().getLog()
-						.log(new Status(IStatus.ERROR, CorrosionPlugin.getDefault().getBundle().getSymbolicName(),
-								MessageFormat.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError,
-										settingsFile, e)));
+				CorrosionPlugin.getDefault().getLog().log(Status.error(MessageFormat
+						.format(Messages.RLSStreamConnectionProvider_rlsConfigurationError, settingsFile, e)));
 			}
 		}
 		return getDefaultInitializationOptions();
