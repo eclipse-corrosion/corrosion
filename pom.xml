@@ -9,7 +9,7 @@
 		<maven>3.6.3</maven>
 	</prerequisites>
 	<properties>
-		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
+		<tycho-version>3.1.0-SNAPSHOT</tycho-version>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -113,7 +113,7 @@
 				</configuration>
 				<dependencies>
 					<dependency>
-						<groupId>org.eclipse.tycho.extras</groupId>
+						<groupId>org.eclipse.tycho</groupId>
 						<artifactId>tycho-buildtimestamp-jgit</artifactId>
 						<version>${tycho-version}</version>
 					</dependency>
@@ -240,12 +240,7 @@
 		<pluginRepository>
 			<id>tycho-snapshots</id>
 			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<snapshots><enabled>true</enabled></snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 

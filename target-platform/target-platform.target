@@ -24,10 +24,10 @@
 <unit id="org.eclipse.ui.genericeditor" version="0.0.0"/>
 <unit id="org.eclipse.pde.junit.runtime" version="0.0.0"/>
 <unit id="org.eclipse.jdt.junit5.runtime" version="0.0.0"/>
-<unit id="org.junit.jupiter.api" version="0.0.0"/>
-<unit id="org.junit.jupiter.params" version="0.0.0"/>
+<unit id="junit-jupiter-api" version="0.0.0"/>
+<unit id="junit-jupiter-params" version="0.0.0"/>
 <unit id="org.opentest4j" version="0.0.0"/>
-<unit id="org.apache.commons.io" version="0.0.0"/>
+<unit id="org.apache.commons.commons-io" version="0.0.0"/>
 <unit id="com.google.gson" version="0.0.0"/>
 <unit id="org.eclipse.tm4e.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.epp.package.common.feature.feature.group" version="0.0.0"/>

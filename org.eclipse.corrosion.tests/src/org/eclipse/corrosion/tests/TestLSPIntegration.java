@@ -14,9 +14,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 
 import org.eclipse.core.resources.IFile;
@@ -29,7 +28,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
 class TestLSPIntegration extends AbstractCorrosionTest {
@@ -49,7 +47,7 @@ class TestLSPIntegration extends AbstractCorrosionTest {
 		IFile file = project.getFolder("src").getFile("main.rs");
 		editor = IDE.openEditor(activePage, file);
 		Display display = editor.getEditorSite().getShell().getDisplay();
-		assertTrue(DisplayHelper.waitForCondition(display, 60000, () -> {
+		waitUntil(display, Duration.ofMinutes(1), () -> {
 			try {
 				return Arrays.stream(file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)).anyMatch(marker -> {
 					try {
@@ -61,6 +59,6 @@ class TestLSPIntegration extends AbstractCorrosionTest {
 			} catch (Exception e) {
 				return false;
 			}
-		}), "No LSP4E error marker found at line 3.");
+		});
 	}
 }
