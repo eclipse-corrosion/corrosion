@@ -14,12 +14,12 @@ package org.eclipse.corrosion.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -37,7 +37,6 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,13 +55,9 @@ class TestRunConfiguration extends AbstractCorrosionTest {
 		CargoRunDelegate delegate = new CargoRunDelegate();
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		delegate.launch(new StructuredSelection(project), "run");
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0
-						|| getErrorPopup() != null;
-			}
-		}.waitForCondition(Display.getCurrent(), 15000);
+		waitUntil(Display.getCurrent(), Duration.ofSeconds(15),
+				() -> DebugPlugin.getDefault().getLaunchManager().getProcesses().length != 0
+						|| getErrorPopup() != null);
 		assertNull(getErrorPopup());
 		assertNotEquals(0, DebugPlugin.getDefault().getLaunchManager().getProcesses().length);
 		for (IProcess process : DebugPlugin.getDefault().getLaunchManager().getProcesses()) {
@@ -105,13 +100,7 @@ class TestRunConfiguration extends AbstractCorrosionTest {
 		ILaunchConfigurationWorkingCopy launchConfiguration = createLaunchConfiguration(project);
 		launchConfiguration.setAttribute("BUILD_COMMAND", "-- ${workspace_loc}");
 		ILaunch launch = launchConfiguration.launch(ILaunchManager.RUN_MODE, new NullProgressMonitor());
-
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return launch.getProcesses().length != 0;
-			}
-		}.waitForCondition(Display.getDefault(), 15000);
+		waitUntil(Display.getDefault(), Duration.ofSeconds(15), () -> launch.getProcesses().length != 0);
 
 		for (IProcess process : launch.getProcesses()) {
 			if (process.getLabel().equals("cargo run")) {
@@ -140,14 +129,7 @@ class TestRunConfiguration extends AbstractCorrosionTest {
 
 	private static void confirmErrorPopup(ILaunchConfiguration configuration) throws CoreException {
 		configuration.launch(ILaunchManager.RUN_MODE, new NullProgressMonitor());
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return getErrorPopup() != null;
-			}
-		}.waitForCondition(Display.getDefault(), 15000);
-
-		assertNotNull(getErrorPopup());
+		waitUntil(Display.getDefault(), Duration.ofSeconds(15), () -> getErrorPopup() != null);
 	}
 
 	private static Shell getErrorPopup() {

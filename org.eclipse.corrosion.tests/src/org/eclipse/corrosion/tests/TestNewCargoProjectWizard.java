@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,7 +41,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
 class TestNewCargoProjectWizard extends AbstractCorrosionTest {
@@ -86,13 +86,8 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		assertTrue(wizard.canFinish());
 		assertTrue(wizard.performFinish());
 		dialog.close();
-		new DisplayHelper() {
-
-			@Override
-			protected boolean condition() {
-				return ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0;
-			}
-		}.waitForCondition(getShell().getDisplay(), 15000);
+		waitUntil(getShell().getDisplay(), Duration.ofSeconds(15),
+				() -> ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0);
 		Set<IProject> newProjects = new HashSet<>(
 				Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));
 		newProjects.removeAll(initialProjects);
@@ -119,13 +114,8 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		assertTrue(wizard.canFinish());
 		assertTrue(wizard.performFinish());
 		dialog.close();
-		new DisplayHelper() {
-
-			@Override
-			protected boolean condition() {
-				return ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0;
-			}
-		}.waitForCondition(getShell().getDisplay(), 15000);
+		waitUntil(getShell().getDisplay(), Duration.ofSeconds(15),
+				() -> ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0);
 		try {
 			Set<IProject> newProjects = new HashSet<>(
 					Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects()));

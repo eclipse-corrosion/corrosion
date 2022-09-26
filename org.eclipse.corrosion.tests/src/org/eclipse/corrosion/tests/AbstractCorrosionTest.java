@@ -19,12 +19,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BooleanSupplier;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IProject;
@@ -39,10 +42,12 @@ import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.corrosion.RustManager;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * Takes care of creating a temporary project and resource before test and to
@@ -150,5 +155,35 @@ public abstract class AbstractCorrosionTest {
 
 		return (rustAnalyzerExecutable.exists() && rustAnalyzerExecutable.isFile()
 				&& rustAnalyzerExecutable.canExecute() ? rustAnalyzerExecutable : null);
+	}
+
+	protected static void waitUntil(Display display, Duration duration, BooleanSupplier condition)
+			throws AssertionFailedError {
+		Instant timeout = Instant.now().plus(duration);
+		Duration interval = Duration.ofMillis(200);
+		do {
+			boolean[] conditionMet = new boolean[] { false };
+			if (Display.getCurrent() != display) {
+				display.syncExec(() -> conditionMet[0] = condition.getAsBoolean());
+			} else {
+				conditionMet[0] = condition.getAsBoolean();
+			}
+			if (conditionMet[0]) {
+				return;
+			}
+			if (Display.getCurrent() != display) {
+				try {
+					Thread.sleep(interval.toMillis());
+				} catch (InterruptedException e) {
+					//
+				}
+			} else {
+				Instant endOfInterval = Instant.now().plus(interval);
+				do {
+					display.readAndDispatch();
+				} while (Instant.now().isBefore(endOfInterval));
+			}
+		} while (Instant.now().isBefore(timeout));
+		throw new AssertionFailedError("Timeout");
 	}
 }

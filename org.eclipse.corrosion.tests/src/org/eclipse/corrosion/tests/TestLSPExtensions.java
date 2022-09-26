@@ -15,16 +15,17 @@ package org.eclipse.corrosion.tests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.time.Duration;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.corrosion.edit.RLSClientImplementation;
 import org.eclipse.corrosion.extensions.ProgressParams;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
-class TestLSPExtensions {
+class TestLSPExtensions extends AbstractCorrosionTest {
 
 	private static final String PROGRESS_ID_1 = "progress_1";
 	private static final String PROGRESS_ID_2 = "progress_2";
@@ -65,21 +66,13 @@ class TestLSPExtensions {
 	}
 
 	private static void waitUntilJobIsStarted(IJobManager jobManager, String jobType) {
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return getRustDiagnosticsJob(jobManager, jobType) != null;
-			}
-		}.waitForCondition(Display.getCurrent(), 5000);
+		waitUntil(Display.getCurrent(), Duration.ofSeconds(5),
+				() -> getRustDiagnosticsJob(jobManager, jobType) != null);
 	}
 
 	private static void waitUntilJobIsDone(IJobManager jobManager, String jobType) {
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return getRustDiagnosticsJob(jobManager, jobType) == null;
-			}
-		}.waitForCondition(Display.getCurrent(), 5000);
+		waitUntil(Display.getCurrent(), Duration.ofSeconds(5),
+				() -> getRustDiagnosticsJob(jobManager, jobType) == null);
 	}
 
 	private static Job getRustDiagnosticsJob(IJobManager jobManager, String jobType) {

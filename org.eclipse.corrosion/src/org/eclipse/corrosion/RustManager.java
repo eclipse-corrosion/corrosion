@@ -310,12 +310,17 @@ public class RustManager {
 		if (!RUST_ANALYZER_DEFAULT_LOCATION.getParentFile().exists()) {
 			RUST_ANALYZER_DEFAULT_LOCATION.getParentFile().mkdirs();
 		}
-		String filename = "rust-analyzer-" + //$NON-NLS-1$
-				(Platform.ARCH_AARCH64.equals(Platform.getOSArch()) ? "aarch64-" : //$NON-NLS-1$
-						Platform.ARCH_X86_64.equals(Platform.getOSArch()) ? "x86_64-" : "arch-not-found") //$NON-NLS-1$ //$NON-NLS-2$
-				+ (Platform.OS_LINUX.equals(Platform.getOS()) ? "unknown-linux-gnu.gz" : //$NON-NLS-1$
-						Platform.OS_WIN32.equals(Platform.getOS()) ? "pc-windows-msvc.gz" : //$NON-NLS-1$
-								Platform.OS_MACOSX.equals(Platform.getOS()) ? "apple-darwin.gz" : "os-not-found"); //$NON-NLS-1$ //$NON-NLS-2$
+		String filename = "rust-analyzer-" //$NON-NLS-1$
+				+ switch (Platform.getOSArch()) {
+				case Platform.ARCH_AARCH64 -> "aarch64-"; //$NON-NLS-1$
+				case Platform.ARCH_X86_64 -> "x86_64-"; //$NON-NLS-1$
+				default -> "arch-not-found"; //$NON-NLS-1$
+				} + switch (Platform.getOS()) {
+				case Platform.OS_LINUX -> "unknown-linux-gnu.gz"; //$NON-NLS-1$
+				case Platform.OS_WIN32 -> "pc-windows-msvc.gz"; //$NON-NLS-1$
+				case Platform.OS_MACOSX -> "apple-darwin.gz"; //$NON-NLS-1$
+				default -> "os-not-found"; //$NON-NLS-1$
+				};
 		String url = RUST_ANALIZER_BASE_URL + filename;
 
 		IRetrieveFileTransfer retrieve = CorrosionPlugin.getDefault().getFileTransferService();
@@ -334,12 +339,16 @@ public class RustManager {
 					}
 				} else if (event instanceof IIncomingFileTransferReceiveDataEvent receiveEvent) {
 					progressConsumer.accept(receiveEvent.getSource().getPercentComplete());
-				} else if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
-					try {
-						decompressGzip(archiveFile, RUST_ANALYZER_DEFAULT_LOCATION);
-						res.complete(RUST_ANALYZER_DEFAULT_LOCATION);
-					} catch (IOException e) {
-						res.completeExceptionally(e);
+				} else if (event instanceof IIncomingFileTransferReceiveDoneEvent doneEvent) {
+					if (doneEvent.getException() == null) {
+						try {
+							decompressGzip(archiveFile, RUST_ANALYZER_DEFAULT_LOCATION);
+							res.complete(RUST_ANALYZER_DEFAULT_LOCATION);
+						} catch (IOException e) {
+							res.completeExceptionally(e);
+						}
+					} else {
+						res.completeExceptionally(doneEvent.getException());
 					}
 				}
 			};

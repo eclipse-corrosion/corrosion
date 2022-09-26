@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +43,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -97,14 +97,11 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 		RustDebugDelegate delegate = new RustDebugDelegate();
 		delegate.launch(new StructuredSelection(project), "debug");
 		assertEquals(Collections.emptyList(), errors);
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				IConsole console = getApplicationConsole("basic");
-				return (console != null && console.getDocument().get().contains("5 is positive"))
-						|| getErrorPopupMessage() != null;
-			}
-		}.waitForCondition(Display.getCurrent(), 15000);
+		waitUntil(Display.getCurrent(), Duration.ofSeconds(15), () -> {
+			IConsole console = getApplicationConsole("basic");
+			return (console != null && console.getDocument().get().contains("5 is positive"))
+					|| getErrorPopupMessage() != null;
+		});
 		assertNull(getErrorPopupMessage());
 		assertTrue(getApplicationConsole("basic").getDocument().get().contains("5 is positive"));
 	}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Eclipse IDE for Rust Developers" uid="org.eclipse.corrosion.product" id="org.eclipse.corrosion.product.branding.product" application="org.eclipse.ui.ide.workbench" version="1.2.4.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Eclipse IDE for Rust Developers" uid="org.eclipse.corrosion.product" id="org.eclipse.corrosion.product.branding.product" application="org.eclipse.ui.ide.workbench" version="1.2.5.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.eclipse.corrosion.product.branding/eclipse_lg.png"/>
@@ -201,7 +201,7 @@ United States, other countries, or both.
    </plugins>
 
    <features>
-      <feature id="org.eclipse.epp.package.common.feature" version="4.24.0.qualifier"/>
+      <feature id="org.eclipse.epp.package.common.feature" version="4.25.0.qualifier"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.epp.mpc" installMode="root"/>
       <feature id="org.eclipse.justj.openjdk.hotspot.jre.full" installMode="root"/> 

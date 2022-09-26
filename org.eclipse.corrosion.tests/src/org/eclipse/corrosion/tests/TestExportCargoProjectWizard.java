@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -29,7 +30,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.tests.harness.util.DisplayHelper;
 import org.junit.jupiter.api.Test;
 
 class TestExportCargoProjectWizard extends AbstractCorrosionTest {
@@ -105,22 +105,11 @@ class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
 		Button allowDirty = (Button) composite.getChildren()[10];
 		allowDirty.setSelection(true); // required of another test updates the project
-		new DisplayHelper() {
-			@Override
-			protected boolean condition() {
-				return allowDirty.getSelection();
-			}
-		}.waitForCondition(getShell().getDisplay(), 3000);
-
+		waitUntil(getShell().getDisplay(), Duration.ofSeconds(3), allowDirty::getSelection);
 		assertTrue(wizard.canFinish());
 		assertTrue(wizard.performFinish());
-		new DisplayHelper() {
-
-			@Override
-			protected boolean condition() {
-				return basic.getFolder("target").getFolder("package").exists();
-			}
-		}.waitForCondition(getShell().getDisplay(), 15000);
+		waitUntil(getShell().getDisplay(), Duration.ofSeconds(15),
+				() -> basic.getFolder("target").getFolder("package").exists());
 		assertTrue(basic.getFolder("target").getFolder("package").members().length > 0);
 	}
 
