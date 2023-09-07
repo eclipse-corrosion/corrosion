@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2018, 2021 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2023 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,7 @@
 package org.eclipse.corrosion.snippet;
 
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
-import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.lsp4e.LanguageServiceAccessor.LSPDocumentInfo;
@@ -27,7 +25,6 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4j.services.LanguageServer;
 
 @SuppressWarnings("restriction")
 public class Snippet {
@@ -57,16 +54,7 @@ public class Snippet {
 		// if there is a text selection, take it, since snippets with $TM_SELECTED_TEXT
 		// will want to wrap the selection.
 		item.setTextEdit(Either.forLeft(new TextEdit(textRange, createReplacement(lineIndentation))));
-		return new LSCompletionProposal(document, offset, item, getLanguageClient(info));
-	}
-
-	private static LanguageServer getLanguageClient(LSPDocumentInfo info) {
-		try {
-			return info.getInitializedLanguageClient().get();
-		} catch (InterruptedException | ExecutionException e) {
-			CorrosionPlugin.logError(e);
-			return null;
-		}
+		return new LSCompletionProposal(document, offset, item, info.getLanguageServerWrapper());
 	}
 
 	public boolean matchesPrefix(String prefix) {
