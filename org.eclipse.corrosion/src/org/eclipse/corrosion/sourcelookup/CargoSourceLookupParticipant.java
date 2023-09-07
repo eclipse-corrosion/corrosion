@@ -22,7 +22,7 @@ import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
  */
 public class CargoSourceLookupParticipant extends AbstractSourceLookupParticipant {
 
-	private Map<Object, Object[]> fCachedResults = Collections.synchronizedMap(new HashMap<Object, Object[]>());
+	private Map<Object, Object[]> fCachedResults = Collections.synchronizedMap(new HashMap<>());
 
 	/**
 	 * Constructor for CargoSourceLookupParticipant.
