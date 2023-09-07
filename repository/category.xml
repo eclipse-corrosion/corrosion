@@ -18,9 +18,6 @@
    <bundle id="org.eclipse.lsp4j.jsonrpc" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
-   <bundle id="org.eclipse.xtext.xbase.lib" version="0.0.0">
-      <category name="org.eclipse.corrosion.dependecies.category"/>
-   </bundle>
    <bundle id="org.jcodings" version="0.0.0">
       <category name="org.eclipse.corrosion.dependecies.category"/>
    </bundle>
