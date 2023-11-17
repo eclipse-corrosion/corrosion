@@ -42,10 +42,13 @@ import org.eclipse.corrosion.sourcelookup.ICargoSourceLocation;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.lsp4e.LanguageServersRegistry;
+import org.eclipse.lsp4e.LanguageServersRegistry.LanguageServerDefinition;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -360,5 +363,9 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 			}
 		}
 		return false;
+	}
+
+	public static @NonNull LanguageServerDefinition languageServerDefinition() {
+		return LanguageServersRegistry.getInstance().getDefinition("org.eclipse.corrosion.rls"); //$NON-NLS-1$
 	}
 }
