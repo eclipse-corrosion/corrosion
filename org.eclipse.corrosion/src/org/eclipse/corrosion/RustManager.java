@@ -64,7 +64,7 @@ public class RustManager {
 	 * Set according to rust-analyzer documentation
 	 */
 	static final File RUST_ANALYZER_DEFAULT_LOCATION = new File(System.getProperty("user.home"), //$NON-NLS-1$
-			".local/bin/rust-analyzer"); //$NON-NLS-1$
+			".cargo/bin/rust-analyzer"); //$NON-NLS-1$
 	public static final String RLS_VERSION_FORMAT_REGEX = "^(rls|rust-analyzer).*$"; //$NON-NLS-1$
 	public static final String CARGO_VERSION_FORMAT_REGEX = "^cargo .*$"; //$NON-NLS-1$
 	public static final String RUSTUP_VERSION_FORMAT_REGEX = "^rustup .*$"; //$NON-NLS-1$
@@ -146,7 +146,7 @@ public class RustManager {
 						toolchainId));
 				jobs.add(createRustupCommandJob(Messages.RustManager_addingRustAnalysisRustSrc,
 						Messages.RustManager_unableToAddComponent, "component", //$NON-NLS-1$
-						"add", "rust-analysis")); //$NON-NLS-1$ //$NON-NLS-2$
+						"add", "rust-analysis", "rust-analyzer")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 				for (CommandJob commandJob : jobs) {
 					currentCommandJob = commandJob;
