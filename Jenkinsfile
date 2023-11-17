@@ -4,7 +4,7 @@ pipeline {
 	}
 	options {
 		buildDiscarder(logRotator(numToKeepStr:'10'))
-		timeout(time: 1, unit: 'HOURS')
+		timeout(time: 30, unit: 'MINUTES')
 	}
 	environment {
 		PATH = "$HOME/.local/bin:$HOME/.cargo/bin/:$PATH"
@@ -31,9 +31,11 @@ pipeline {
 				wrap([$class: 'Xvnc', useXauthority: true]) {
 					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -Psign -Dsurefire.timeout=1800'
 				}
+				sh 'rust-analyzer --version'
 			}
 			post {
 				always {
+					sh 'rust-analyzer --version'
 					junit '*/target/surefire-reports/TEST-*.xml'
 					archiveArtifacts artifacts: '*/target/work/data/.metadata/.log'
 				}
