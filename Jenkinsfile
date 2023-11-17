@@ -35,6 +35,8 @@ pipeline {
 			}
 			post {
 				always {
+					sh 'which rustup'
+					sh 'which rust-analyzer'
 					sh 'rust-analyzer --version'
 					junit '*/target/surefire-reports/TEST-*.xml'
 					archiveArtifacts artifacts: '*/target/work/data/.metadata/.log'

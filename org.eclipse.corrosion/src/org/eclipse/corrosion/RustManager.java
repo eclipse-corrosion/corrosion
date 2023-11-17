@@ -326,6 +326,7 @@ public class RustManager {
 
 		// Use retrieve to initiate file transfer
 		File archiveFile = new File(RUST_ANALYZER_DEFAULT_LOCATION.getParentFile(), filename);
+		CorrosionPlugin.getDefault().getLog().log(Status.info("Downloading to " + archiveFile)); //$NON-NLS-1$
 		try {
 			CompletableFuture<File> res = new CompletableFuture<>();
 			IFileID id = FileIDFactory.getDefault().createFileID(retrieve.getRetrieveNamespace(), URI.create(url));
@@ -370,6 +371,7 @@ public class RustManager {
 			try (FileOutputStream out = new FileOutputStream(output)) {
 				in.transferTo(out);
 				output.setExecutable(true);
+				CorrosionPlugin.getDefault().getLog().info("UnGZipped to " + output); //$NON-NLS-1$
 				input.delete();
 			}
 		}
