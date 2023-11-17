@@ -177,8 +177,7 @@ public class RustManager {
 		params.setSettings(updatedSettings);
 		LSPDocumentInfo info = infoFromOpenEditors();
 		if (info != null) {
-			info.getInitializedLanguageClient()
-					.thenAccept(languageServer -> languageServer.getWorkspaceService().didChangeConfiguration(params));
+			info.getLanguageServerWrapper().sendNotification(languageServer -> languageServer.getWorkspaceService().didChangeConfiguration(params));
 		}
 	}
 

@@ -79,8 +79,8 @@ public class ImplementationsSearchQuery extends FileSearchQuery {
 			params.setContext(new ReferenceContext(true));
 			params.setTextDocument(new TextDocumentIdentifier(info.getFileUri().toString()));
 			params.setPosition(position);
-			info.getInitializedLanguageClient()
-					.thenCompose(languageServer -> ((RLSServerInterface) languageServer).implementations(params))
+			info.getLanguageServerWrapper()
+					.execute(languageServer -> ((RLSServerInterface) languageServer).implementations(params))
 					.thenAccept(locs -> {
 						// Loop for each LSP Location and convert it to Match search.
 						for (Location loc : locs) {
