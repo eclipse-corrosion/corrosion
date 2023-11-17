@@ -17,6 +17,7 @@ package org.eclipse.corrosion.tests;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -29,10 +30,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 class TestLSPIntegration extends AbstractCorrosionTest {
 
 	@Test
+	@Timeout(value = 3, unit = TimeUnit.MINUTES)
 	void testLSWorks() throws IOException, CoreException {
 		IProject project = getProject(BASIC_ERRORS_PROJECT_NAME);
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobManager;
@@ -24,6 +25,7 @@ import org.eclipse.corrosion.edit.RLSClientImplementation;
 import org.eclipse.corrosion.extensions.ProgressParams;
 import org.eclipse.swt.widgets.Display;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 class TestLSPExtensions extends AbstractCorrosionTest {
 
@@ -31,6 +33,7 @@ class TestLSPExtensions extends AbstractCorrosionTest {
 	private static final String PROGRESS_ID_2 = "progress_2";
 
 	@Test
+	@Timeout(value = 3, unit = TimeUnit.MINUTES)
 	void testBuildingMessages() {
 		String jobType = "Building";
 		RLSClientImplementation clientImplementation = new RLSClientImplementation();
@@ -50,6 +53,7 @@ class TestLSPExtensions extends AbstractCorrosionTest {
 	}
 
 	@Test
+	@Timeout(value = 3, unit = TimeUnit.MINUTES)
 	void testIndexingMessages() {
 		String jobType = "Indexing";
 		RLSClientImplementation clientImplementation = new RLSClientImplementation();
