@@ -19,7 +19,7 @@ pipeline {
 				sh 'org.eclipse.corrosion/scripts/rustup-init.sh -y'
 				sh 'rustup install stable-x86_64-unknown-linux-gnu'
 				sh 'rustup default stable-x86_64-unknown-linux-gnu'
-				sh 'mkdir -p ~/.local/bin'
+				sh 'rustup component add rust-analyzer'
 				sh 'echo $PATH'
 			}
 		}
