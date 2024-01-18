@@ -9,7 +9,7 @@
 		<maven>3.9.0</maven>
 	</prerequisites>
 	<properties>
-		<tycho-version>4.0.2</tycho-version>
+		<tycho-version>4.0.4</tycho-version>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
