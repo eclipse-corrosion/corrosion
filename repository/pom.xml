@@ -132,7 +132,7 @@
 	<repositories>
 		<repository>
 			<id>justj</id>
-			<url>https://download.eclipse.org/justj/jres/latest/</url>
+			<url>https://download.eclipse.org/justj/jres/21/updates/release</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
