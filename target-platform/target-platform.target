@@ -33,7 +33,7 @@
 <unit id="org.eclipse.epp.package.common.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.mylyn.wikitext_feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.mylyn.wikitext.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.epp.mpc.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.egit.gitflow.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.platform.ide" version="0.0.0"/>
