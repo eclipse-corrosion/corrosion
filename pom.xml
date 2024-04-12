@@ -134,23 +134,6 @@
 			</plugin>
 			
 			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.8</version>
-				<executions>
-					<execution>
-						<goals><goal>prepare-agent</goal></goals>
-					</execution>
-				</executions>
-				<configuration>
-					<append>true</append>
-					<destFile>${sonar.jacoco.reportPath}</destFile>
-					<includes>
-						<include>org.eclipse.corrosion*</include>
-					</includes>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.eclipse.tycho.extras</groupId>
 				<artifactId>tycho-p2-extras-plugin</artifactId>
 				<version>${tycho-version}</version>
