@@ -6,7 +6,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<tycho-version>4.0.8</tycho-version>
-		<tycho.scmUrl>scm:git:https://github.com/eclipse/corrosion.git</tycho.scmUrl>
+		<tycho.scmUrl>scm:git:https://github.com/eclipse-corrosion/corrosion.git</tycho.scmUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
