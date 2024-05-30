@@ -18,7 +18,7 @@
 -showsplash org.eclipse.epp.package.common
 --launcher.defaultAction openFile
       </programArgs>
-      <vmArgs>-Dosgi.requiredJavaVersion=17
+      <vmArgs>-Dosgi.requiredJavaVersion=21
 -Dosgi.instance.area.default=@user.home/eclipse-workspace
 -Dsun.java.command=Eclipse
 -Xms256m

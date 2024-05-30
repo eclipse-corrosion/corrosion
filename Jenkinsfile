@@ -12,7 +12,7 @@ pipeline {
 		USER = "jenkins"
 	}
 	tools {
-        jdk 'openjdk-jdk17-latest'
+        jdk 'temurin-jdk21-latest'
     }
 	stages {
 		stage('Prepare') {
