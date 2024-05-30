@@ -50,7 +50,7 @@ pipeline {
 					sh 'which rust-analyzer'
 					sh 'rust-analyzer --version'
 					junit '*/target/surefire-reports/TEST-*.xml'
-					archiveArtifacts artifacts: '*/target/work/data/.metadata/.log'
+					archiveArtifacts artifacts: '*/target/work/data/.metadata/.log,repository/target/repository/**'
 				}
 			}
 		}
