@@ -15,6 +15,14 @@ pipeline {
         jdk 'temurin-jdk21-latest'
     }
 	stages {
+		stage('Initialize PGP') {
+			steps {
+				withCredentials([file(credentialsId: 'secret-subkeys.asc', variable: 'KEYRING')]) {
+					sh 'gpg --batch --import "${KEYRING}"'
+					sh 'for fpr in $(gpg --list-keys --with-colons  | awk -F: \'/fpr:/ {print $10}\' | sort -u); do echo -e "5\ny\n" |  gpg --batch --command-fd 0 --expert --edit-key ${fpr} trust; done'
+				}
+			}
+		}
 		stage('Prepare') {
 			steps {
 				sh 'org.eclipse.corrosion/scripts/rustup-init.sh -y'
@@ -29,8 +37,10 @@ pipeline {
 				sh 'cargo --version'
 				sh 'rustup show'
 				sh 'rust-gdb --version'
+				withCredentials([string(credentialsId: 'gpg-passphrase', variable: 'KEYRING_PASSPHRASE')]) {
 				wrap([$class: 'Xvnc', useXauthority: true]) {
-					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -Psign -Dsurefire.timeout=1800'
+					sh './mvnw -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -Dtycho.showEclipseLog=true -Psign -Dsurefire.timeout=1800 -Dgpg.passphrase="${KEYRING_PASSPHRASE}"'
+				}
 				}
 				sh 'rust-analyzer --version'
 			}
