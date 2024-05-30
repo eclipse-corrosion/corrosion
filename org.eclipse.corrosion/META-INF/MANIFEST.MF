@@ -40,7 +40,8 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.unittest.ui;bundle-version="0.1.0",
  org.eclipse.ecf;bundle-version="3.9.0",
  org.eclipse.ecf.filetransfer;bundle-version="5.1.0",
- org.eclipse.ecf.provider.filetransfer;bundle-version="1.0.0"
+ org.eclipse.ecf.provider.filetransfer;bundle-version="1.0.0",
+ org.eclipse.tm4e.language_pack
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.corrosion;x-friends:="org.eclipse.corrosion.tests",

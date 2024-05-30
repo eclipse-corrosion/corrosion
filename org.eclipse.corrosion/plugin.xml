@@ -11,13 +11,6 @@
             priority="normal">
       </content-type>
       <content-type
-            base-type="org.eclipse.core.runtime.text"
-            file-extensions="rs"
-            id="org.eclipse.corrosion.rust"
-            name="%content-type.name"
-            priority="normal">
-      </content-type>
-      <content-type
             base-type="org.eclipse.corrosion.toml"
             file-names="Cargo.toml"
             id="org.eclipse.corrosion.manifest"
@@ -27,10 +20,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.editors">
-     <editorContentTypeBinding
-        contentTypeId="org.eclipse.corrosion.rust"
-        editorId="org.eclipse.ui.genericeditor.GenericEditor">
-   		</editorContentTypeBinding>
      <editorContentTypeBinding
         contentTypeId="org.eclipse.corrosion.toml"
         editorId="org.eclipse.ui.genericeditor.GenericEditor">
@@ -46,20 +35,12 @@
         serverInterface="org.eclipse.corrosion.edit.RLSServerInterface">
       </server>
       <contentTypeMapping
-            contentType="org.eclipse.corrosion.rust"
+            contentType="org.eclipse.tm4e.language_pack.rust"
             id="org.eclipse.corrosion.rls">
       </contentTypeMapping>
    </extension>
    <extension
          point="org.eclipse.tm4e.registry.grammars">
-      <grammar
-            path="grammar/rust.tmLanguage.json"
-            scopeName="source.rust">
-      </grammar>
-      <scopeNameContentTypeBinding
-            contentTypeId="org.eclipse.corrosion.rust"
-            scopeName="source.rust">
-      </scopeNameContentTypeBinding>
       <grammar
             path="grammar/TOML.tmLanguage"
             scopeName="source.toml">
@@ -70,17 +51,10 @@
       </scopeNameContentTypeBinding>
    </extension>
    <extension
-         point="org.eclipse.ui.genericeditor.presentationReconcilers">
-      <presentationReconciler
-            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
-            contentType="org.eclipse.corrosion.rust">
-      </presentationReconciler>
-   </extension>
-   <extension
          point="org.eclipse.ui.genericeditor.contentAssistProcessors">
       <contentAssistProcessor
             class="org.eclipse.corrosion.snippet.SnippetContentAssistProcessor"
-            contentType="org.eclipse.corrosion.rust">
+            contentType="org.eclipse.tm4e.language_pack.rust">
       </contentAssistProcessor>
    </extension>
    <extension
@@ -371,13 +345,6 @@
       </editorContribution>
    </extension>
    <extension
-         point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
-      <languageConfiguration
-            contentTypeId="org.eclipse.corrosion.rust"
-            path="language-configurations/language-configuration.json">
-      </languageConfiguration>
-   </extension>
-   <extension
          point="org.eclipse.ui.bindings">
       <key
             contextId="org.eclipse.ui.textEditorScope"
@@ -416,7 +383,7 @@
    <extension
          point="org.eclipse.compare.contentViewers">
       <contentTypeBinding
-            contentTypeId="org.eclipse.corrosion.rust"
+            contentTypeId="org.eclipse.tm4e.language_pack.rust"
             contentViewerId="org.eclipse.ui.genericeditor.compareViewer">
       </contentTypeBinding>
    </extension>
@@ -424,7 +391,7 @@
          point="org.eclipse.compare.contentMergeViewers">
       <contentTypeBinding
             contentMergeViewerId="org.eclipse.ui.genericeditor.compareViewer"
-            contentTypeId="org.eclipse.corrosion.rust">
+            contentTypeId="org.eclipse.tm4e.language_pack.rust">
       </contentTypeBinding>
    </extension>
    <extension
@@ -437,13 +404,6 @@
             <test property="org.eclipse.ui.console.consoleTypeTest" value="org.eclipse.debug.ui.ProcessConsoleType"/>
          </enablement>
       </consolePatternMatchListener>
-   </extension>
-   <extension
-         point="org.eclipse.ui.genericeditor.icons">
-      <icon
-            contentType="org.eclipse.corrosion.rust"
-            icon="icons/rustEditorIcon.png">
-      </icon>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
