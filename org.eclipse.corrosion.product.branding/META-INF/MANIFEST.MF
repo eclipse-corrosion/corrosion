@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.corrosion.product.branding;singleton:=true
-Bundle-Version: 1.2.4.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-Vendor: Eclipse Corrosion
 Require-Bundle: org.eclipse.platform,
  org.eclipse.equinox.app,
