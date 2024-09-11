@@ -125,8 +125,8 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 
 	static IConsole getApplicationConsole(String binaryName) {
 		for (org.eclipse.ui.console.IConsole console : ConsolePlugin.getDefault().getConsoleManager().getConsoles()) {
-			if (console instanceof IConsole && ((IConsole) console).getProcess().getLabel().endsWith(binaryName)) {
-				return (IConsole) console;
+			if (console instanceof IConsole debugConsole && debugConsole.getProcess().getLabel().endsWith(binaryName)) {
+				return debugConsole;
 			}
 		}
 		return null;
@@ -134,10 +134,10 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 
 	static String findLabel(Composite composite) {
 		for (Control control : composite.getChildren()) {
-			if (control instanceof Label && !((Label) control).getText().isEmpty()) {
-				return ((Label) control).getText();
-			} else if (control instanceof Composite) {
-				return findLabel((Composite) control);
+			if (control instanceof Label l && !l.getText().isEmpty()) {
+				return l.getText();
+			} else if (control instanceof Composite c) {
+				return findLabel(c);
 			}
 		}
 		return null;

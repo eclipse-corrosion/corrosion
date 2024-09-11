@@ -114,7 +114,7 @@ class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Override
-	public void tearDown() throws CoreException {
+	public void tearDown() throws CoreException, IOException {
 		if (dialog != null) {
 			dialog.close();
 		}

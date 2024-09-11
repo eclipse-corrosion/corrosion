@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
@@ -21,7 +23,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.genericeditor.ExtensionBasedTextEditor;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -34,7 +35,7 @@ class TestIDEIntegration extends AbstractCorrosionTest {
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = null;
 		editor = IDE.openEditor(activePage, getProject(BASIC_PROJECT_NAME).getFile(fileName));
-		Assertions.assertTrue(editor instanceof ExtensionBasedTextEditor);
+		assertInstanceOf(ExtensionBasedTextEditor.class, editor);
 	}
 
 }
