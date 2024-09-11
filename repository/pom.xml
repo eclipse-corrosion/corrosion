@@ -120,6 +120,7 @@
 									<goal>sign-p2-artifacts</goal>
 								</goals>
 								<configuration>
+									<signer>bc</signer>
 									<keyname>19C6F458E5758349</keyname>
 									<skipIfJarsigned>false</skipIfJarsigned>
 								</configuration>
