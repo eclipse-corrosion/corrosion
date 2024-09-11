@@ -93,13 +93,9 @@ public abstract class AbstractCorrosionTest {
 	}
 
 	@AfterEach
-	public void tearDown() throws CoreException {
+	public void tearDown() throws CoreException, IOException {
 		for (String projectName : this.provisionedProjects.keySet()) {
-			try {
-				getProject(projectName).delete(true, new NullProgressMonitor());
-			} catch (CoreException | IOException e) {
-				fail(e.getMessage());
-			}
+			getProject(projectName).delete(true, new NullProgressMonitor());
 		}
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
 	}

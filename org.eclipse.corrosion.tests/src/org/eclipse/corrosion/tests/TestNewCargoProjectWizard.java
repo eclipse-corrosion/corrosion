@@ -15,7 +15,6 @@ package org.eclipse.corrosion.tests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -130,14 +129,10 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Override
-	public void tearDown() throws CoreException {
+	public void tearDown() throws CoreException, IOException {
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			if (!project.getName().equals(".cargo")) {
-				try {
-					project.delete(true, new NullProgressMonitor());
-				} catch (CoreException e) {
-					fail(e.getMessage());
-				}
+				project.delete(true, new NullProgressMonitor());
 			}
 		}
 		super.tearDown();
