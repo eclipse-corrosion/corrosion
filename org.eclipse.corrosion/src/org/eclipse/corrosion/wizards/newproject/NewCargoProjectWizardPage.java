@@ -1,5 +1,5 @@
 /*********************************************************************
- * Copyright (c) 2017, 2021 Red Hat Inc. and others.
+ * Copyright (c) 2017, 2024 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -233,7 +232,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		linesAboveLinkLayoutData.heightHint = linesAboveLinkLayoutData.widthHint = 30;
 		linesAboveLink.setLayoutData(linesAboveLinkLayoutData);
 		linesAboveLink.addPaintListener(e -> {
-			e.gc.setForeground(((Control) e.widget).getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+			e.gc.setForeground(e.widget.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
 			e.gc.drawLine(0, e.height / 2, e.width / 2, e.height / 2);
 			e.gc.drawLine(e.width / 2, e.height / 2, e.width / 2, e.height);
 		});
@@ -277,7 +276,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		linesBelowLinkLayoutData.heightHint = linesBelowLinkLayoutData.widthHint = 30;
 		linesBelowLink.setLayoutData(linesAboveLinkLayoutData);
 		linesBelowLink.addPaintListener(e -> {
-			e.gc.setForeground(((Control) e.widget).getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+			e.gc.setForeground(e.widget.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
 			e.gc.drawLine(0, e.height / 2, e.width / 2, e.height / 2);
 			e.gc.drawLine(e.width / 2, e.height / 2, e.width / 2, 0);
 		});
