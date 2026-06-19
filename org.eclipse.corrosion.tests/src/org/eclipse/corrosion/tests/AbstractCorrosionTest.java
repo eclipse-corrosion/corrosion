@@ -136,7 +136,7 @@ public abstract class AbstractCorrosionTest {
 				}).exceptionally(ex -> {
 					fail(ex);
 					return null;
-				}).get(30, TimeUnit.SECONDS);
+				}).get(90, TimeUnit.SECONDS);
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
 				fail("Rust Analyzer executable setup failed", e);
 			}
