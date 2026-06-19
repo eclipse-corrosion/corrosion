@@ -72,7 +72,7 @@ public class RustManager {
 	public static final Pattern CARGO_VERSION_FORMAT_PATTERN = Pattern.compile(CARGO_VERSION_FORMAT_REGEX);
 	public static final Pattern RUSTUP_VERSION_FORMAT_PATTERN = Pattern.compile(RUSTUP_VERSION_FORMAT_REGEX);
 
-	private static final String RUST_ANALIZER_BASE_URL = "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/"; //$NON-NLS-1$
+	private static final String RUST_ANALIZER_BASE_URL = "https://github.com/rust-lang/rust-analyzer/releases/latest/download/"; //$NON-NLS-1$
 
 	private RustManager() {
 		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
