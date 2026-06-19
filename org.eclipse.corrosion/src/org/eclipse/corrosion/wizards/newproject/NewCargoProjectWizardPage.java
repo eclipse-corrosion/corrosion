@@ -247,6 +247,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		try (InputStream iconStream = getClass().getResourceAsStream("/icons/link_obj.png")) { //$NON-NLS-1$
 			Image linkImage = new Image(linkButton.getDisplay(), iconStream);
 			linkButton.setImage(linkImage);
+			linkButton.addDisposeListener(e -> linkImage.dispose());
 		} catch (IOException e) {
 			CorrosionPlugin.logError(e);
 		}
