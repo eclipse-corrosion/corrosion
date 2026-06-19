@@ -12,7 +12,7 @@
 <unit id="org.eclipse.cdt.dsf" version="0.0.0"/>
 <unit id="org.eclipse.cdt.native.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.launchbar.core" version="0.0.0"/>
-<unit id="org.eclipse.tm.terminal.control" version="0.0.0"/>
+<unit id="org.eclipse.terminal.control" version="0.0.0"/>
 <unit id="org.eclipse.platform.ide" version="0.0.0"/>
 <unit id="org.eclipse.ui.genericeditor" version="0.0.0"/>
 <unit id="org.eclipse.pde.junit.runtime" version="0.0.0"/>
@@ -23,7 +23,7 @@
 <unit id="org.eclipse.tm4e.language_pack.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.epp.package.common.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.tm.terminal.feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.terminal.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.mylyn.wikitext.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.epp.mpc.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.egit.gitflow.feature.feature.group" version="0.0.0"/>
