@@ -186,7 +186,7 @@ public class CorrosionPlugin extends AbstractUIPlugin {
 	private static File getWorkingDirectoryFromPreferences() {
 		String wdString = getDefault().getPreferenceStore()
 				.getString(CorrosionPreferenceInitializer.WORKING_DIRECTORY_PREFERENCE);
-		if (wdString == null) {
+		if (wdString == null || wdString.isEmpty()) {
 			return null;
 		}
 		File wdFile = new File(wdString);
