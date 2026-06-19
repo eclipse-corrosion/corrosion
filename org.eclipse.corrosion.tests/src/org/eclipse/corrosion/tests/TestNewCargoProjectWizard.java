@@ -36,7 +36,9 @@ import org.eclipse.corrosion.wizards.newproject.NewCargoProjectWizardPage;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.lsp4e.ContentTypeToLanguageServerDefinition;
 import org.eclipse.lsp4e.LanguageServerWrapper;
+import org.eclipse.lsp4e.LanguageServersRegistry;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -44,11 +46,33 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
 	private static final String DEFAULT_PROJECT_NAME = "new_rust_project";
+
+	private static final String RUST_LANGUAGE_SERVER_ID = "org.eclipse.corrosion.rls";
+
+	// The wizard opens the new project's main.rs, which would start the
+	// rust-analyzer language server and trigger a full Cargo workspace load against
+	// the freshly created project. That load races with the project deletion in
+	// tearDown (and can block CI), so disable the language server for this test,
+	// which only exercises project creation and not the language server itself.
+	@BeforeEach
+	public void disableRustLanguageServer() {
+		setRustLanguageServerEnabled(false);
+	}
+
+	private static void setRustLanguageServerEnabled(boolean enabled) {
+		for (ContentTypeToLanguageServerDefinition mapping : LanguageServersRegistry.getInstance()
+				.getContentTypeToLSPExtensions()) {
+			if (RUST_LANGUAGE_SERVER_ID.equals(mapping.getValue().id)) {
+				mapping.setUserEnabled(enabled);
+			}
+		}
+	}
 
 	@Test
 	void testNewProjectPage() {
@@ -134,17 +158,21 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
 	@Override
 	public void tearDown() throws CoreException, IOException {
-		// The wizard opens the new project's main.rs, which starts the rust-analyzer
-		// language server for the freshly created Cargo project. Close the editors and
-		// stop the language servers before deleting the projects, so a still-loading
-		// server can't hold workspace/file locks and hang the test (and CI).
+		// Close editors and stop any language server before deleting the projects, so
+		// a still-running server can't hold workspace/file locks and hang the test (and
+		// CI). The language server is normally disabled for this test (see
+		// disableRustLanguageServer), but stopping is kept as a defensive measure.
 		stopLanguageServers();
-		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-			if (!project.getName().equals(".cargo")) {
-				project.delete(true, new NullProgressMonitor());
+		try {
+			for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+				if (!project.getName().equals(".cargo")) {
+					project.delete(true, new NullProgressMonitor());
+				}
 			}
+			super.tearDown();
+		} finally {
+			setRustLanguageServerEnabled(true);
 		}
-		super.tearDown();
 	}
 
 	private static void stopLanguageServers() {
