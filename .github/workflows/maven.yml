@@ -34,7 +34,11 @@ jobs:
           ${{ runner.os }}-maven-
 
     - name: Set up rust-analyzer
-      run: rustup component add rust-analyzer
+      run: |
+        rustup default stable
+        rustup component add rust-analyzer
+        rustup show
+        rust-analyzer --version
 
     - name: Build with Maven
       run: sudo apt-get update;sudo apt-get install gdb;xvfb-run mvn -U -V -e -ntp clean install --file pom.xml
