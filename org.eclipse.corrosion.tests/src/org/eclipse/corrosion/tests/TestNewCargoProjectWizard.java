@@ -36,9 +36,13 @@ import org.eclipse.corrosion.wizards.newproject.NewCargoProjectWizardPage;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.lsp4e.LanguageServerWrapper;
+import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.jupiter.api.Test;
 
@@ -130,11 +134,31 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
 	@Override
 	public void tearDown() throws CoreException, IOException {
+		// The wizard opens the new project's main.rs, which starts the rust-analyzer
+		// language server for the freshly created Cargo project. Close the editors and
+		// stop the language servers before deleting the projects, so a still-loading
+		// server can't hold workspace/file locks and hang the test (and CI).
+		stopLanguageServers();
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			if (!project.getName().equals(".cargo")) {
 				project.delete(true, new NullProgressMonitor());
 			}
 		}
 		super.tearDown();
+	}
+
+	private static void stopLanguageServers() {
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (window != null) {
+				IWorkbenchPage page = window.getActivePage();
+				if (page != null) {
+					page.closeAllEditors(false);
+				}
+			}
+		});
+		for (LanguageServerWrapper wrapper : LanguageServiceAccessor.getStartedWrappers(capabilities -> true, false)) {
+			wrapper.stop();
+		}
 	}
 }
