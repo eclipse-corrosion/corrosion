@@ -14,6 +14,7 @@ package org.eclipse.corrosion.edit;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.corrosion.extensions.ProgressIndicatorJob;
 import org.eclipse.corrosion.extensions.ProgressParams;
@@ -36,5 +37,14 @@ public class RLSClientImplementation extends LanguageClientImpl {
 		if (progress.isDone()) {
 			progressJobs.remove(id);
 		}
+	}
+
+	@Override
+	public CompletableFuture<Void> refreshDiagnostics() {
+		// lsp4e relies on push diagnostics (textDocument/publishDiagnostics), so the
+		// server-initiated workspace/diagnostic/refresh request is a no-op here. The
+		// default lsp4j implementation throws UnsupportedOperationException, so it must
+		// be overridden to avoid logging spurious internal errors.
+		return CompletableFuture.completedFuture(null);
 	}
 }
