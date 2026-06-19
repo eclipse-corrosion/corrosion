@@ -210,7 +210,7 @@ United States, other countries, or both.
       <feature id="org.eclipse.egit.gitflow.feature" installMode="root"/>
       <feature id="org.eclipse.mylyn.wikitext.feature" installMode="root"/>
       <feature id="org.eclipse.corrosion.feature" installMode="root"/>
-      <feature id="org.eclipse.tm.terminal.feature" installMode="root"/>
+      <feature id="org.eclipse.terminal.feature" installMode="root"/>
    </features>
 
 </product>
