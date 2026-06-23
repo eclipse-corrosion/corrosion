@@ -43,6 +43,11 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 	 */
 	public static final String DEFAULT_GDB_PREFERENCE = "corrosion.defaultGdb"; //$NON-NLS-1$
 
+	// Editor format on save preferences
+	public static final String EDIT_FORMAT_ON_SAVE_PREFERENCE = "corrosion.edit.formatOnSave"; //$NON-NLS-1$
+	public static final String EDIT_FORMAT_EDITED_ON_SAVE_PREFERENCE = "corrosion.edit.formatEditedOnSave"; //$NON-NLS-1$
+	public static final String EDIT_FORMAT_ALL_ON_SAVE_PREFERENCE = "corrosion.edit.formatAllOnSave"; //$NON-NLS-1$
+
 	@Override
 	public void initializeDefaultPreferences() {
 		STORE.setDefault(RUSTUP_PATHS_PREFERENCE, getRustupPathBestGuess());
@@ -54,6 +59,10 @@ public class CorrosionPreferenceInitializer extends AbstractPreferenceInitialize
 
 		STORE.setDefault(WORKING_DIRECTORY_PREFERENCE, getWorkingDirectoryBestGuess());
 		STORE.setDefault(DEFAULT_GDB_PREFERENCE, DEFAULT_DEBUGGER);
+
+		STORE.setDefault(EDIT_FORMAT_ON_SAVE_PREFERENCE, false);
+		STORE.setDefault(EDIT_FORMAT_EDITED_ON_SAVE_PREFERENCE, false);
+		STORE.setDefault(EDIT_FORMAT_ALL_ON_SAVE_PREFERENCE, true);
 	}
 
 	private static String getRustupPathBestGuess() {

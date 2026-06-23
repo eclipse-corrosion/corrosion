@@ -169,5 +169,10 @@ public class Messages extends NLS {
 	public static String LaunchHandler_launchingFromCargoRegistryUnsupported;
 	public static String LaunchHandler_unsupportedProjectLocation;
 	public static String LaunchHandler_unableToLaunchCommand;
-
+	public static String SaveActionsConfigurationPage_FormatSourceCode;
+	public static String SaveActionsConfigurationPage_FormatSourceCode_description;
+	public static String SaveActionsConfigurationPage_FormatAllLines;
+	public static String SaveActionsConfigurationPage_FormatAllLines_description;
+	public static String SaveActionsConfigurationPage_FormatEditedLines;
+	public static String SaveActionsConfigurationPage_FormatEditedLines_description;
 }
