@@ -81,6 +81,12 @@
             id="org.eclipse.corrosion.debug"
             name="%debugPreferencePage">
       </page>
+      <page
+            category="org.eclipse.corrosion.texteditor"
+            class="org.eclipse.corrosion.edit.SaveActionsPreferencePage"
+            id="org.eclipse.corrosion.saveactions"
+            name="%page.name.1">
+      </page>
    </extension>
    <extension
        point="org.eclipse.core.expressions.definitions">

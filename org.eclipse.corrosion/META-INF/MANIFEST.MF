@@ -53,3 +53,4 @@ Export-Package: org.eclipse.corrosion;x-friends:="org.eclipse.corrosion.tests",
  org.eclipse.corrosion.wizards.export;x-friends:="org.eclipse.corrosion.tests",
  org.eclipse.corrosion.wizards.newproject;x-friends:="org.eclipse.corrosion.tests"
 Import-Package: org.eclipse.jdt.annotation
+Service-Component: OSGI-INF/org.eclipse.corrosion.edit.FormatOnSave.xml
