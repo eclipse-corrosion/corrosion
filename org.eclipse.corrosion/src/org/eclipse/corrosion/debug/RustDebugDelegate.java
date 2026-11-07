@@ -134,23 +134,28 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 	@Override
 	protected ISourceLocator getSourceLocator(ILaunchConfiguration configuration, DsfSession session)
 			throws CoreException {
-		SourceLookupDirector locator = new SourceLookupDirector();
+		return createDsfSourceLocator(configuration, session);
+	}
+
+	@Override
+	protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session)
+			throws CoreException {
+		// Use a DSF director: it adds its DSF participant again when the director
+		// initializes again (for example after a save of the launch configuration).
+		DsfSourceLookupDirector locator = new DsfSourceLookupDirector(session);
+		locator.setSourcePathComputer(new SourceLookupDirector().getSourcePathComputer());
 		String memento = configuration.getAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_MEMENTO, (String) null);
 		if (memento == null) {
 			locator.initializeDefaults(configuration);
 		} else {
 			locator.initializeFromMemento(memento, configuration);
 		}
+		String type = configuration.getAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_ID, (String) null);
+		if (type == null) {
+			type = configuration.getType().getSourceLocatorId();
+		}
+		locator.setId(type);
 		return locator;
-	}
-
-	@Override
-	protected DsfSourceLookupDirector createDsfSourceLocator(ILaunchConfiguration configuration, DsfSession session)
-			throws CoreException {
-		DsfSourceLookupDirector sourceLookupDirector = new DsfSourceLookupDirector(session);
-		sourceLookupDirector.setSourceContainers(
-				((SourceLookupDirector) getSourceLocator(configuration, session)).getSourceContainers());
-		return sourceLookupDirector;
 	}
 
 	@Override
@@ -188,7 +193,10 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 
 		ILaunch launch = super.getLaunch(wc.doSave(), mode);
 		if (!(launch instanceof RustGDBLaunchWrapper)) {
-			launch = new RustGDBLaunchWrapper(launch);
+			RustGDBLaunchWrapper wrapper = new RustGDBLaunchWrapper(launch);
+			// The wrapper has its own DSF session. Make the source locator for this session.
+			wrapper.setSourceLocator(getSourceLocator(wrapper.getLaunchConfiguration(), wrapper.getSession()));
+			launch = wrapper;
 		}
 		// workaround for DLTK bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=419273
 		launch.setAttribute("org.eclipse.dltk.debug.debugConsole", Boolean.toString(false)); //$NON-NLS-1$
