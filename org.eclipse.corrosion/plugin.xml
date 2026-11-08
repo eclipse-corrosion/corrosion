@@ -232,7 +232,7 @@
             class="org.eclipse.corrosion.test.CargoTestDelegate"
             label="%shortcut.label.0"
             icon="icons/cargo.png"
-            modes="run">
+            modes="run, debug">
          <contextualLaunch>
             <enablement>
                <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
