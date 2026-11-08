@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.test.CargoTestDelegate;
 import org.eclipse.corrosion.RustManager;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
@@ -112,14 +113,30 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 
 	@Override
 	public ILaunchConfiguration[] getLaunchConfigurations(ISelection selection) {
-		return RustLaunchDelegateTools.findLaunchConfigurations(
-				RustLaunchDelegateTools.firstResourceFromSelection(selection),
-				RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
+		return getDebugConfigurations(RustLaunchDelegateTools.firstResourceFromSelection(selection));
 	}
 
 	@Override
 	public ILaunchConfiguration[] getLaunchConfigurations(IEditorPart editor) {
-		return RustLaunchDelegateTools.findLaunchConfigurations(RustLaunchDelegateTools.resourceFromEditor(editor),
+		return getDebugConfigurations(RustLaunchDelegateTools.resourceFromEditor(editor));
+	}
+
+	/**
+	 * Debugs the same thing that was run last, as in Java: if the last Cargo
+	 * launch of the project was a test, debug the test. Otherwise debug the
+	 * program.
+	 */
+	private static ILaunchConfiguration[] getDebugConfigurations(IResource resource) {
+		ILaunchConfiguration last = RustLaunchDelegateTools.lastRunOrTestConfiguration(resource);
+		try {
+			if (last != null
+					&& CargoTestDelegate.CARGO_TEST_LAUNCH_CONFIG_TYPE_ID.equals(last.getType().getIdentifier())) {
+				return new ILaunchConfiguration[] { last };
+			}
+		} catch (CoreException e) {
+			CorrosionPlugin.logError(e);
+		}
+		return RustLaunchDelegateTools.findLaunchConfigurations(resource,
 				RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
 	}
 
