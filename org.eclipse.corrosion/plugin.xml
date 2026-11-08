@@ -31,7 +31,8 @@
         class="org.eclipse.corrosion.edit.RLSStreamConnectionProvider"
         id="org.eclipse.corrosion.rls"
         label="org.eclipse.corrosion.RLS"
-        clientImpl="org.eclipse.corrosion.edit.RLSClientImplementation">
+        clientImpl="org.eclipse.corrosion.edit.RLSClientImplementation"
+        serverInterface="org.eclipse.corrosion.edit.RustAnalyzerServer">
       </server>
       <contentTypeMapping
             contentType="org.eclipse.tm4e.language_pack.rust"

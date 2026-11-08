@@ -9,11 +9,14 @@
  *******************************************************************************/
 package org.eclipse.corrosion.launch;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.run.CargoRunDelegate;
@@ -30,15 +33,16 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
- * Asks whether to run the Cargo project or its tests, and then launches the
- * selected one. In Rust, code and tests are in the same file, thus "Run" alone
- * cannot know which of the two to launch.
+ * Asks whether to run the Cargo project, its tests, or the test at the cursor,
+ * and then launches the selected one. In Rust, code and tests are in the same
+ * file, thus "Run" alone cannot know which of them to launch.
  */
 public class RunAsHandler extends AbstractHandler {
 
-	private record Choice(String label, ILaunchShortcut shortcut) {
+	private record Choice(String label, Runnable action) {
 	}
 
 	@Override
@@ -52,8 +56,19 @@ public class RunAsHandler extends AbstractHandler {
 			return null;
 		}
 
-		List<Choice> choices = List.of(new Choice(Messages.RunAsHandler_cargoRun, new CargoRunDelegate()),
-				new Choice(Messages.RunAsHandler_cargoTest, new CargoTestDelegate()));
+		List<Choice> choices = new ArrayList<>();
+		choices.add(new Choice(Messages.RunAsHandler_cargoRun, () -> launch(new CargoRunDelegate(), editor, selection)));
+		choices.add(
+				new Choice(Messages.RunAsHandler_cargoTest, () -> launch(new CargoTestDelegate(), editor, selection)));
+		Choice initial = choices.get(0);
+		Optional<TestAtCursor> test = editor instanceof ITextEditor textEditor ? TestAtCursor.find(textEditor)
+				: Optional.empty();
+		if (test.isPresent()) {
+			initial = new Choice(NLS.bind(Messages.RunAsHandler_singleTest, test.get().name()),
+					() -> launchSingleTest(resource, test.get()));
+			choices.add(initial);
+		}
+
 		ListDialog dialog = new ListDialog(HandlerUtil.getActiveShell(event));
 		dialog.setTitle(Messages.RunAsHandler_title);
 		dialog.setMessage(NLS.bind(Messages.RunAsHandler_message, resource.getName()));
@@ -70,22 +85,32 @@ public class RunAsHandler extends AbstractHandler {
 			}
 		});
 		dialog.setInput(choices);
-		dialog.setInitialSelections(choices.get(0));
+		dialog.setInitialSelections(initial);
 		dialog.setHelpAvailable(false);
 		if (dialog.open() != Window.OK) {
 			return null;
 		}
 		Object[] result = dialog.getResult();
-		if (result == null || result.length == 0) {
-			return null;
+		if (result != null && result.length > 0) {
+			((Choice) result[0]).action().run();
 		}
+		return null;
+	}
 
-		ILaunchShortcut shortcut = ((Choice) result[0]).shortcut();
+	private static void launch(ILaunchShortcut shortcut, IEditorPart editor, ISelection selection) {
 		if (editor != null) {
 			shortcut.launch(editor, ILaunchManager.RUN_MODE);
 		} else {
 			shortcut.launch(selection, ILaunchManager.RUN_MODE);
 		}
-		return null;
+	}
+
+	private static void launchSingleTest(IResource resource, TestAtCursor test) {
+		try {
+			RustLaunchDelegateTools.launch(CargoTestDelegate.getSingleTestConfiguration(resource.getProject(), test),
+					ILaunchManager.RUN_MODE);
+		} catch (CoreException e) {
+			CorrosionPlugin.logError(e);
+		}
 	}
 }
