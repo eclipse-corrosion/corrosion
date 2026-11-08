@@ -13,7 +13,9 @@
 package org.eclipse.corrosion.launch;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.core.resources.IResource;
@@ -27,6 +29,7 @@ import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -110,6 +113,16 @@ public class RustLaunchDelegateTools {
 	 * @param mode
 	 */
 	public static void launch(ILaunchConfiguration launchConfig, String mode) throws CoreException {
+		// Eclipse adds only saved configurations to the launch history. Without the
+		// history, "Run" and "Debug" cannot launch this configuration again.
+		while (launchConfig instanceof ILaunchConfigurationWorkingCopy wc) {
+			if (wc.getParent() == null && wc.getOriginal() != null && !wc.isDirty()) {
+				launchConfig = wc.getOriginal(); // nothing changed, do not write the file again
+			} else {
+				// A copy of a new copy saves only into its parent, so save again
+				launchConfig = wc.doSave();
+			}
+		}
 		if (launchConfig != null) {
 			launchConfig.launch(mode, new NullProgressMonitor());
 		}
@@ -128,26 +141,47 @@ public class RustLaunchDelegateTools {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType(launchConfigurationType);
 		try {
-			ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(configType);
-			final String projectName = resource.getProject().getName();
-			String launchConfigProjectAttribute;
-			if (launchConfigurationType.equals(CORROSION_DEBUG_LAUNCH_CONFIG_TYPE)) {
-				launchConfigProjectAttribute = ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-			} else {
-				launchConfigProjectAttribute = RustLaunchDelegateTools.PROJECT_ATTRIBUTE;
+			ILaunchConfiguration[] launchConfigurations = findLaunchConfigurations(resource, launchConfigurationType);
+			if (launchConfigurations.length > 0) {
+				return launchConfigurations[0];
 			}
-			for (ILaunchConfiguration iLaunchConfiguration : launchConfigurations) {
-				if (iLaunchConfiguration.getAttribute(launchConfigProjectAttribute, "") //$NON-NLS-1$
-						.equals(projectName)) {
-					return iLaunchConfiguration;
-				}
-			}
-			String configName = launchManager.generateLaunchConfigurationName(projectName);
+			String configName = launchManager.generateLaunchConfigurationName(resource.getProject().getName());
 			return configType.newInstance(null, configName);
 		} catch (CoreException e) {
 			CorrosionPlugin.logError(e);
 		}
 		return null;
+	}
+
+	/**
+	 * Finds the launch configurations of the given type for the project of the
+	 * given resource. Launch shortcuts give these configurations to Eclipse, so
+	 * that "Run" can run the last used configuration.
+	 *
+	 * @param resource
+	 * @param launchConfigurationType
+	 * @return The matching launch configurations, or an empty array if there is no
+	 *         resource or no matching configuration
+	 */
+	public static ILaunchConfiguration[] findLaunchConfigurations(IResource resource,
+			String launchConfigurationType) {
+		if (resource == null || resource.getProject() == null) {
+			return new ILaunchConfiguration[0];
+		}
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType(launchConfigurationType);
+		final String projectName = resource.getProject().getName();
+		List<ILaunchConfiguration> result = new ArrayList<>();
+		try {
+			for (ILaunchConfiguration launchConfiguration : launchManager.getLaunchConfigurations(configType)) {
+				if (launchConfiguration.getAttribute(PROJECT_ATTRIBUTE, "").equals(projectName)) { //$NON-NLS-1$
+					result.add(launchConfiguration);
+				}
+			}
+		} catch (CoreException e) {
+			CorrosionPlugin.logError(e);
+		}
+		return result.toArray(new ILaunchConfiguration[result.size()]);
 	}
 
 	public static String performVariableSubstitution(String string) throws CoreException {

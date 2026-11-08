@@ -48,11 +48,11 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.ISourceLocator;
-import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.debug.ui.ILaunchShortcut2;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
-public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut {
+public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShortcut2 {
 	public static final String BUILD_COMMAND_ATTRIBUTE = CorrosionPlugin.PLUGIN_ID + ".BUILD_COMMAND"; //$NON-NLS-1$
 
 	@Override
@@ -108,6 +108,29 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			launch = new RustGDBLaunchWrapper(launch);
 		}
 		super.launch(configuration, mode, launch, monitor);
+	}
+
+	@Override
+	public ILaunchConfiguration[] getLaunchConfigurations(ISelection selection) {
+		return RustLaunchDelegateTools.findLaunchConfigurations(
+				RustLaunchDelegateTools.firstResourceFromSelection(selection),
+				RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
+	}
+
+	@Override
+	public ILaunchConfiguration[] getLaunchConfigurations(IEditorPart editor) {
+		return RustLaunchDelegateTools.findLaunchConfigurations(RustLaunchDelegateTools.resourceFromEditor(editor),
+				RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
+	}
+
+	@Override
+	public IResource getLaunchableResource(ISelection selection) {
+		return RustLaunchDelegateTools.firstResourceFromSelection(selection);
+	}
+
+	@Override
+	public IResource getLaunchableResource(IEditorPart editor) {
+		return RustLaunchDelegateTools.resourceFromEditor(editor);
 	}
 
 	@Override
