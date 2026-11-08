@@ -290,7 +290,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	 * Returns the test program path from one line of "cargo --message-format=json"
 	 * output, or null if the line is not about a test program.
 	 */
-	private static String testExecutable(String line) {
+	static String testExecutable(String line) {
 		try {
 			if (!(JsonParser.parseString(line) instanceof JsonObject message)
 					|| !"compiler-artifact".equals(getString(message, "reason")) //$NON-NLS-1$ //$NON-NLS-2$
