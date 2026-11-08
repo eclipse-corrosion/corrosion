@@ -12,47 +12,53 @@
  *******************************************************************************/
 package org.eclipse.corrosion.test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
-import org.eclipse.cdt.dsf.gdb.IGdbDebugPreferenceConstants;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.RustManager;
 import org.eclipse.corrosion.cargo.core.CargoTools;
+import org.eclipse.corrosion.debug.RustDebugDelegate;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import org.eclipse.corrosion.launch.TestAtCursor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.debug.ui.ILaunchShortcut2;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.unittest.ui.ConfigureViewerSupport;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut2 {
 	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
@@ -173,49 +179,29 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 			envArgs = new String[0];
 		}
 		final String[] env = envArgs;
-		CompletableFuture.runAsync(() -> {
-			try {
-				String[] cmdLine = finalTestCommand.toArray(new String[finalTestCommand.size()]);
-				Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory, env);
-				IProcess process = DebugPlugin.newProcess(launch, p, "cargo test"); //$NON-NLS-1$
-				if (ILaunchManager.DEBUG_MODE.equals(mode)) {
-					ProcessHandle cargoHandle = p.toHandle();
-					Set<ProcessHandle> captured = new HashSet<>();
-					Job pollChildren = Job.createSystem("Capture children processes", //$NON-NLS-1$
-							(ICoreRunnable) progressMonitor -> {
-								while (!process.isTerminated() && !monitor.isCanceled()) {
-									try {
-										Thread.sleep(50);
-									} catch (InterruptedException e) {
-										CorrosionPlugin.logError(e);
-										Thread.currentThread().interrupt();
-									}
-									cargoHandle.descendants() //
-											.filter(Predicate.not(captured::contains)) //
-											.filter(handle -> handle.info().commandLine()
-													.map(line -> line.contains("target/debug")).orElse(Boolean.FALSE)) //$NON-NLS-1$
-											.map(handle -> {
-												captured.add(handle);
-												return debug(handle, configuration);
-											}).filter(Objects::nonNull) //
-											.forEach(config -> {
-												try {
-													config.launch(ILaunchManager.DEBUG_MODE, new NullProgressMonitor());
-												} catch (CoreException e) {
-													CorrosionPlugin.logError(e);
-												}
-											});
-								}
-							});
-					pollChildren.schedule();
-					cargoHandle.onExit().thenAccept(h -> pollChildren.cancel());
+		if (ILaunchManager.DEBUG_MODE.equals(mode)) {
+			final IProject finalProject = project;
+			CompletableFuture.runAsync(() -> {
+				try {
+					debugTests(configuration, launch, finalProject, finalWorkingDirectory, env);
+				} catch (CoreException e) {
+					CorrosionPlugin.logError(e);
+					RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
 				}
-				process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
-			} catch (CoreException e) {
-				e.printStackTrace();
-				RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
-			}
-		});
+			});
+		} else {
+			CompletableFuture.runAsync(() -> {
+				try {
+					String[] cmdLine = finalTestCommand.toArray(new String[finalTestCommand.size()]);
+					Process p = DebugPlugin.exec(cmdLine, finalWorkingDirectory, env);
+					IProcess process = DebugPlugin.newProcess(launch, p, "cargo test"); //$NON-NLS-1$
+					process.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", cmdLine)); //$NON-NLS-1$
+				} catch (CoreException e) {
+					CorrosionPlugin.logError(e);
+					RustLaunchDelegateTools.openError(Messages.CargoRunDelegate_unableToLaunch, e.getLocalizedMessage());
+				}
+			});
+		}
 		if (wc != null) {
 			wc.doSave();
 		}
@@ -245,29 +231,116 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		configWC.doSave();
 	}
 
-	private static ILaunchConfiguration debug(ProcessHandle process, ILaunchConfiguration initialLaunchConfiguration) {
-		ILaunchConfigurationWorkingCopy configWC;
-		try {
-			ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-			configWC = launchManager.getLaunchConfigurationType(ICDTLaunchConfigurationConstants.ID_LAUNCH_C_ATTACH)
-					.newInstance(null,
-							process.info().commandLine().map(line -> line.split(File.separator))
-									.map(segments -> segments[segments.length - 1])
-									.map(launchManager::generateLaunchConfigurationName).orElse("unset")); //$NON-NLS-1$
-			configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, initialLaunchConfiguration
-					.getAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String) null));
-		} catch (CoreException e) {
-			CorrosionPlugin.logError(e);
-			return null;
+	/**
+	 * Debugs the tests. A short test can end before a debugger can attach to it,
+	 * thus GDB starts the test programs: first "cargo test --no-run" builds them,
+	 * then each test program starts in a Rust debug launch.
+	 */
+	private static void debugTests(ILaunchConfiguration configuration, ILaunch launch, IProject project,
+			File workingDirectory, String[] env) throws CoreException {
+		String options = RustLaunchDelegateTools
+				.performVariableSubstitution(configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+		String arguments = RustLaunchDelegateTools.performVariableSubstitution(
+				configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+		String manifest = project.getFile("Cargo.toml").getLocation().toPortableString(); //$NON-NLS-1$
+
+		// Build the test programs. The console shows the build output and errors.
+		List<String> buildCommand = new ArrayList<>();
+		buildCommand.add(CargoTools.getCargoCommand());
+		buildCommand.add("test"); //$NON-NLS-1$
+		buildCommand.add("--no-run"); //$NON-NLS-1$
+		if (!options.isEmpty()) {
+			buildCommand.addAll(Arrays.asList(options.split("\\s+"))); //$NON-NLS-1$
 		}
-		configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_START_MODE,
-				ICDTLaunchConfigurationConstants.DEBUGGER_MODE_ATTACH);
-		configWC.setAttribute(IGdbDebugPreferenceConstants.PREF_DEFAULT_NON_STOP, true);
-		configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_ATTACH_PROCESS_ID, (int) process.pid());
-		configWC.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
-		configWC.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, RustManager.getDefaultDebugger());
-		configWC.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, Collections.emptyMap());
-		return configWC;
+		buildCommand.add("--manifest-path"); //$NON-NLS-1$
+		buildCommand.add(manifest);
+		String[] buildCmdLine = buildCommand.toArray(new String[buildCommand.size()]);
+		Process build = DebugPlugin.exec(buildCmdLine, workingDirectory, env);
+		IProcess buildProcess = DebugPlugin.newProcess(launch, build, "cargo test --no-run"); //$NON-NLS-1$
+		buildProcess.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", buildCmdLine)); //$NON-NLS-1$
+		try {
+			if (build.waitFor() != 0) {
+				return; // the console shows the errors
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+
+		// Get the paths of the test programs. Cargo does not build again.
+		buildCommand.add("--message-format=json"); //$NON-NLS-1$
+		List<String> executables = new ArrayList<>();
+		Process list = DebugPlugin.exec(buildCommand.toArray(new String[buildCommand.size()]), workingDirectory, env);
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(list.getInputStream(), StandardCharsets.UTF_8))) {
+			reader.lines().map(CargoTestDelegate::testExecutable).filter(Objects::nonNull).forEach(executables::add);
+		} catch (IOException e) {
+			throw new CoreException(Status.error(e.getMessage(), e));
+		}
+
+		String programArguments = (testName + " " + arguments).trim(); //$NON-NLS-1$
+		for (String executable : executables) {
+			getTestDebugConfiguration(configuration, project, executable, options, programArguments)
+					.launch(ILaunchManager.DEBUG_MODE, new NullProgressMonitor());
+		}
+	}
+
+	/**
+	 * Returns the test program path from one line of "cargo --message-format=json"
+	 * output, or null if the line is not about a test program.
+	 */
+	private static String testExecutable(String line) {
+		try {
+			if (!(JsonParser.parseString(line) instanceof JsonObject message)
+					|| !"compiler-artifact".equals(getString(message, "reason")) //$NON-NLS-1$ //$NON-NLS-2$
+					|| !(message.get("profile") instanceof JsonObject profile) //$NON-NLS-1$
+					|| !profile.has("test") || !profile.get("test").getAsBoolean()) { //$NON-NLS-1$ //$NON-NLS-2$
+				return null;
+			}
+			return getString(message, "executable"); //$NON-NLS-1$
+		} catch (RuntimeException e) {
+			return null; // not JSON
+		}
+	}
+
+	private static String getString(JsonObject object, String member) {
+		JsonElement element = object.get(member);
+		return element != null && element.isJsonPrimitive() ? element.getAsString() : null;
+	}
+
+	/**
+	 * Finds or makes the private Rust debug configuration that starts one test
+	 * program in GDB. It is private, so it does not show in the launch dialogs and
+	 * the launch history.
+	 */
+	private static ILaunchConfiguration getTestDebugConfiguration(ILaunchConfiguration testConfiguration,
+			IProject project, String executable, String options, String programArguments) throws CoreException {
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfigurationType type = launchManager
+				.getLaunchConfigurationType(RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
+		String name = testConfiguration.getName() + " (debug " + new File(executable).getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		ILaunchConfigurationWorkingCopy wc = null;
+		for (ILaunchConfiguration existing : launchManager.getLaunchConfigurations(type)) {
+			if (existing.getName().equals(name)) {
+				wc = existing.getWorkingCopy();
+			}
+		}
+		if (wc == null) {
+			wc = type.newInstance(null, launchManager.generateLaunchConfigurationName(name));
+		}
+		wc.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executable);
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, programArguments);
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
+		// The Rust debug launch builds first: "cargo test --no-run" has nothing to do now
+		wc.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, ("test --no-run " + options).trim()); //$NON-NLS-1$
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
+		wc.setAttribute(IGDBLaunchConfigurationConstants.ATTR_DEBUG_NAME, RustManager.getDefaultDebugger());
+		wc.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES,
+				testConfiguration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, Collections.emptyMap()));
+		return wc.doSave();
 	}
 
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) throws CoreException {

@@ -215,7 +215,9 @@ public class RustLaunchDelegateTools {
 		List<ILaunchConfiguration> result = new ArrayList<>();
 		try {
 			for (ILaunchConfiguration launchConfiguration : launchManager.getLaunchConfigurations(configType)) {
-				if (launchConfiguration.getAttribute(PROJECT_ATTRIBUTE, "").equals(projectName)) { //$NON-NLS-1$
+				// Skip private configurations, such as the ones that debug a test program
+				if (launchConfiguration.getAttribute(PROJECT_ATTRIBUTE, "").equals(projectName) //$NON-NLS-1$
+						&& !launchConfiguration.getAttribute(IDebugUIConstants.ATTR_PRIVATE, false)) {
 					result.add(launchConfiguration);
 				}
 			}
