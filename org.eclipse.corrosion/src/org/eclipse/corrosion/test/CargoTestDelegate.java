@@ -41,6 +41,7 @@ import org.eclipse.corrosion.Messages;
 import org.eclipse.corrosion.RustManager;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
+import org.eclipse.corrosion.launch.TestAtCursor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -278,5 +279,36 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 			new ConfigureViewerSupport(CARGO_UNITTEST_VIEW_SUPPORT_ID).apply(wc);
 		}
 		return launchConfiguration;
+	}
+
+	/**
+	 * Finds or makes a saved launch configuration that runs only the given test.
+	 *
+	 * @param project
+	 * @param test    the test at the cursor
+	 * @return the saved launch configuration
+	 */
+	public static ILaunchConfiguration getSingleTestConfiguration(IProject project, TestAtCursor test)
+			throws CoreException {
+		for (ILaunchConfiguration configuration : RustLaunchDelegateTools.findLaunchConfigurations(project,
+				CARGO_TEST_LAUNCH_CONFIG_TYPE_ID)) {
+			String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, ""); //$NON-NLS-1$
+			String options = configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, ""); //$NON-NLS-1$
+			if (test.name().equals(testName) && test.options().equals(options)) {
+				return configuration;
+			}
+		}
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		// "::" is not permitted in a configuration name
+		String name = launchManager
+				.generateLaunchConfigurationName(project.getName() + " " + test.name().replace("::", ".")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		ILaunchConfigurationWorkingCopy wc = launchManager.getLaunchConfigurationType(CARGO_TEST_LAUNCH_CONFIG_TYPE_ID)
+				.newInstance(null, name);
+		wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, project.getName());
+		wc.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, test.options());
+		wc.setAttribute(TEST_NAME_ATTRIBUTE, test.name());
+		wc.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, test.arguments());
+		new ConfigureViewerSupport(CARGO_UNITTEST_VIEW_SUPPORT_ID).apply(wc);
+		return wc.doSave();
 	}
 }

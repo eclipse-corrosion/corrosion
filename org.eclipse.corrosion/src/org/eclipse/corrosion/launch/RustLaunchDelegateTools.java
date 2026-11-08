@@ -179,9 +179,12 @@ public class RustLaunchDelegateTools {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType configType = launchManager.getLaunchConfigurationType(launchConfigurationType);
 		try {
-			ILaunchConfiguration[] launchConfigurations = findLaunchConfigurations(resource, launchConfigurationType);
-			if (launchConfigurations.length > 0) {
-				return launchConfigurations[0];
+			for (ILaunchConfiguration launchConfiguration : findLaunchConfigurations(resource,
+					launchConfigurationType)) {
+				// A configuration for a single test is not the configuration of the project
+				if (launchConfiguration.getAttribute(CargoTestDelegate.TEST_NAME_ATTRIBUTE, "").isEmpty()) { //$NON-NLS-1$
+					return launchConfiguration;
+				}
 			}
 			String configName = launchManager.generateLaunchConfigurationName(resource.getProject().getName());
 			return configType.newInstance(null, configName);

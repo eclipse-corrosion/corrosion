@@ -31,7 +31,8 @@
         class="org.eclipse.corrosion.edit.RLSStreamConnectionProvider"
         id="org.eclipse.corrosion.rls"
         label="org.eclipse.corrosion.RLS"
-        clientImpl="org.eclipse.corrosion.edit.RLSClientImplementation">
+        clientImpl="org.eclipse.corrosion.edit.RLSClientImplementation"
+        serverInterface="org.eclipse.corrosion.edit.RustAnalyzerServer">
       </server>
       <contentTypeMapping
             contentType="org.eclipse.tm4e.language_pack.rust"
@@ -235,6 +236,27 @@
          <contextualLaunch>
             <enablement>
                <reference definitionId="org.eclipse.corrosion.isCargoProject"/>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+      <!-- The test at the cursor: only for a .rs file in a Cargo project -->
+      <shortcut
+            id="org.eclipse.corrosion.test.singleTestShortcut"
+            class="org.eclipse.corrosion.launch.SingleTestLaunchShortcut"
+            label="%shortcut.label.singleTest"
+            icon="icons/cargo.png"
+            modes="run, debug">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+                  <iterate>
+                     <adapt type="org.eclipse.core.resources.IFile">
+                        <test property="org.eclipse.core.resources.extension" value="rs"/>
+                        <test property="org.eclipse.corrosion.isCargoProject" forcePluginActivation="true"/>
+                     </adapt>
+                  </iterate>
+               </with>
             </enablement>
          </contextualLaunch>
       </shortcut>
