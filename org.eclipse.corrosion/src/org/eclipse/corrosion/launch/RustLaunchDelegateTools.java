@@ -26,11 +26,16 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.run.CargoRunDelegate;
+import org.eclipse.corrosion.test.CargoTestDelegate;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.internal.ui.DebugUIPlugin;
+import org.eclipse.debug.internal.ui.launchConfigurations.LaunchHistory;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -40,6 +45,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
+@SuppressWarnings("restriction") // The launch history has no public API
 public class RustLaunchDelegateTools {
 
 	public static final String CORROSION_DEBUG_LAUNCH_CONFIG_TYPE = "org.eclipse.corrosion.debug.RustDebugDelegate"; //$NON-NLS-1$
@@ -126,6 +132,38 @@ public class RustLaunchDelegateTools {
 		if (launchConfig != null) {
 			launchConfig.launch(mode, new NullProgressMonitor());
 		}
+	}
+
+	/**
+	 * Returns the Cargo run or Cargo test configuration of the project of the given
+	 * resource that was launched last, from the history of the "Run" launch group.
+	 *
+	 * @param resource
+	 * @return The last launched configuration, or null if there is none
+	 */
+	public static ILaunchConfiguration lastRunOrTestConfiguration(IResource resource) {
+		if (resource == null || resource.getProject() == null) {
+			return null;
+		}
+		String projectName = resource.getProject().getName();
+		LaunchHistory history = DebugUIPlugin.getDefault().getLaunchConfigurationManager()
+				.getLaunchHistory(IDebugUIConstants.ID_RUN_LAUNCH_GROUP);
+		if (history == null) {
+			return null;
+		}
+		for (ILaunchConfiguration configuration : history.getCompleteLaunchHistory()) {
+			try {
+				String type = configuration.getType().getIdentifier();
+				if ((CargoRunDelegate.CARGO_RUN_LAUNCH_CONFIG_TYPE.equals(type)
+						|| CargoTestDelegate.CARGO_TEST_LAUNCH_CONFIG_TYPE_ID.equals(type))
+						&& configuration.getAttribute(PROJECT_ATTRIBUTE, "").equals(projectName)) { //$NON-NLS-1$
+					return configuration;
+				}
+			} catch (CoreException e) {
+				CorrosionPlugin.logError(e);
+			}
+		}
+		return null;
 	}
 
 	/**
