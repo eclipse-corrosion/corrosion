@@ -313,6 +313,21 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+/">
       </key>
+      <key
+            contextId="org.eclipse.ui.contexts.window"
+            commandId="org.eclipse.corrosion.launch.runAs"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+F11">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%command.description.runAs"
+            id="org.eclipse.corrosion.launch.runAs"
+            name="%command.name.runAs">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -371,6 +386,37 @@
       <handler
             class="org.eclipse.corrosion.launch.LaunchHandler"
             commandId="rls.run">
+      </handler>
+      <!-- Active only for a .rs file in a Cargo project: the active editor,
+           or one file selected in a view -->
+      <handler
+            class="org.eclipse.corrosion.launch.RunAsHandler"
+            commandId="org.eclipse.corrosion.launch.runAs">
+         <activeWhen>
+            <or>
+               <and>
+                  <with variable="activePart">
+                     <instanceof value="org.eclipse.ui.IEditorPart"/>
+                  </with>
+                  <with variable="activeEditorInput">
+                     <adapt type="org.eclipse.core.resources.IFile">
+                        <test property="org.eclipse.core.resources.extension" value="rs"/>
+                        <test property="org.eclipse.corrosion.isCargoProject" forcePluginActivation="true"/>
+                     </adapt>
+                  </with>
+               </and>
+               <with variable="selection">
+                  <instanceof value="org.eclipse.jface.viewers.IStructuredSelection"/>
+                  <count value="1"/>
+                  <iterate>
+                     <adapt type="org.eclipse.core.resources.IFile">
+                        <test property="org.eclipse.core.resources.extension" value="rs"/>
+                        <test property="org.eclipse.corrosion.isCargoProject" forcePluginActivation="true"/>
+                     </adapt>
+                  </iterate>
+               </with>
+            </or>
+         </activeWhen>
       </handler>
    </extension>
    <extension
