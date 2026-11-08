@@ -48,12 +48,12 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
-import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.debug.ui.ILaunchShortcut2;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.unittest.ui.ConfigureViewerSupport;
 
-public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
+public class CargoTestDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut2 {
 	public static final String CARGO_TEST_LAUNCH_CONFIG_TYPE_ID = "org.eclipse.corrosion.test.CargoTestDelegate"; //$NON-NLS-1$
 	public static final String TEST_NAME_ATTRIBUTE = "TEST_NAME"; //$NON-NLS-1$
 	public static final String CARGO_UNITTEST_VIEW_SUPPORT_ID = "org.eclipse.corrosion.unitTestSupport"; //$NON-NLS-1$
@@ -63,6 +63,28 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		CorrosionPlugin.activateUnitTestCoreBundle();
 		updatedLaunchConfiguration(configuration);
 		return super.getLaunch(configuration, mode);
+	}
+
+	@Override
+	public ILaunchConfiguration[] getLaunchConfigurations(ISelection selection) {
+		return RustLaunchDelegateTools.findLaunchConfigurations(
+				RustLaunchDelegateTools.firstResourceFromSelection(selection), CARGO_TEST_LAUNCH_CONFIG_TYPE_ID);
+	}
+
+	@Override
+	public ILaunchConfiguration[] getLaunchConfigurations(IEditorPart editor) {
+		return RustLaunchDelegateTools.findLaunchConfigurations(RustLaunchDelegateTools.resourceFromEditor(editor),
+				CARGO_TEST_LAUNCH_CONFIG_TYPE_ID);
+	}
+
+	@Override
+	public IResource getLaunchableResource(ISelection selection) {
+		return RustLaunchDelegateTools.firstResourceFromSelection(selection);
+	}
+
+	@Override
+	public IResource getLaunchableResource(IEditorPart editor) {
+		return RustLaunchDelegateTools.resourceFromEditor(editor);
 	}
 
 	@Override

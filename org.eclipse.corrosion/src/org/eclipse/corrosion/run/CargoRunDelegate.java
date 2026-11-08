@@ -34,13 +34,35 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
-import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.debug.ui.ILaunchShortcut2;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
-public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut {
+public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILaunchShortcut2 {
 
 	public static final String CARGO_RUN_LAUNCH_CONFIG_TYPE = "org.eclipse.corrosion.run.CargoRunDelegate"; //$NON-NLS-1$
+
+	@Override
+	public ILaunchConfiguration[] getLaunchConfigurations(ISelection selection) {
+		return RustLaunchDelegateTools.findLaunchConfigurations(
+				RustLaunchDelegateTools.firstResourceFromSelection(selection), CARGO_RUN_LAUNCH_CONFIG_TYPE);
+	}
+
+	@Override
+	public ILaunchConfiguration[] getLaunchConfigurations(IEditorPart editor) {
+		return RustLaunchDelegateTools.findLaunchConfigurations(RustLaunchDelegateTools.resourceFromEditor(editor),
+				CARGO_RUN_LAUNCH_CONFIG_TYPE);
+	}
+
+	@Override
+	public IResource getLaunchableResource(ISelection selection) {
+		return RustLaunchDelegateTools.firstResourceFromSelection(selection);
+	}
+
+	@Override
+	public IResource getLaunchableResource(IEditorPart editor) {
+		return RustLaunchDelegateTools.resourceFromEditor(editor);
+	}
 
 	@Override
 	public void launch(ISelection selection, String mode) {
