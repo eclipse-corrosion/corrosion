@@ -125,6 +125,10 @@ public class SnippetContentAssistProcessor implements IContentAssistProcessor {
 
 		Collection<LSPDocumentInfo> infos = LanguageServiceAccessor.getLSPDocumentInfosFor(document,
 				capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider().get()));
+		if (infos.isEmpty()) {
+			// The language server is not connected to the document yet
+			return new ICompletionProposal[0];
+		}
 		LSPDocumentInfo docInfo = infos.iterator().next();
 
 		return snippets.stream().filter(s -> s.matchesPrefix(prefix))

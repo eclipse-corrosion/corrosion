@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 class TestExportCargoProjectWizard extends AbstractCorrosionTest {
@@ -113,7 +114,9 @@ class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 		assertTrue(basic.getFolder("target").getFolder("package").members().length > 0);
 	}
 
+	// JUnit 5 calls an overriding method as @AfterEach only if it has the annotation
 	@Override
+	@AfterEach
 	public void tearDown() throws CoreException, IOException {
 		if (dialog != null) {
 			dialog.close();
