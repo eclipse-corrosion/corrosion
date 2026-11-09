@@ -37,7 +37,8 @@ public class CargoTestElementAdapterFactory implements IAdapterFactory {
 		ITestRunSession session = element.getTestRunSession();
 		ILaunch launch = session != null ? session.getLaunch() : null;
 		ILaunchConfiguration configuration = launch != null ? launch.getLaunchConfiguration() : null;
-		if (configuration == null) {
+		// The view can show a run whose configuration was deleted later
+		if (configuration == null || !configuration.exists()) {
 			return null;
 		}
 		try {

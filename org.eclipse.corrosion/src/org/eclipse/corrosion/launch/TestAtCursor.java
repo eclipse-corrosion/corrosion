@@ -10,6 +10,7 @@
 package org.eclipse.corrosion.launch;
 
 import java.net.URI;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.edit.RustAnalyzerServer;
@@ -29,6 +31,7 @@ import org.eclipse.lsp4e.LSPEclipseUtils;
 import org.eclipse.lsp4e.LanguageServers;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.google.gson.JsonArray;
@@ -67,8 +70,24 @@ public record TestAtCursor(String name, String options, String arguments) {
 		if (uri == null) {
 			return Optional.empty();
 		}
+		int offset = textSelection.getOffset();
+		// rust-analyzer can need some seconds, for example while it loads the
+		// workspace. Do not block the UI while it replies.
+		AtomicReference<Optional<TestAtCursor>> result = new AtomicReference<>(Optional.empty());
 		try {
-			Position position = LSPEclipseUtils.toPosition(textSelection.getOffset(), document);
+			PlatformUI.getWorkbench().getProgressService()
+					.busyCursorWhile(monitor -> result.set(find(document, uri, offset)));
+		} catch (InvocationTargetException e) {
+			CorrosionPlugin.logError(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		return result.get();
+	}
+
+	private static Optional<TestAtCursor> find(IDocument document, URI uri, int offset) {
+		try {
+			Position position = LSPEclipseUtils.toPosition(offset, document);
 			Map<String, Object> params = Map.of("textDocument", new TextDocumentIdentifier(uri.toString()), //$NON-NLS-1$
 					"position", position); //$NON-NLS-1$
 			Optional<JsonElement> reply = LanguageServers.forDocument(document)
@@ -78,7 +97,9 @@ public record TestAtCursor(String name, String options, String arguments) {
 							: CompletableFuture.completedFuture(null))
 					.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 			return reply.flatMap(result -> fromRunnables(result, position));
-		} catch (BadLocationException | ExecutionException | TimeoutException | RuntimeException e) {
+		} catch (TimeoutException e) {
+			// rust-analyzer is busy or does not run: the dialog shows no single test
+		} catch (BadLocationException | ExecutionException | RuntimeException e) {
 			CorrosionPlugin.logError(e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
@@ -114,13 +135,16 @@ public record TestAtCursor(String name, String options, String arguments) {
 		if (best == null || !(best.get("args") instanceof JsonObject args)) { //$NON-NLS-1$
 			return Optional.empty();
 		}
-		List<String> cargoArgs = toList(args.getAsJsonArray("cargoArgs")); //$NON-NLS-1$
-		List<String> executableArgs = toList(args.getAsJsonArray("executableArgs")); //$NON-NLS-1$
+		List<String> cargoArgs = toList(args.get("cargoArgs")); //$NON-NLS-1$
+		List<String> executableArgs = toList(args.get("executableArgs")); //$NON-NLS-1$
 		if (cargoArgs.isEmpty() || !"test".equals(cargoArgs.get(0)) || executableArgs.isEmpty()) { //$NON-NLS-1$
 			return Optional.empty();
 		}
 		String name = executableArgs.get(0);
-		String options = String.join(" ", cargoArgs.subList(1, cargoArgs.size())); //$NON-NLS-1$
+		List<String> optionList = new ArrayList<>(cargoArgs.subList(1, cargoArgs.size()));
+		// Older rust-analyzer versions give the user's extra Cargo arguments here
+		optionList.addAll(toList(args.get("cargoExtraArgs"))); //$NON-NLS-1$
+		String options = String.join(" ", optionList); //$NON-NLS-1$
 		// The test output goes to the unit test view, so do not mix it with the
 		// output of the test code.
 		List<String> rest = new ArrayList<>(executableArgs.subList(1, executableArgs.size()));
@@ -128,10 +152,11 @@ public record TestAtCursor(String name, String options, String arguments) {
 		return Optional.of(new TestAtCursor(name, options, String.join(" ", rest))); //$NON-NLS-1$
 	}
 
-	private static List<String> toList(JsonArray array) {
+	/** Returns the strings of a JSON array, or an empty list if it is not an array */
+	private static List<String> toList(JsonElement element) {
 		List<String> result = new ArrayList<>();
-		if (array != null) {
-			array.forEach(element -> result.add(element.getAsString()));
+		if (element instanceof JsonArray array) {
+			array.forEach(item -> result.add(item.getAsString()));
 		}
 		return result;
 	}

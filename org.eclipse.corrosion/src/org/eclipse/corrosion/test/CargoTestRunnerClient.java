@@ -23,9 +23,12 @@ import java.util.function.Function;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.unittest.launcher.ITestRunnerClient;
 import org.eclipse.unittest.model.ITestElement;
 import org.eclipse.unittest.model.ITestElement.FailureTrace;
@@ -226,6 +229,7 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	private IProcess process;
 	private ITestRunSession session;
 	private InputStream inputStream;
+	private boolean monitoringDebuggedPrograms;
 
 	ProcessingState fDefaultState = new DefaultProcessingState();
 	ProcessingState fTraceState = new TraceProcessingState();
@@ -238,6 +242,17 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	private IProcess connectProcess(ILaunch launch) {
 		if (this.process != null) {
 			return this.process;
+		}
+		if (ILaunchManager.DEBUG_MODE.equals(launch.getLaunchMode())) {
+			// In debug mode, GDB starts the test programs in other launches. See
+			// CargoTestDelegate.
+			if (!this.monitoringDebuggedPrograms) {
+				this.monitoringDebuggedPrograms = true;
+				inputStream = debuggedTestProgramsStream(launch);
+				Job.createSystem("Monitor debugged test programs", (ICoreRunnable) monitor -> run(inputStream)) //$NON-NLS-1$
+						.schedule(100);
+			}
+			return null;
 		}
 		this.process = launch.getProcesses()[0];
 		if (this.process != null && this.inputStream == null) {
@@ -253,9 +268,76 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 		return this.process;
 	}
 
+	/**
+	 * Returns the output of the test programs that GDB starts for the given Cargo
+	 * test launch, one after the other.
+	 */
+	static InputStream debuggedTestProgramsStream(ILaunch launch) {
+		return new InputStream() {
+			private InputStream current;
+			private volatile boolean closed;
+			/**
+			 * True after the last test program. The reader can read again after the end,
+			 * and then must get the end again, not wait for a next program.
+			 */
+			private boolean ended;
+
+			/** Waits for the next test program. Returns false if no more come. */
+			private boolean nextProgram() {
+				while (current == null && !closed && !ended) {
+					IProcess next;
+					try {
+						next = DebuggedTestPrograms.next(launch);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						return false;
+					}
+					if (next == null) {
+						ended = true;
+						return false;
+					}
+					current = toInputStream(next, false);
+				}
+				return current != null;
+			}
+
+			@Override
+			public int read() throws IOException {
+				while (nextProgram()) {
+					int c = current.read();
+					if (c != -1) {
+						return c;
+					}
+					current = null;
+				}
+				return -1;
+			}
+
+			@Override
+			public int read(byte[] b, int off, int len) throws IOException {
+				while (nextProgram()) {
+					int count = current.read(b, off, len);
+					if (count != -1) {
+						return count;
+					}
+					current = null;
+				}
+				return -1;
+			}
+
+			@Override
+			public void close() {
+				closed = true;
+			}
+		};
+	}
+
 	private static InputStream toInputStream(IProcess process, boolean errorStream) {
-		IStreamMonitor monitor = errorStream ? process.getStreamsProxy().getErrorStreamMonitor()
-				: process.getStreamsProxy().getOutputStreamMonitor();
+		IStreamsProxy streams = process.getStreamsProxy();
+		if (streams == null) {
+			return null;
+		}
+		IStreamMonitor monitor = errorStream ? streams.getErrorStreamMonitor() : streams.getOutputStreamMonitor();
 		if (monitor == null) {
 			return null;
 		}
@@ -367,6 +449,15 @@ public class CargoTestRunnerClient implements ITestRunnerClient {
 	@Override
 	public void stopTest() {
 		stopMonitoring();
+		ILaunch launch = session.getLaunch();
+		// In debug mode, also stop the debug run, else the next test programs start
+		if (launch != null && ILaunchManager.DEBUG_MODE.equals(launch.getLaunchMode()) && launch.canTerminate()) {
+			try {
+				launch.terminate();
+			} catch (DebugException e) {
+				CorrosionPlugin.logError(e);
+			}
+		}
 	}
 
 	@Override
