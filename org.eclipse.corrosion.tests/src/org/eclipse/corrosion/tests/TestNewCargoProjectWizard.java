@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -155,7 +156,11 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		}
 	}
 
+	// JUnit 5 does not call an overriding method as @AfterEach unless it has the
+	// annotation too. Without it, the language server stayed disabled for all
+	// later tests.
 	@Override
+	@AfterEach
 	public void tearDown() throws CoreException, IOException {
 		// Close editors and stop any language server before deleting the projects, so
 		// a still-running server can't hold workspace/file locks and hang the test (and
