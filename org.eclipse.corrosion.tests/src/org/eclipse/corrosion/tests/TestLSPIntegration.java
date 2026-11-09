@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -27,11 +28,17 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.lsp4e.ContentTypeToLanguageServerDefinition;
+import org.eclipse.lsp4e.LSPEclipseUtils;
+import org.eclipse.lsp4e.LanguageServerWrapper;
 import org.eclipse.lsp4e.LanguageServers;
+import org.eclipse.lsp4e.LanguageServersRegistry;
+import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -42,6 +49,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.opentest4j.AssertionFailedError;
 
+@SuppressWarnings("restriction")
 class TestLSPIntegration extends AbstractCorrosionTest {
 
 	@Test
@@ -101,6 +109,22 @@ class TestLSPIntegration extends AbstractCorrosionTest {
 				.append(store.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE)).append('"');
 		text.append("; language server for the document: ") //$NON-NLS-1$
 				.append(LanguageServers.forDocument(document).anyMatching());
+		text.append("; content types: ").append(LSPEclipseUtils.getDocumentContentTypes(document).stream() //$NON-NLS-1$
+				.map(IContentType::getId).toList());
+		URI uri = LSPEclipseUtils.toUri(document);
+		for (ContentTypeToLanguageServerDefinition mapping : LanguageServersRegistry.getInstance()
+				.getContentTypeToLSPExtensions()) {
+			if (mapping.getValue().id.startsWith("org.eclipse.corrosion")) { //$NON-NLS-1$
+				text.append("; mapping ").append(mapping.getKey().getId()).append(" -> ") //$NON-NLS-1$ //$NON-NLS-2$
+						.append(mapping.getValue().id).append(" user enabled: ").append(mapping.isUserEnabled()) //$NON-NLS-1$
+						.append(", enabled for file: ").append(uri != null && mapping.isEnabled(uri)); //$NON-NLS-1$
+			}
+		}
+		text.append("; started servers:"); //$NON-NLS-1$
+		for (LanguageServerWrapper wrapper : LanguageServiceAccessor.getStartedWrappers(capabilities -> true, true)) {
+			text.append(" [").append(wrapper.serverDefinition.id).append(" active: ").append(wrapper.isActive()) //$NON-NLS-1$ //$NON-NLS-2$
+					.append(", startup failed: ").append(wrapper.startupFailed()).append(']'); //$NON-NLS-1$
+		}
 		text.append("; markers:"); //$NON-NLS-1$
 		try {
 			for (IMarker marker : file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)) {
