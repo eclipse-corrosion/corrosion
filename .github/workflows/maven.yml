@@ -41,4 +41,4 @@ jobs:
         rust-analyzer --version
 
     - name: Build with Maven
-      run: sudo apt-get update;sudo apt-get install gdb;xvfb-run mvn -U -V -e -ntp clean install --file pom.xml
+      run: sudo apt-get update;sudo apt-get install gdb;xvfb-run mvn -U -V -e -ntp clean install -Dtycho.showEclipseLog=true --file pom.xml

@@ -54,7 +54,11 @@ class TestLSPIntegration extends AbstractCorrosionTest {
 			try {
 				return Arrays.stream(file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)).anyMatch(marker -> {
 					try {
-						return marker.getType().contains("lsp4e") && marker.getAttribute(IMarker.LINE_NUMBER, -1) == 3;
+						// The missing "}" gives errors from the syntax check of rust-analyzer at
+						// once, and an error on line 3 from "cargo check" later. Any of them is
+						// sufficient.
+						return marker.getType().contains("lsp4e")
+								&& marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR;
 					} catch (CoreException ex) {
 						return false;
 					}
