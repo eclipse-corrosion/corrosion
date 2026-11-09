@@ -22,7 +22,9 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.corrosion.CorrosionPlugin;
@@ -73,13 +75,16 @@ class TestRustAnalyzerDownload extends AbstractCorrosionTest {
 	}
 
 	@AfterEach
-	void restoreInstalledRustAnalyzer() {
+	void restoreInstalledRustAnalyzer() throws IOException {
+		// Do all steps, and then fail with the first error, so that the test report
+		// tells where the backup of a file that was not restored is
+		List<IOException> errors = new ArrayList<>();
 		try {
 			if (downloadLocationKept) {
 				try {
 					Files.deleteIfExists(DOWNLOAD_LOCATION);
 				} catch (IOException e) {
-					e.printStackTrace();
+					errors.add(e);
 				}
 			}
 			for (Map.Entry<Path, Path> backup : backups.entrySet()) {
@@ -87,20 +92,20 @@ class TestRustAnalyzerDownload extends AbstractCorrosionTest {
 					Files.deleteIfExists(backup.getKey());
 					Files.move(backup.getValue(), backup.getKey());
 				} catch (IOException e) {
-					System.err.println("Could not restore " + backup.getKey() + " from " + backup.getValue()); //$NON-NLS-1$ //$NON-NLS-2$
-					e.printStackTrace();
+					errors.add(new IOException("Could not restore " + backup.getKey() + " from " + backup.getValue(), e)); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
-			if (backupFolder != null) {
-				try {
-					Files.deleteIfExists(backupFolder);
-				} catch (IOException e) {
-					e.printStackTrace(); // not empty: a restore failed, keep the backup
-				}
+			if (errors.isEmpty() && backupFolder != null) {
+				Files.deleteIfExists(backupFolder);
 			}
 		} finally {
 			CorrosionPlugin.getDefault().getPreferenceStore()
 					.setValue(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE, originalPreference);
+		}
+		if (!errors.isEmpty()) {
+			IOException first = errors.get(0);
+			errors.subList(1, errors.size()).forEach(first::addSuppressed);
+			throw first;
 		}
 	}
 
