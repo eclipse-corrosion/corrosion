@@ -65,6 +65,7 @@ public class Messages extends NLS {
 	public static String RLSStreamConnectionProvider_rlsConfigurationError;
 	public static String RLSStreamConnectionProvider_rustSupportNotFound;
 	public static String RLSStreamConnectionProvider_unableToSet;
+	public static String RLSStreamConnectionProvider_noVersion;
 	public static String RustDebugDelegate_unableToLaunch_title;
 	public static String RustDebugDelegate_unableToLaunch_message;
 	public static String RustDebugTab_selectExecutable_title;

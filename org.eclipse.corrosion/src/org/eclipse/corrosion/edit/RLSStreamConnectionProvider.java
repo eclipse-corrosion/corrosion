@@ -52,8 +52,16 @@ public class RLSStreamConnectionProvider implements StreamConnectionProvider {
 	@Override
 	public void start() throws IOException {
 		File languageServer = RustManager.getLanguageServerExecutable();
-		if ((languageServer == null || !RustManager.setSystemProperties() || !CorrosionPlugin
-				.validateCommandVersion(languageServer.getAbsolutePath(), RustManager.RLS_VERSION_FORMAT_PATTERN))) {
+		if (languageServer == null || !RustManager.setSystemProperties()) {
+			showSetupRustNotification();
+			return;
+		}
+		if (!CorrosionPlugin.validateCommandVersion(languageServer.getAbsolutePath(),
+				RustManager.RLS_VERSION_FORMAT_PATTERN)) {
+			CorrosionPlugin.getDefault().getLog()
+					.log(Status.error(MessageFormat.format(Messages.RLSStreamConnectionProvider_noVersion,
+							languageServer.getAbsolutePath(),
+							CorrosionPlugin.getOutputFromCommand(languageServer.getAbsolutePath(), "--version")))); //$NON-NLS-1$
 			showSetupRustNotification();
 			return;
 		}

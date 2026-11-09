@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.corrosion.tests;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
@@ -24,13 +27,20 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.corrosion.CorrosionPlugin;
+import org.eclipse.corrosion.CorrosionPreferenceInitializer;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.lsp4e.LanguageServers;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.opentest4j.AssertionFailedError;
 
 class TestLSPIntegration extends AbstractCorrosionTest {
 
@@ -50,6 +60,15 @@ class TestLSPIntegration extends AbstractCorrosionTest {
 		IFile file = project.getFolder("src").getFile("main.rs");
 		editor = IDE.openEditor(activePage, file);
 		Display display = editor.getEditorSite().getShell().getDisplay();
+		IDocument document = ((ITextEditor) editor).getDocumentProvider().getDocument(editor.getEditorInput());
+		try {
+			waitForErrorMarker(display, file);
+		} catch (AssertionFailedError e) {
+			fail("No error marker of rust-analyzer. " + describeLanguageServer(file, document), e); //$NON-NLS-1$
+		}
+	}
+
+	private static void waitForErrorMarker(Display display, IFile file) {
 		waitUntil(display, Duration.ofMinutes(1), () -> {
 			try {
 				return Arrays.stream(file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)).anyMatch(marker -> {
@@ -67,5 +86,32 @@ class TestLSPIntegration extends AbstractCorrosionTest {
 				return false;
 			}
 		});
+	}
+
+	/** Facts about the language server, to find the cause when the test fails */
+	private static String describeLanguageServer(IFile file, IDocument document) {
+		StringBuilder text = new StringBuilder();
+		IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
+		String path = store.getString(CorrosionPreferenceInitializer.RLS_PATH_PREFERENCE);
+		File executable = new File(path);
+		text.append("rust-analyzer path: \"").append(path).append("\", exists: ").append(executable.exists()) //$NON-NLS-1$ //$NON-NLS-2$
+				.append(", executable: ").append(executable.canExecute()); //$NON-NLS-1$
+		text.append("; --version: \"").append(CorrosionPlugin.getOutputFromCommand(path, "--version")).append('"'); //$NON-NLS-1$ //$NON-NLS-2$
+		text.append("; sysroot: \"") //$NON-NLS-1$
+				.append(store.getString(CorrosionPreferenceInitializer.SYSROOT_PATH_PREFERENCE)).append('"');
+		text.append("; language server for the document: ") //$NON-NLS-1$
+				.append(LanguageServers.forDocument(document).anyMatching());
+		text.append("; markers:"); //$NON-NLS-1$
+		try {
+			for (IMarker marker : file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)) {
+				text.append(" [").append(marker.getType()).append(" line ") //$NON-NLS-1$ //$NON-NLS-2$
+						.append(marker.getAttribute(IMarker.LINE_NUMBER, -1)).append(" severity ") //$NON-NLS-1$
+						.append(marker.getAttribute(IMarker.SEVERITY, -1)).append(": ") //$NON-NLS-1$
+						.append(marker.getAttribute(IMarker.MESSAGE, "")).append(']'); //$NON-NLS-1$
+			}
+		} catch (CoreException e) {
+			text.append(' ').append(e);
+		}
+		return text.toString();
 	}
 }
