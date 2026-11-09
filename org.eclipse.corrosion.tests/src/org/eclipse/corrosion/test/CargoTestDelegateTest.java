@@ -12,20 +12,33 @@ package org.eclipse.corrosion.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.eclipse.corrosion.test.CargoTestDelegate.TestProgram;
 import org.junit.jupiter.api.Test;
 
 class CargoTestDelegateTest {
 
 	@Test
-	void testExecutableOfTestArtifact() {
+	void testProgramOfTestArtifact() {
 		String line = """
-				{"reason":"compiler-artifact","package_id":"path+file:///work/functions#0.1.0",\
+				{"reason":"compiler-artifact","package_id":"path+file:///work/ws/functions#0.1.0",\
+				"manifest_path":"/work/ws/functions/Cargo.toml",\
 				"target":{"kind":["bin"],"name":"functions"},\
 				"profile":{"opt_level":"0","debuginfo":2,"test":true},\
-				"filenames":["/work/functions/target/debug/deps/functions-6d597759b8187556"],\
-				"executable":"/work/functions/target/debug/deps/functions-6d597759b8187556","fresh":true}"""; //$NON-NLS-1$
-		assertEquals("/work/functions/target/debug/deps/functions-6d597759b8187556", //$NON-NLS-1$
-				CargoTestDelegate.testExecutable(line));
+				"filenames":["/work/ws/target/debug/deps/functions-6d597759b8187556"],\
+				"executable":"/work/ws/target/debug/deps/functions-6d597759b8187556","fresh":true}"""; //$NON-NLS-1$
+		TestProgram program = CargoTestDelegate.testProgram(line);
+		assertEquals("/work/ws/target/debug/deps/functions-6d597759b8187556", program.executable()); //$NON-NLS-1$
+		// Cargo starts a test program in the folder of its package
+		assertEquals("/work/ws/functions", program.directory()); //$NON-NLS-1$
+	}
+
+	@Test
+	void testProgramWithoutManifestPath() {
+		String line = """
+				{"reason":"compiler-artifact","profile":{"test":true},"executable":"/work/target/debug/deps/a-1"}"""; //$NON-NLS-1$
+		TestProgram program = CargoTestDelegate.testProgram(line);
+		assertEquals("/work/target/debug/deps/a-1", program.executable()); //$NON-NLS-1$
+		assertNull(program.directory());
 	}
 
 	@Test
@@ -33,20 +46,20 @@ class CargoTestDelegateTest {
 		String line = """
 				{"reason":"compiler-artifact","profile":{"test":false},\
 				"executable":"/work/functions/target/debug/functions","fresh":true}"""; //$NON-NLS-1$
-		assertNull(CargoTestDelegate.testExecutable(line));
+		assertNull(CargoTestDelegate.testProgram(line));
 	}
 
 	@Test
 	void testTestArtifactWithoutExecutable() {
 		String line = """
 				{"reason":"compiler-artifact","profile":{"test":true},"executable":null}"""; //$NON-NLS-1$
-		assertNull(CargoTestDelegate.testExecutable(line));
+		assertNull(CargoTestDelegate.testProgram(line));
 	}
 
 	@Test
 	void testOtherMessages() {
-		assertNull(CargoTestDelegate.testExecutable("{\"reason\":\"build-finished\",\"success\":true}")); //$NON-NLS-1$
-		assertNull(CargoTestDelegate.testExecutable("   Compiling functions v0.1.0")); //$NON-NLS-1$
-		assertNull(CargoTestDelegate.testExecutable("")); //$NON-NLS-1$
+		assertNull(CargoTestDelegate.testProgram("{\"reason\":\"build-finished\",\"success\":true}")); //$NON-NLS-1$
+		assertNull(CargoTestDelegate.testProgram("   Compiling functions v0.1.0")); //$NON-NLS-1$
+		assertNull(CargoTestDelegate.testProgram("")); //$NON-NLS-1$
 	}
 }

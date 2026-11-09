@@ -83,6 +83,33 @@ class TestAtCursorTest {
 	}
 
 	@Test
+	void testAddsCargoExtraArgs() {
+		String runnables = """
+				[{"label": "test tests::adds",
+				  "location": {"targetRange": {"start": {"line": 8, "character": 4}, "end": {"line": 11, "character": 5}}},
+				  "args": {"cargoArgs": ["test", "--package", "ratest", "--lib"],
+				           "cargoExtraArgs": ["--features", "extra"],
+				           "executableArgs": ["tests::adds", "--exact"]}}]
+				"""; //$NON-NLS-1$
+		Optional<TestAtCursor> test = TestAtCursor.fromRunnables(JsonParser.parseString(runnables),
+				new Position(9, 10));
+		assertEquals("--package ratest --lib --features extra", test.map(TestAtCursor::options).orElse(null)); //$NON-NLS-1$
+	}
+
+	@Test
+	void testNullArgumentLists() {
+		String runnables = """
+				[{"label": "test tests::adds",
+				  "location": {"targetRange": {"start": {"line": 8, "character": 4}, "end": {"line": 11, "character": 5}}},
+				  "args": {"cargoArgs": ["test", "--lib"], "cargoExtraArgs": null,
+				           "executableArgs": ["tests::adds", "--exact"]}}]
+				"""; //$NON-NLS-1$
+		Optional<TestAtCursor> test = TestAtCursor.fromRunnables(JsonParser.parseString(runnables),
+				new Position(9, 10));
+		assertEquals("--lib", test.map(TestAtCursor::options).orElse(null)); //$NON-NLS-1$
+	}
+
+	@Test
 	void testIgnoresRunnableThatIsNotCargoTest() {
 		String runnables = """
 				[{"label": "test tests::adds",

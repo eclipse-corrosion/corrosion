@@ -115,6 +115,13 @@ class TestLaunchShortcuts extends AbstractCorrosionTest {
 
 		// The same test gives the same configuration
 		assertEquals(config, CargoTestDelegate.getSingleTestConfiguration(project, test));
+
+		// Other arguments, for example without --exact, give a different configuration
+		ILaunchConfiguration other = CargoTestDelegate.getSingleTestConfiguration(project,
+				new TestAtCursor("tests::it_works", "--package basic --lib", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		configurations.add(other);
+		assertFalse(config.equals(other));
+		assertEquals("", other.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "x")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Test

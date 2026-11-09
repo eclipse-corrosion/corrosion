@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.dsf.gdb.IGDBLaunchConfigurationConstants;
+import org.eclipse.cdt.dsf.gdb.IGdbDebugConstants;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -234,63 +235,137 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	/**
 	 * Debugs the tests. A short test can end before a debugger can attach to it,
 	 * thus GDB starts the test programs: first "cargo test --no-run" builds them,
-	 * then each test program starts in a Rust debug launch.
+	 * then each test program starts in a Rust debug launch, one after the other,
+	 * as "cargo test" does. The unit test view reads the output of the test
+	 * programs.
 	 */
 	private static void debugTests(ILaunchConfiguration configuration, ILaunch launch, IProject project,
 			File workingDirectory, String[] env) throws CoreException {
-		String options = RustLaunchDelegateTools
-				.performVariableSubstitution(configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim()); //$NON-NLS-1$
-		String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, "").trim(); //$NON-NLS-1$
-		String arguments = RustLaunchDelegateTools.performVariableSubstitution(
-				configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim()); //$NON-NLS-1$
-		String manifest = project.getFile("Cargo.toml").getLocation().toPortableString(); //$NON-NLS-1$
-
-		// Build the test programs. The console shows the build output and errors.
-		List<String> buildCommand = new ArrayList<>();
-		buildCommand.add(CargoTools.getCargoCommand());
-		buildCommand.add("test"); //$NON-NLS-1$
-		buildCommand.add("--no-run"); //$NON-NLS-1$
-		if (!options.isEmpty()) {
-			buildCommand.addAll(Arrays.asList(options.split("\\s+"))); //$NON-NLS-1$
-		}
-		buildCommand.add("--manifest-path"); //$NON-NLS-1$
-		buildCommand.add(manifest);
-		String[] buildCmdLine = buildCommand.toArray(new String[buildCommand.size()]);
-		Process build = DebugPlugin.exec(buildCmdLine, workingDirectory, env);
-		IProcess buildProcess = DebugPlugin.newProcess(launch, build, "cargo test --no-run"); //$NON-NLS-1$
-		buildProcess.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", buildCmdLine)); //$NON-NLS-1$
 		try {
+			String options = RustLaunchDelegateTools.performVariableSubstitution(
+					configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+			String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, "").trim(); //$NON-NLS-1$
+			String arguments = RustLaunchDelegateTools.performVariableSubstitution(
+					configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, "").trim()); //$NON-NLS-1$
+			String manifest = project.getFile("Cargo.toml").getLocation().toPortableString(); //$NON-NLS-1$
+
+			// Build the test programs. The console shows the build output and errors.
+			List<String> buildCommand = new ArrayList<>();
+			buildCommand.add(CargoTools.getCargoCommand());
+			buildCommand.add("test"); //$NON-NLS-1$
+			buildCommand.add("--no-run"); //$NON-NLS-1$
+			if (!options.isEmpty()) {
+				buildCommand.addAll(Arrays.asList(options.split("\\s+"))); //$NON-NLS-1$
+			}
+			buildCommand.add("--manifest-path"); //$NON-NLS-1$
+			buildCommand.add(manifest);
+			String[] buildCmdLine = buildCommand.toArray(new String[buildCommand.size()]);
+			Process build = DebugPlugin.exec(buildCmdLine, workingDirectory, env);
+			IProcess buildProcess = DebugPlugin.newProcess(launch, build, "cargo test --no-run"); //$NON-NLS-1$
+			buildProcess.setAttribute(IProcess.ATTR_CMDLINE, String.join(" ", buildCmdLine)); //$NON-NLS-1$
 			if (build.waitFor() != 0) {
 				return; // the console shows the errors
 			}
+
+			// Get the test programs. Cargo does not build again.
+			buildCommand.add("--message-format=json"); //$NON-NLS-1$
+			List<TestProgram> programs = listTestPrograms(buildCommand, workingDirectory, env);
+
+			String programArguments = (testName + " " + arguments).trim(); //$NON-NLS-1$
+			if (!programArguments.contains("--color")) { //$NON-NLS-1$
+				// GDB gives the test program a terminal. Colors in the output would stop
+				// the unit test view from reading it.
+				programArguments = (programArguments + " --color never").trim(); //$NON-NLS-1$
+			}
+			ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+			for (TestProgram program : programs) {
+				if (!launchManager.isRegistered(launch)) {
+					return; // the user removed the test launch
+				}
+				ILaunch debugLaunch = getTestDebugConfiguration(configuration, project, program, options,
+						programArguments).launch(ILaunchManager.DEBUG_MODE, new NullProgressMonitor());
+				IProcess testProcess = waitForTestProcess(debugLaunch);
+				if (testProcess != null) {
+					DebuggedTestPrograms.add(launch, testProcess);
+				}
+				while (!debugLaunch.isTerminated() && launchManager.isRegistered(launch)) {
+					Thread.sleep(100);
+				}
+			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			return;
-		}
-
-		// Get the paths of the test programs. Cargo does not build again.
-		buildCommand.add("--message-format=json"); //$NON-NLS-1$
-		List<String> executables = new ArrayList<>();
-		Process list = DebugPlugin.exec(buildCommand.toArray(new String[buildCommand.size()]), workingDirectory, env);
-		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(list.getInputStream(), StandardCharsets.UTF_8))) {
-			reader.lines().map(CargoTestDelegate::testExecutable).filter(Objects::nonNull).forEach(executables::add);
-		} catch (IOException e) {
-			throw new CoreException(Status.error(e.getMessage(), e));
-		}
-
-		String programArguments = (testName + " " + arguments).trim(); //$NON-NLS-1$
-		for (String executable : executables) {
-			getTestDebugConfiguration(configuration, project, executable, options, programArguments)
-					.launch(ILaunchManager.DEBUG_MODE, new NullProgressMonitor());
+		} finally {
+			DebuggedTestPrograms.done(launch);
 		}
 	}
 
 	/**
-	 * Returns the test program path from one line of "cargo --message-format=json"
+	 * Runs the given "cargo --message-format=json" command and returns the test
+	 * programs from its output.
+	 */
+	private static List<TestProgram> listTestPrograms(List<String> command, File workingDirectory, String[] env)
+			throws CoreException {
+		ProcessBuilder builder = new ProcessBuilder(command).directory(workingDirectory)
+				// Cargo writes its status lines to stderr. Discard them, so that Cargo does not
+				// block when the stderr buffer is full.
+				.redirectError(ProcessBuilder.Redirect.DISCARD);
+		if (env != null) {
+			builder.environment().clear();
+			for (String variable : env) {
+				int separator = variable.indexOf('=');
+				if (separator > 0) {
+					builder.environment().put(variable.substring(0, separator), variable.substring(separator + 1));
+				}
+			}
+		}
+		List<TestProgram> programs = new ArrayList<>();
+		try {
+			Process process = builder.start();
+			try (BufferedReader reader = new BufferedReader(
+					new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+				reader.lines().map(CargoTestDelegate::testProgram).filter(Objects::nonNull).forEach(programs::add);
+			}
+		} catch (IOException e) {
+			throw new CoreException(Status.error(e.getMessage(), e));
+		}
+		return programs;
+	}
+
+	/**
+	 * Waits until GDB starts the test program, and returns its process. GDB starts
+	 * it in a different process of the debug launch.
+	 *
+	 * @return the process of the test program, or null if the debug launch ended
+	 *         first
+	 */
+	private static IProcess waitForTestProcess(ILaunch debugLaunch) throws InterruptedException {
+		while (!debugLaunch.isTerminated()) {
+			for (IProcess process : debugLaunch.getProcesses()) {
+				if (IGdbDebugConstants.INFERIOR_PROCESS_CREATION_VALUE
+						.equals(process.getAttribute(IGdbDebugConstants.PROCESS_TYPE_CREATION_ATTR))) {
+					return process;
+				}
+			}
+			Thread.sleep(50);
+		}
+		return null;
+	}
+
+	/**
+	 * A test program that Cargo built.
+	 *
+	 * @param executable the path of the test program
+	 * @param directory  the folder of the package of the test program. Cargo
+	 *                   starts the test program in this folder.
+	 */
+	record TestProgram(String executable, String directory) {
+	}
+
+	/**
+	 * Returns the test program from one line of "cargo --message-format=json"
 	 * output, or null if the line is not about a test program.
 	 */
-	static String testExecutable(String line) {
+	static TestProgram testProgram(String line) {
 		try {
 			if (!(JsonParser.parseString(line) instanceof JsonObject message)
 					|| !"compiler-artifact".equals(getString(message, "reason")) //$NON-NLS-1$ //$NON-NLS-2$
@@ -298,7 +373,13 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 					|| !profile.has("test") || !profile.get("test").getAsBoolean()) { //$NON-NLS-1$ //$NON-NLS-2$
 				return null;
 			}
-			return getString(message, "executable"); //$NON-NLS-1$
+			String executable = getString(message, "executable"); //$NON-NLS-1$
+			if (executable == null) {
+				return null;
+			}
+			String manifest = getString(message, "manifest_path"); //$NON-NLS-1$
+			String directory = manifest != null ? new File(manifest).getParent() : null;
+			return new TestProgram(executable, directory);
 		} catch (RuntimeException e) {
 			return null; // not JSON
 		}
@@ -315,11 +396,11 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 	 * the launch history.
 	 */
 	private static ILaunchConfiguration getTestDebugConfiguration(ILaunchConfiguration testConfiguration,
-			IProject project, String executable, String options, String programArguments) throws CoreException {
+			IProject project, TestProgram program, String options, String programArguments) throws CoreException {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType type = launchManager
 				.getLaunchConfigurationType(RustLaunchDelegateTools.CORROSION_DEBUG_LAUNCH_CONFIG_TYPE);
-		String name = testConfiguration.getName() + " (debug " + new File(executable).getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		String name = testConfiguration.getName() + " (debug " + new File(program.executable()).getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		ILaunchConfigurationWorkingCopy wc = null;
 		for (ILaunchConfiguration existing : launchManager.getLaunchConfigurations(type)) {
 			if (existing.getName().equals(name)) {
@@ -329,11 +410,12 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		if (wc == null) {
 			wc = type.newInstance(null, launchManager.generateLaunchConfigurationName(name));
 		}
+		String directory = program.directory() != null ? program.directory() : project.getLocation().toString();
 		wc.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
-		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executable);
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, program.executable());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, programArguments);
-		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, project.getLocation().toString());
+		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, directory);
 		// The Rust debug launch builds first: "cargo test --no-run" has nothing to do now
 		wc.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, ("test --no-run " + options).trim()); //$NON-NLS-1$
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_DEBUGGER_STOP_AT_MAIN, false);
@@ -367,7 +449,8 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 				CARGO_TEST_LAUNCH_CONFIG_TYPE_ID)) {
 			String testName = configuration.getAttribute(TEST_NAME_ATTRIBUTE, ""); //$NON-NLS-1$
 			String options = configuration.getAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, ""); //$NON-NLS-1$
-			if (test.name().equals(testName) && test.options().equals(options)) {
+			String arguments = configuration.getAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, ""); //$NON-NLS-1$
+			if (test.name().equals(testName) && test.options().equals(options) && test.arguments().equals(arguments)) {
 				return configuration;
 			}
 		}

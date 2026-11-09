@@ -86,7 +86,9 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			cmdLine.add(project.getFile("Cargo.toml").getLocation().toString()); //$NON-NLS-1$
 		}
 
-		Process restoreProcess = DebugPlugin.exec(cmdLine.toArray(new String[cmdLine.size()]), workingDirectory);
+		// Build with the environment of the configuration, as the program runs with it
+		Process restoreProcess = DebugPlugin.exec(cmdLine.toArray(new String[cmdLine.size()]), workingDirectory,
+				DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration));
 		String labelString = "cargo "; //$NON-NLS-1$
 		if (buildCommand.length() > 20) {
 			labelString += buildCommand.substring(0, 20) + "..."; //$NON-NLS-1$

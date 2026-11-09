@@ -114,13 +114,16 @@ public record TestAtCursor(String name, String options, String arguments) {
 		if (best == null || !(best.get("args") instanceof JsonObject args)) { //$NON-NLS-1$
 			return Optional.empty();
 		}
-		List<String> cargoArgs = toList(args.getAsJsonArray("cargoArgs")); //$NON-NLS-1$
-		List<String> executableArgs = toList(args.getAsJsonArray("executableArgs")); //$NON-NLS-1$
+		List<String> cargoArgs = toList(args.get("cargoArgs")); //$NON-NLS-1$
+		List<String> executableArgs = toList(args.get("executableArgs")); //$NON-NLS-1$
 		if (cargoArgs.isEmpty() || !"test".equals(cargoArgs.get(0)) || executableArgs.isEmpty()) { //$NON-NLS-1$
 			return Optional.empty();
 		}
 		String name = executableArgs.get(0);
-		String options = String.join(" ", cargoArgs.subList(1, cargoArgs.size())); //$NON-NLS-1$
+		List<String> optionList = new ArrayList<>(cargoArgs.subList(1, cargoArgs.size()));
+		// Older rust-analyzer versions give the user's extra Cargo arguments here
+		optionList.addAll(toList(args.get("cargoExtraArgs"))); //$NON-NLS-1$
+		String options = String.join(" ", optionList); //$NON-NLS-1$
 		// The test output goes to the unit test view, so do not mix it with the
 		// output of the test code.
 		List<String> rest = new ArrayList<>(executableArgs.subList(1, executableArgs.size()));
@@ -128,10 +131,11 @@ public record TestAtCursor(String name, String options, String arguments) {
 		return Optional.of(new TestAtCursor(name, options, String.join(" ", rest))); //$NON-NLS-1$
 	}
 
-	private static List<String> toList(JsonArray array) {
+	/** Returns the strings of a JSON array, or an empty list if it is not an array */
+	private static List<String> toList(JsonElement element) {
 		List<String> result = new ArrayList<>();
-		if (array != null) {
-			array.forEach(element -> result.add(element.getAsString()));
+		if (element instanceof JsonArray array) {
+			array.forEach(item -> result.add(item.getAsString()));
 		}
 		return result;
 	}
