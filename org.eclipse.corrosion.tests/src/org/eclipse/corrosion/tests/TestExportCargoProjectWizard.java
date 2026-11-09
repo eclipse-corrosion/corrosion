@@ -114,13 +114,10 @@ class TestExportCargoProjectWizard extends AbstractCorrosionTest {
 		assertTrue(basic.getFolder("target").getFolder("package").members().length > 0);
 	}
 
-	// JUnit 5 calls an overriding method as @AfterEach only if it has the annotation
-	@Override
 	@AfterEach
-	public void tearDown() throws CoreException, IOException {
+	void closeDialog() {
 		if (dialog != null) {
 			dialog.close();
 		}
-		super.tearDown();
 	}
 }
