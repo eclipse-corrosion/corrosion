@@ -156,12 +156,8 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		}
 	}
 
-	// JUnit 5 does not call an overriding method as @AfterEach unless it has the
-	// annotation too. Without it, the language server stayed disabled for all
-	// later tests.
-	@Override
 	@AfterEach
-	public void tearDown() throws CoreException, IOException {
+	void cleanUpWizardProjects() throws CoreException {
 		// Close editors and stop any language server before deleting the projects, so
 		// a still-running server can't hold workspace/file locks and hang the test (and
 		// CI). The language server is normally disabled for this test (see
@@ -173,7 +169,6 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 					project.delete(true, new NullProgressMonitor());
 				}
 			}
-			super.tearDown();
 		} finally {
 			setRustLanguageServerEnabled(true);
 		}
@@ -189,9 +184,6 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 				}
 			}
 		});
-		// Stop the servers and also remove them. A stopped server that stays in the list
-		// of started servers is used again for the documents of the next tests, but it
-		// does not connect to them, so rust-analyzer does not work in those tests.
 		LanguageServiceAccessor.clearStartedServers();
 	}
 }
