@@ -167,6 +167,7 @@ public class Messages extends NLS {
 	public static String CargoTestTab_Title;
 	public static String RustDebugTabGroup_gdbErrorMsg;
 	public static String LaunchHandler_unableToLaunch;
+	public static String CargoTestDelegate_debugRun;
 	public static String SingleTestLaunchShortcut_title;
 	public static String SingleTestLaunchShortcut_noTestAtCursor;
 	public static String LaunchHandler_launchingFromCargoRegistryUnsupported;

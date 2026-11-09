@@ -41,6 +41,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.corrosion.RustManager;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Display;
@@ -143,6 +144,19 @@ public abstract class AbstractCorrosionTest {
 			provisionProject(projectPrefix);
 		}
 		return this.provisionedProjects.get(projectPrefix);
+	}
+
+	/**
+	 * Debug tests: never ask to switch to the Debug perspective. The question is a
+	 * modal dialog. It blocks the UI thread of the test, and nothing closes it.
+	 */
+	@SuppressWarnings("restriction")
+	protected static void neverAskToSwitchPerspective() {
+		IPreferenceStore store = org.eclipse.debug.internal.ui.DebugUIPlugin.getDefault().getPreferenceStore();
+		store.setValue(org.eclipse.debug.internal.ui.IInternalDebugUIConstants.PREF_SWITCH_TO_PERSPECTIVE,
+				MessageDialogWithToggle.NEVER);
+		store.setValue(org.eclipse.debug.internal.ui.IInternalDebugUIConstants.PREF_SWITCH_PERSPECTIVE_ON_SUSPEND,
+				MessageDialogWithToggle.NEVER);
 	}
 
 	protected Shell getShell() {

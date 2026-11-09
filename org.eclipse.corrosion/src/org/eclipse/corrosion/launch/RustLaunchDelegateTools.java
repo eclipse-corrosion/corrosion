@@ -152,6 +152,9 @@ public class RustLaunchDelegateTools {
 			return null;
 		}
 		for (ILaunchConfiguration configuration : history.getCompleteLaunchHistory()) {
+			if (!configuration.exists()) {
+				continue; // deleted, and the history does not know it yet
+			}
 			try {
 				String type = configuration.getType().getIdentifier();
 				if ((CargoRunDelegate.CARGO_RUN_LAUNCH_CONFIG_TYPE.equals(type)

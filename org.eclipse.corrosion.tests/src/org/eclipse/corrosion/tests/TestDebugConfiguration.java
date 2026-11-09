@@ -61,6 +61,7 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 	@BeforeAll
 	public static void setUpListener() {
 		CorrosionPlugin.getDefault().getLog().addLogListener(listener);
+		neverAskToSwitchPerspective();
 	}
 
 	@AfterAll
@@ -99,11 +100,17 @@ public class TestDebugConfiguration extends AbstractCorrosionTest {
 		assertEquals(Collections.emptyList(), errors);
 		waitUntil(Display.getCurrent(), Duration.ofSeconds(15), () -> {
 			IConsole console = getApplicationConsole("basic");
-			return (console != null && console.getDocument().get().contains("5 is positive"))
-					|| getErrorPopupMessage() != null;
+			return (console != null && (console.getDocument().get().contains("5 is positive")
+					|| console.getProcess().isTerminated())) || getErrorPopupMessage() != null;
 		});
 		assertNull(getErrorPopupMessage());
-		assertTrue(getApplicationConsole("basic").getDocument().get().contains("5 is positive"));
+		IConsole console = getApplicationConsole("basic");
+		// Without a PTY, as in CI, GDB gives the program output in its own stream, and
+		// CDT drops the output that comes while GDB runs a CLI command. Thus the output
+		// can be missing, but the program must run to its end.
+		boolean output = console.getDocument().get().contains("5 is positive");
+		int exitValue = output ? 0 : console.getProcess().getExitValue();
+		assertTrue(output || exitValue == 0, "no output and exit value " + exitValue); //$NON-NLS-1$
 	}
 
 	/**

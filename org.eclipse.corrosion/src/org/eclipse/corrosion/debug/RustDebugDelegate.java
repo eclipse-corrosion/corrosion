@@ -38,10 +38,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.corrosion.CorrosionPlugin;
-import org.eclipse.corrosion.test.CargoTestDelegate;
 import org.eclipse.corrosion.RustManager;
 import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
+import org.eclipse.corrosion.test.CargoTestDelegate;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -86,7 +86,14 @@ public class RustDebugDelegate extends GdbLaunchDelegate implements ILaunchShort
 			cmdLine.add(project.getFile("Cargo.toml").getLocation().toString()); //$NON-NLS-1$
 		}
 
-		Process restoreProcess = DebugPlugin.exec(cmdLine.toArray(new String[cmdLine.size()]), workingDirectory);
+		// Build with the environment of the configuration, as the program runs with it.
+		// A configuration that replaces the native environment can have no PATH, which
+		// cargo needs, so then build with the native environment, as before.
+		String[] buildEnvironment = configuration.getAttribute(ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES, true)
+				? DebugPlugin.getDefault().getLaunchManager().getEnvironment(configuration)
+				: null;
+		Process restoreProcess = DebugPlugin.exec(cmdLine.toArray(new String[cmdLine.size()]), workingDirectory,
+				buildEnvironment);
 		String labelString = "cargo "; //$NON-NLS-1$
 		if (buildCommand.length() > 20) {
 			labelString += buildCommand.substring(0, 20) + "..."; //$NON-NLS-1$
