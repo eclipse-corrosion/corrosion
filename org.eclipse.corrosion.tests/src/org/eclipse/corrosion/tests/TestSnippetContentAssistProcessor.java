@@ -17,14 +17,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.corrosion.snippet.SnippetContentAssistProcessor;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.lsp4e.operations.completion.LSCompletionProposal;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -81,7 +84,12 @@ class TestSnippetContentAssistProcessor extends AbstractCorrosionTest {
 		IProject project = getProject(BASIC_PROJECT_NAME);
 		IFile file = project.getFolder("src").getFile("main.rs");
 		IEditorPart editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file);
-		((ITextEditor) editor).getDocumentProvider().getDocument(editor.getEditorInput()).set(text);
+		IDocument document = ((ITextEditor) editor).getDocumentProvider().getDocument(editor.getEditorInput());
+		document.set(text);
+		// The snippets need the language server. On a slow machine it starts later.
+		waitUntil(editor.getSite().getShell().getDisplay(), Duration.ofMinutes(1),
+				() -> !LanguageServiceAccessor.getLSPDocumentInfosFor(document,
+						capabilities -> Boolean.TRUE.equals(capabilities.getReferencesProvider().get())).isEmpty());
 
 		ICompletionProposal[] proposals = (new SnippetContentAssistProcessor()).computeCompletionProposals(
 				(ITextViewer) editor.getAdapter(ITextOperationTarget.class), text.length() - 1);

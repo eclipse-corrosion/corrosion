@@ -37,7 +37,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.lsp4e.ContentTypeToLanguageServerDefinition;
-import org.eclipse.lsp4e.LanguageServerWrapper;
 import org.eclipse.lsp4e.LanguageServersRegistry;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Button;
@@ -46,6 +45,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -156,7 +156,11 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		}
 	}
 
+	// JUnit 5 does not call an overriding method as @AfterEach unless it has the
+	// annotation too. Without it, the language server stayed disabled for all
+	// later tests.
 	@Override
+	@AfterEach
 	public void tearDown() throws CoreException, IOException {
 		// Close editors and stop any language server before deleting the projects, so
 		// a still-running server can't hold workspace/file locks and hang the test (and
@@ -185,8 +189,9 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 				}
 			}
 		});
-		for (LanguageServerWrapper wrapper : LanguageServiceAccessor.getStartedWrappers(capabilities -> true, false)) {
-			wrapper.stop();
-		}
+		// Stop the servers and also remove them. A stopped server that stays in the list
+		// of started servers is used again for the documents of the next tests, but it
+		// does not connect to them, so rust-analyzer does not work in those tests.
+		LanguageServiceAccessor.clearStartedServers();
 	}
 }
