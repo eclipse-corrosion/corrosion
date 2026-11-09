@@ -37,7 +37,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.lsp4e.ContentTypeToLanguageServerDefinition;
-import org.eclipse.lsp4e.LanguageServerWrapper;
 import org.eclipse.lsp4e.LanguageServersRegistry;
 import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Button;
@@ -185,8 +184,9 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 				}
 			}
 		});
-		for (LanguageServerWrapper wrapper : LanguageServiceAccessor.getStartedWrappers(capabilities -> true, false)) {
-			wrapper.stop();
-		}
+		// Stop the servers and also remove them. A stopped server that stays in the list
+		// of started servers is used again for the documents of the next tests, but it
+		// does not connect to them, so rust-analyzer does not work in those tests.
+		LanguageServiceAccessor.clearStartedServers();
 	}
 }
