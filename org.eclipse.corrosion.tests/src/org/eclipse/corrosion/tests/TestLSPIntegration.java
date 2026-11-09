@@ -88,8 +88,9 @@ class TestLSPIntegration extends AbstractCorrosionTest {
 			try {
 				return Arrays.stream(file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO)).anyMatch(marker -> {
 					try {
-						// The missing "}" gives errors from the syntax check of rust-analyzer at
-						// once, and an error on line 3 from "cargo check" later. Any of them is
+						// projects/basic_errors/src/main.rs has no "}" at the end of "fn main() {".
+						// The syntax check of rust-analyzer reports this at once on lines 1 and 2.
+						// "cargo check" reports it later on line 3. Any of these errors is
 						// sufficient.
 						return marker.getType().contains("lsp4e")
 								&& marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR;
