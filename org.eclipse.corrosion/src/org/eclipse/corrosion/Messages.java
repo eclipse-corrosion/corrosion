@@ -146,12 +146,15 @@ public class Messages extends NLS {
 	public static String NewCargoProjectWizardPage_browse;
 	public static String NewCargoProjectWizardPage_cannotCreateDirectory;
 	public static String NewCargoProjectWizardPage_cannotWriteInDirectory;
+	public static String NewCargoProjectWizardPage_cannotCheckProjectName;
+	public static String NewCargoProjectWizardPage_checkProjectNameJob;
 	public static String NewCargoProjectWizardPage_cargoCommandNotFound;
 	public static String NewCargoProjectWizardPage_description;
 	public static String NewCargoProjectWizardPage_emptyDirectory;
 	public static String NewCargoProjectWizardPage_emptyProjectName;
 	public static String NewCargoProjectWizardPage_fileExisting;
 	public static String NewCargoProjectWizardPage_InvalidDotProjectInDirectory;
+	public static String NewCargoProjectWizardPage_invalidCargoPackageName;
 	public static String NewCargoProjectWizardPage_invalidProjectName;
 	public static String NewCargoProjectWizardPage_linkNameAndFolder;
 	public static String NewCargoProjectWizardPage_location;
