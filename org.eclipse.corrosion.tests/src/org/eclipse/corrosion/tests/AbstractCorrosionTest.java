@@ -42,8 +42,10 @@ import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.corrosion.RustManager;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,10 +96,39 @@ public abstract class AbstractCorrosionTest {
 
 	@AfterEach
 	public void tearDown() throws CoreException, IOException {
+		// Stop rust-analyzer before the projects are deleted. Else it continues to run
+		// cargo in the projects of the next tests, which blocks their cargo commands.
+		closeEditorsAndStopLanguageServers();
 		for (String projectName : this.provisionedProjects.keySet()) {
 			getProject(projectName).delete(true, new NullProgressMonitor());
 		}
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
+	}
+
+	/**
+	 * Closes the editors and stops the language servers. The servers stop in the
+	 * background, so wait up to 10 seconds until the rust-analyzer processes end.
+	 */
+	protected static void closeEditorsAndStopLanguageServers() {
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (window != null && window.getActivePage() != null) {
+				window.getActivePage().closeAllEditors(false);
+			}
+		});
+		LanguageServiceAccessor.clearStartedServers();
+		Instant timeout = Instant.now().plusSeconds(10);
+		while (Instant.now().isBefore(timeout) && ProcessHandle.current().descendants().anyMatch(
+				process -> process.info().command().map(command -> command.contains("rust-analyzer")).orElse(false))) {
+			Display display = Display.getCurrent();
+			if (display == null || !display.readAndDispatch()) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return;
+				}
+			}
+		}
 	}
 
 	/**

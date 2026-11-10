@@ -38,12 +38,9 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.lsp4e.ContentTypeToLanguageServerDefinition;
 import org.eclipse.lsp4e.LanguageServersRegistry;
-import org.eclipse.lsp4e.LanguageServiceAccessor;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -172,7 +169,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		// a still-running server can't hold workspace/file locks and hang the test (and
 		// CI). The language server is normally disabled for this test (see
 		// disableRustLanguageServer), but stopping is kept as a defensive measure.
-		stopLanguageServers();
+		closeEditorsAndStopLanguageServers();
 		try {
 			for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 				if (!project.getName().startsWith(".cargo")) {
@@ -182,18 +179,5 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		} finally {
 			setRustLanguageServerEnabled(true);
 		}
-	}
-
-	private static void stopLanguageServers() {
-		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			if (window != null) {
-				IWorkbenchPage page = window.getActivePage();
-				if (page != null) {
-					page.closeAllEditors(false);
-				}
-			}
-		});
-		LanguageServiceAccessor.clearStartedServers();
 	}
 }
