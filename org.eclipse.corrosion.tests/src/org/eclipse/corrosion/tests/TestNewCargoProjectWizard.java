@@ -123,7 +123,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 	}
 
 	@Test
-	void testCreateNewProjectOutOfWorkspace() throws IOException {
+	void testCreateNewProjectOutOfWorkspace() throws IOException, CoreException {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
@@ -152,7 +152,17 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 			assertEquals(tempDir.toFile(), project.getLocation().toFile());
 			assertTrue(project.getFile("Cargo.toml").exists());
 		} finally {
-			FileUtils.deleteDirectory(tempDir.toFile());
+			// Delete the project first, else Eclipse can write its .project file into the
+			// folder again while the folder is deleted
+			try {
+				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+					if (project.getLocation() != null && tempDir.toFile().equals(project.getLocation().toFile())) {
+						project.delete(true, true, new NullProgressMonitor());
+					}
+				}
+			} finally {
+				FileUtils.deleteDirectory(tempDir.toFile());
+			}
 		}
 	}
 
@@ -165,7 +175,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		stopLanguageServers();
 		try {
 			for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-				if (!project.getName().equals(".cargo")) {
+				if (!project.getName().startsWith(".cargo")) {
 					project.delete(true, new NullProgressMonitor());
 				}
 			}
