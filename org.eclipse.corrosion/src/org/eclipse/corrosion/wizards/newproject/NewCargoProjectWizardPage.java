@@ -17,29 +17,45 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ProcessBuilder.Redirect;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.corrosion.CorrosionPlugin;
 import org.eclipse.corrosion.CorrosionPreferenceInitializer;
 import org.eclipse.corrosion.Messages;
+import org.eclipse.corrosion.cargo.core.CargoTools;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
@@ -123,6 +139,154 @@ public class NewCargoProjectWizardPage extends WizardPage {
 
 	private IPreferenceStore store = CorrosionPlugin.getDefault().getPreferenceStore();
 
+	/** Time without changes before cargo checks the project name. */
+	private static final long CARGO_NAME_CHECK_DELAY_MS = 300;
+
+	/**
+	 * The results of the name checks, by {@link #cargoNameCheckKey}: the error to
+	 * show, or an empty string if cargo accepts the name. UI thread only.
+	 */
+	private final Map<String, String> cargoNameErrors = new HashMap<>();
+	/**
+	 * The keys of the checks that could not run cargo. The page tries them again
+	 * when the name changes. UI thread only.
+	 */
+	private final Set<String> failedCargoNameChecks = new HashSet<>();
+	private Job cargoNameCheckJob;
+	/** The key of the name check that runs or waits to run. UI thread only. */
+	private String cargoNameCheckKey;
+
+	/**
+	 * The result of a name check.
+	 *
+	 * @param error   the error to show, or an empty string if cargo accepts the
+	 *                name
+	 * @param isFinal {@code false} if cargo could not run, so a new check can
+	 *                give a different result
+	 */
+	private record CargoNameCheck(String error, boolean isFinal) {
+	}
+
+	private static String cargoNameCheckKey(String name, boolean isBin) {
+		return (isBin ? "bin:" : "lib:") + name; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * Starts a cargo check of the name after a short delay. A new call cancels the
+	 * check that waits, so cargo runs only when the user stops typing.
+	 */
+	private void scheduleCargoNameCheck(String name, boolean isBin) {
+		String key = cargoNameCheckKey(name, isBin);
+		if (key.equals(cargoNameCheckKey)) {
+			return;
+		}
+		if (cargoNameCheckJob != null) {
+			cargoNameCheckJob.cancel();
+		}
+		failedCargoNameChecks.forEach(cargoNameErrors::remove);
+		failedCargoNameChecks.clear();
+		cargoNameCheckKey = key;
+		Display display = getShell().getDisplay();
+		cargoNameCheckJob = Job.createSystem(Messages.NewCargoProjectWizardPage_checkProjectNameJob,
+				(ICoreRunnable) monitor -> {
+					CargoNameCheck result;
+					try {
+						result = runCargoNameCheck(name, isBin, monitor);
+					} catch (RuntimeException e) {
+						result = new CargoNameCheck(
+								NLS.bind(Messages.NewCargoProjectWizardPage_cannotCheckProjectName, e), false);
+					}
+					CargoNameCheck finalResult = result;
+					if (!display.isDisposed()) {
+						display.asyncExec(() -> cargoNameCheckDone(key, finalResult));
+					}
+				});
+		cargoNameCheckJob.schedule(CARGO_NAME_CHECK_DELAY_MS);
+	}
+
+	/**
+	 * Keeps the result of a name check and updates the page.
+	 *
+	 * @param result the result, or {@code null} if the check was canceled
+	 */
+	private void cargoNameCheckDone(String key, CargoNameCheck result) {
+		if (result != null) {
+			cargoNameErrors.put(key, result.error());
+			if (!result.isFinal()) {
+				failedCargoNameChecks.add(key);
+			}
+		}
+		Control control = getControl();
+		if (key.equals(cargoNameCheckKey)) {
+			// Always clear the key, so that a check with no result can start again
+			cargoNameCheckKey = null;
+			if (control != null && !control.isDisposed()) {
+				setPageComplete(isPageComplete());
+			}
+		}
+	}
+
+	/**
+	 * Runs {@code cargo init} in a temporary folder to find if cargo accepts the
+	 * name. Cargo has no option to only check a name.
+	 *
+	 * @return the result, or {@code null} if the check was canceled
+	 */
+	private static CargoNameCheck runCargoNameCheck(String name, boolean isBin, IProgressMonitor monitor) {
+		java.nio.file.Path tempDir = null;
+		try {
+			tempDir = Files.createTempDirectory("corrosion-name-check"); //$NON-NLS-1$
+			// "--name=" keeps a name that starts with "-" from being read as an option
+			Process process = new ProcessBuilder(CargoTools.getCargoCommand(), //
+					"init", "--quiet", "--name=" + name, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"--vcs", "none", //$NON-NLS-1$ //$NON-NLS-2$
+					isBin ? "--bin" : "--lib") //$NON-NLS-1$ //$NON-NLS-2$
+					.directory(tempDir.toFile()).redirectOutput(Redirect.DISCARD).start();
+			while (!process.waitFor(50, TimeUnit.MILLISECONDS)) {
+				if (monitor.isCanceled()) {
+					process.destroyForcibly();
+					// let cargo stop before the temporary folder is deleted
+					process.waitFor(1, TimeUnit.SECONDS);
+					return null;
+				}
+			}
+			if (process.exitValue() == 0) {
+				return new CargoNameCheck("", true); //$NON-NLS-1$
+			}
+			String output = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8).strip();
+			String error = output.lines().filter(line -> line.startsWith("error: ")).findFirst() //$NON-NLS-1$
+					.map(line -> line.substring("error: ".length())).orElse(output); //$NON-NLS-1$
+			return new CargoNameCheck(NLS.bind(Messages.NewCargoProjectWizardPage_invalidCargoPackageName, error),
+					true);
+		} catch (IOException e) {
+			return new CargoNameCheck(NLS.bind(Messages.NewCargoProjectWizardPage_cannotCheckProjectName, e), false);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return null;
+		} finally {
+			deleteRecursively(tempDir);
+		}
+	}
+
+	private static void deleteRecursively(java.nio.file.Path dir) {
+		if (dir == null) {
+			return;
+		}
+		try (Stream<java.nio.file.Path> paths = Files.walk(dir)) {
+			paths.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
+		} catch (IOException e) {
+			CorrosionPlugin.logError(e);
+		}
+	}
+
+	@Override
+	public void dispose() {
+		if (cargoNameCheckJob != null) {
+			cargoNameCheckJob.cancel();
+		}
+		super.dispose();
+	}
+
 	@Override
 	public boolean isPageComplete() {
 		String locationError = ""; //$NON-NLS-1$
@@ -169,6 +333,18 @@ public class NewCargoProjectWizardPage extends WizardPage {
 			}
 		}
 
+		// Cargo checks the name last, because the check is slow
+		boolean cargoNameCheckRuns = false;
+		if (locationError.isEmpty() && projectNameError.isEmpty() && cargoError.isEmpty()) {
+			String cargoNameError = cargoNameErrors.get(cargoNameCheckKey(projectName, isBinaryTemplate()));
+			if (cargoNameError == null) {
+				scheduleCargoNameCheck(projectName, isBinaryTemplate());
+				cargoNameCheckRuns = true;
+			} else {
+				projectNameError = cargoNameError;
+			}
+		}
+
 		String error = locationError + projectNameError + cargoError;
 
 		if (error.isEmpty()) {
@@ -187,7 +363,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 			}
 			setErrorMessage(error);
 		}
-		return error.isEmpty();
+		return error.isEmpty() && !cargoNameCheckRuns;
 	}
 
 	private Text locationText;
@@ -309,6 +485,8 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		binCheckBox.setText(Messages.NewCargoProjectWizardPage_useTemplate);
 		binCheckBox.setSelection(true);
 		binCheckBox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		// cargo checks a binary name with more rules than a library name
+		binCheckBox.addSelectionListener(widgetSelectedAdapter(e -> setPageComplete(isPageComplete())));
 	}
 
 	private Button vcsCheckBox;

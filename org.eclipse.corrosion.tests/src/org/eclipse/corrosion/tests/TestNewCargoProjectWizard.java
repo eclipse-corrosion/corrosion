@@ -13,7 +13,9 @@
 package org.eclipse.corrosion.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -45,6 +47,8 @@ import org.eclipse.ui.PlatformUI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 
@@ -99,6 +103,53 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		assertEquals(expectedBinaryState, page.isBinaryTemplate());
 	}
 
+	@ParameterizedTest
+	@ValueSource(strings = { "12xmas", "-xmas", "a.b", "fn", "async", "Self", "test", "build" })
+	void testInvalidCargoPackageName(String name) throws IOException {
+		checkCargoPackageName(name, false);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "xmas12", "_xmas", "_", "x-mas", "union" })
+	void testValidCargoPackageName(String name) throws IOException {
+		checkCargoPackageName(name, true);
+	}
+
+	private void waitForCargoNameCheck(IWizard wizard) {
+		waitUntil(getShell().getDisplay(), Duration.ofSeconds(15),
+				() -> wizard.canFinish() || wizard.getPages()[0].getErrorMessage() != null);
+	}
+
+	private void checkCargoPackageName(String name, boolean expectedValid) throws IOException {
+		NewCargoProjectWizard wizard = new NewCargoProjectWizard();
+		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		wizard.init(PlatformUI.getWorkbench(), StructuredSelection.EMPTY);
+		dialog.create();
+		Composite composite = (Composite) wizard.getPages()[0].getControl();
+		Text locationText = Arrays.stream(composite.getChildren()).filter(Text.class::isInstance)
+				.map(Text.class::cast).findFirst().get();
+		Path tempDir = Files.createTempDirectory("corrosion-test");
+		try {
+			locationText.setText(tempDir.resolve(name).toString());
+			confirmPageState(wizard, name, "none", true);
+			// Finish stays disabled until cargo has checked the name
+			assertFalse(wizard.canFinish());
+			waitForCargoNameCheck(wizard);
+			assertEquals(expectedValid, wizard.canFinish());
+			String errorMessage = wizard.getPages()[0].getErrorMessage();
+			if (expectedValid) {
+				assertNull(errorMessage);
+			} else {
+				// the message is from cargo, and cargo names the package in it
+				assertNotNull(errorMessage);
+				assertTrue(errorMessage.contains('`' + name + '`'), errorMessage);
+			}
+		} finally {
+			dialog.close();
+			FileUtils.deleteDirectory(tempDir.toFile());
+		}
+	}
+
 	@Test
 	void testCreateNewProject() {
 		Collection<IProject> initialProjects = Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
@@ -107,6 +158,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		wizard.init(PlatformUI.getWorkbench(), StructuredSelection.EMPTY);
 		dialog.create();
 
+		waitForCargoNameCheck(wizard);
 		assertTrue(wizard.canFinish());
 		assertTrue(wizard.performFinish());
 		dialog.close();
@@ -135,6 +187,7 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		Path fileName = tempDir.getFileName();
 		assertNotNull(fileName);
 		confirmPageState(wizard, fileName.toString(), "none", true);
+		waitForCargoNameCheck(wizard);
 		assertTrue(wizard.canFinish());
 		assertTrue(wizard.performFinish());
 		dialog.close();
