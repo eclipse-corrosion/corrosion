@@ -12,12 +12,13 @@
  *******************************************************************************/
 package org.eclipse.corrosion.wizards.newproject;
 
+import static java.io.OutputStream.nullOutputStream;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ProcessBuilder.Redirect;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Comparator;
@@ -25,9 +26,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
+import org.eclipse.cdt.core.CommandLauncher;
+import org.eclipse.cdt.core.ICommandLauncher;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -161,8 +162,8 @@ public class NewCargoProjectWizardPage extends WizardPage {
 	 *
 	 * @param error   the error to show, or an empty string if cargo accepts the
 	 *                name
-	 * @param isFinal {@code false} if cargo could not run, so a new check can
-	 *                give a different result
+	 * @param isFinal {@code false} if cargo could not run, so a new check can give
+	 *                a different result
 	 */
 	private record CargoNameCheck(String error, boolean isFinal) {
 	}
@@ -237,32 +238,29 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		try {
 			tempDir = Files.createTempDirectory("corrosion-name-check"); //$NON-NLS-1$
 			// "--name=" keeps a name that starts with "-" from being read as an option
-			Process process = new ProcessBuilder(CargoTools.getCargoCommand(), //
-					"init", "--quiet", "--name=" + name, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					"--vcs", "none", //$NON-NLS-1$ //$NON-NLS-2$
-					isBin ? "--bin" : "--lib") //$NON-NLS-1$ //$NON-NLS-2$
-					.directory(tempDir.toFile()).redirectOutput(Redirect.DISCARD).start();
-			while (!process.waitFor(50, TimeUnit.MILLISECONDS)) {
-				if (monitor.isCanceled()) {
-					process.destroyForcibly();
-					// let cargo stop before the temporary folder is deleted
-					process.waitFor(1, TimeUnit.SECONDS);
-					return null;
-				}
+			CommandLauncher launcher = new CommandLauncher();
+			Process process = launcher.execute(new Path(CargoTools.getCargoCommand()),
+					new String[] { "init", "--quiet", "--name=" + name, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							"--vcs", "none", //$NON-NLS-1$ //$NON-NLS-2$
+							isBin ? "--bin" : "--lib" //$NON-NLS-1$ //$NON-NLS-2$
+					}, null, new Path(tempDir.toString()), monitor);
+			if (process == null) {
+				return new CargoNameCheck(launcher.getErrorMessage(), true);
+			}
+			ByteArrayOutputStream err = new ByteArrayOutputStream();
+			if (launcher.waitAndRead(nullOutputStream(), err, monitor) == ICommandLauncher.COMMAND_CANCELED) {
+				return null;
 			}
 			if (process.exitValue() == 0) {
 				return new CargoNameCheck("", true); //$NON-NLS-1$
 			}
-			String output = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8).strip();
+			String output = new String(err.toByteArray(), StandardCharsets.UTF_8).strip();
 			String error = output.lines().filter(line -> line.startsWith("error: ")).findFirst() //$NON-NLS-1$
 					.map(line -> line.substring("error: ".length())).orElse(output); //$NON-NLS-1$
 			return new CargoNameCheck(NLS.bind(Messages.NewCargoProjectWizardPage_invalidCargoPackageName, error),
 					true);
-		} catch (IOException e) {
+		} catch (IOException | CoreException e) {
 			return new CargoNameCheck(NLS.bind(Messages.NewCargoProjectWizardPage_cannotCheckProjectName, e), false);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return null;
 		} finally {
 			deleteRecursively(tempDir);
 		}
@@ -272,7 +270,7 @@ public class NewCargoProjectWizardPage extends WizardPage {
 		if (dir == null) {
 			return;
 		}
-		try (Stream<java.nio.file.Path> paths = Files.walk(dir)) {
+		try (var paths = Files.walk(dir)) {
 			paths.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
 		} catch (IOException e) {
 			CorrosionPlugin.logError(e);

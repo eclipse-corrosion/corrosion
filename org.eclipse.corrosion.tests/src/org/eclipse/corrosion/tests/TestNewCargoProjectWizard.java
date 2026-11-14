@@ -126,8 +126,8 @@ class TestNewCargoProjectWizard extends AbstractCorrosionTest {
 		wizard.init(PlatformUI.getWorkbench(), StructuredSelection.EMPTY);
 		dialog.create();
 		Composite composite = (Composite) wizard.getPages()[0].getControl();
-		Text locationText = Arrays.stream(composite.getChildren()).filter(Text.class::isInstance)
-				.map(Text.class::cast).findFirst().get();
+		Text locationText = Arrays.stream(composite.getChildren()).filter(Text.class::isInstance).map(Text.class::cast)
+				.findFirst().get();
 		Path tempDir = Files.createTempDirectory("corrosion-test");
 		try {
 			locationText.setText(tempDir.resolve(name).toString());
