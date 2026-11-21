@@ -174,7 +174,7 @@ public class LaunchHandler extends LSPCommandHandler {
 					argumentsString);
 
 			ILaunchConfigurationWorkingCopy launchWorkingCopy = cargoLaunchType.newInstance(null, launchConfigName);
-			launchWorkingCopy.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, projectName);
+			RustLaunchDelegateTools.setProject(launchWorkingCopy, projectName);
 			launchWorkingCopy.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, optionsString);
 			launchWorkingCopy.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, argumentsString);
 			launchWorkingCopy.setAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, envMap);

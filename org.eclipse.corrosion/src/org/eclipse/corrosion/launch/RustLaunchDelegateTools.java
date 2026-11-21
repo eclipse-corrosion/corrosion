@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Adapters;
@@ -55,6 +56,35 @@ public class RustLaunchDelegateTools {
 
 	private RustLaunchDelegateTools() {
 		throw new IllegalStateException("Utility class"); //$NON-NLS-1$
+	}
+
+	/**
+	 * Sets the project of the launch configuration, and maps the configuration to
+	 * the project, so that the platform knows which project a launch uses.
+	 *
+	 * @param configuration the configuration to change
+	 * @param projectName   the name of the project, or an empty string
+	 */
+	public static void setProject(ILaunchConfigurationWorkingCopy configuration, String projectName) {
+		configuration.setAttribute(PROJECT_ATTRIBUTE, projectName);
+		IProject project = toProject(projectName);
+		configuration.setMappedResources(project == null ? null : new IResource[] { project });
+	}
+
+	/**
+	 * Returns the project of the launch configuration, or {@code null} if it names
+	 * no valid project. The project does not have to exist.
+	 */
+	public static IProject getProject(ILaunchConfiguration configuration) throws CoreException {
+		return toProject(configuration.getAttribute(PROJECT_ATTRIBUTE, "")); //$NON-NLS-1$
+	}
+
+	private static IProject toProject(String projectName) {
+		if (projectName == null || projectName.isBlank()
+				|| !ResourcesPlugin.getWorkspace().validateName(projectName, IResource.PROJECT).isOK()) {
+			return null;
+		}
+		return ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 	}
 
 	/**
