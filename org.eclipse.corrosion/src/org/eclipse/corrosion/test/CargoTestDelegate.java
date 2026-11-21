@@ -556,7 +556,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		}
 		String directory = program.directory() != null ? program.directory() : project.getLocation().toString();
 		wc.setAttribute(IDebugUIConstants.ATTR_PRIVATE, true);
-		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, project.getName());
+		RustLaunchDelegateTools.setProject(wc, project.getName());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, program.executable());
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, programArguments);
 		wc.setAttribute(ICDTLaunchConfigurationConstants.ATTR_WORKING_DIRECTORY, directory);
@@ -571,12 +571,25 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 		return wc.doSave();
 	}
 
+	/**
+	 * Builds only the project of the launch and the projects it references, not
+	 * the whole workspace: Cargo builds the crate itself.
+	 */
+	@Override
+	protected IProject[] getBuildOrder(ILaunchConfiguration configuration, String mode) throws CoreException {
+		IProject project = RustLaunchDelegateTools.getProject(configuration);
+		if (project == null || !project.isAccessible()) {
+			return new IProject[0];
+		}
+		return computeReferencedBuildOrder(new IProject[] { project });
+	}
+
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) throws CoreException {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools
 				.getLaunchConfiguration(resource, CARGO_TEST_LAUNCH_CONFIG_TYPE_ID).getWorkingCopy();
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy) {
 			ILaunchConfigurationWorkingCopy wc = (ILaunchConfigurationWorkingCopy) launchConfiguration;
-			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
+			RustLaunchDelegateTools.setProject(wc, resource.getProject().getName());
 			new ConfigureViewerSupport(CARGO_UNITTEST_VIEW_SUPPORT_ID).apply(wc);
 		}
 		return launchConfiguration;
@@ -606,7 +619,7 @@ public class CargoTestDelegate extends LaunchConfigurationDelegate implements IL
 				.generateLaunchConfigurationName(project.getName() + " " + test.name().replace("::", ".")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ILaunchConfigurationWorkingCopy wc = launchManager.getLaunchConfigurationType(CARGO_TEST_LAUNCH_CONFIG_TYPE_ID)
 				.newInstance(null, name);
-		wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, project.getName());
+		RustLaunchDelegateTools.setProject(wc, project.getName());
 		wc.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, test.options());
 		wc.setAttribute(TEST_NAME_ATTRIBUTE, test.name());
 		wc.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, test.arguments());

@@ -47,7 +47,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, projectInput.getValue());
+		RustLaunchDelegateTools.setProject(configuration, projectInput.getValue());
 		configuration.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, argsInput.getValue());
 		configuration.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, optionsInput.getValue());
 		configuration.setAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, workingDirectoryInput.getValue());
@@ -143,7 +143,7 @@ public abstract class AbstractCargoLaunchConfigurationTab extends AbstractLaunch
 
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, ""); //$NON-NLS-1$
+		RustLaunchDelegateTools.setProject(configuration, ""); //$NON-NLS-1$
 		configuration.setAttribute(RustLaunchDelegateTools.ARGUMENTS_ATTRIBUTE, ""); //$NON-NLS-1$
 		configuration.setAttribute(RustLaunchDelegateTools.OPTIONS_ATTRIBUTE, ""); //$NON-NLS-1$
 		configuration.setAttribute(DebugPlugin.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$

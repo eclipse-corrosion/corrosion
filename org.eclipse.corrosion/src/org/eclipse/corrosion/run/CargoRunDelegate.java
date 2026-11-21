@@ -155,11 +155,24 @@ public class CargoRunDelegate extends LaunchConfigurationDelegate implements ILa
 		}
 	}
 
+	/**
+	 * Builds only the project of the launch and the projects it references, not the
+	 * whole workspace: Cargo builds the crate itself.
+	 */
+	@Override
+	protected IProject[] getBuildOrder(ILaunchConfiguration configuration, String mode) throws CoreException {
+		IProject project = RustLaunchDelegateTools.getProject(configuration);
+		if (project == null || !project.isAccessible()) {
+			return new IProject[0];
+		}
+		return computeReferencedBuildOrder(new IProject[] { project });
+	}
+
 	private static ILaunchConfiguration getLaunchConfiguration(IResource resource) {
 		ILaunchConfiguration launchConfiguration = RustLaunchDelegateTools.getLaunchConfiguration(resource,
 				CARGO_RUN_LAUNCH_CONFIG_TYPE);
 		if (launchConfiguration instanceof ILaunchConfigurationWorkingCopy wc) {
-			wc.setAttribute(RustLaunchDelegateTools.PROJECT_ATTRIBUTE, resource.getProject().getName());
+			RustLaunchDelegateTools.setProject(wc, resource.getProject().getName());
 		}
 		return launchConfiguration;
 	}

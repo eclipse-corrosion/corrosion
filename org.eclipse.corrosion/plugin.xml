@@ -151,12 +151,14 @@
       <launchConfigurationType
             delegate="org.eclipse.corrosion.run.CargoRunDelegate"
             id="org.eclipse.corrosion.run.CargoRunDelegate"
+            migrationDelegate="org.eclipse.corrosion.launch.ProjectMappingMigrationDelegate"
             modes="run"
             name="%launchConfigurationType.name">
       </launchConfigurationType>
       <launchConfigurationType
             delegate="org.eclipse.corrosion.test.CargoTestDelegate"
             id="org.eclipse.corrosion.test.CargoTestDelegate"
+            migrationDelegate="org.eclipse.corrosion.launch.ProjectMappingMigrationDelegate"
             modes="run,debug"
             sourceLocatorId="org.eclipse.corrosion.debug.SourceLocator"
             name="%launchConfigurationType.name.0">
@@ -164,6 +166,7 @@
       <launchConfigurationType
             delegate="org.eclipse.corrosion.debug.RustDebugDelegate"
             id="org.eclipse.corrosion.debug.RustDebugDelegate"
+            migrationDelegate="org.eclipse.corrosion.launch.ProjectMappingMigrationDelegate"
             modes="debug"
             name="%launchConfigurationType.name.1"
             public="true"

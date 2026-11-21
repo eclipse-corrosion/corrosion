@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.corrosion.debug;
 
+import org.eclipse.corrosion.launch.RustLaunchDelegateTools;
 import static org.eclipse.corrosion.debug.DebugUtil.getDefaultExecutablePath;
 
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
@@ -46,7 +47,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, buildInput.getValue());
-		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectInput.getValue());
+		RustLaunchDelegateTools.setProject(configuration, projectInput.getValue());
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, executableInput.getValue());
 		setDirty(false);
 	}
@@ -95,7 +96,7 @@ public class RustDebugTab extends AbstractLaunchConfigurationTab {
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(RustDebugDelegate.BUILD_COMMAND_ATTRIBUTE, "build"); //$NON-NLS-1$
-		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+		RustLaunchDelegateTools.setProject(configuration, ""); //$NON-NLS-1$
 		configuration.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, ""); //$NON-NLS-1$
 	}
 
